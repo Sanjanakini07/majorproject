@@ -31,6 +31,11 @@
         </svg>
       </button>
       <p id="micHint" class="hint">Tap to speak</p>
+      <div id="suggest" class="chips" aria-label="Try asking">
+        <button type="button" class="chip" data-q="What events are coming up?">What events are coming up?</button>
+        <button type="button" class="chip" data-q="Where can I find Operating Systems notes?">Operating Systems notes</button>
+        <button type="button" class="chip" data-q="When is the library open?">When is the library open?</button>
+      </div>
       <p id="live" class="live" aria-live="polite">Everything runs on this laptop, no internet needed.</p>
     </section>
 
@@ -50,6 +55,7 @@
       <div class="card answer">
         <p id="aText"></p>
         <p id="aSources" class="muted small sources"></p>
+        <div id="aLinks" class="chips"></div>
       </div>
       <div class="row">
         <button id="replay" class="btn">Play again</button>

@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import academics, admin, config, db, facelogin, portal, rag
+from . import academics, admin, config, db, facelogin, library, portal, rag
 from .auth import (
     ask_limit,
     is_allowed_google_user,
@@ -34,6 +34,7 @@ PAGES = APP_DIR / "pages"
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     db.init()
+    library.seed_subjects()
     if not config.FIREBASE_API_KEY or not config.FIREBASE_PROJECT_ID:
         log.warning("FIREBASE_API_KEY / FIREBASE_PROJECT_ID are not set: sign-in will not work. See README.")
     if not config.GROQ_API_KEY:
@@ -55,6 +56,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(admin.router)
 app.include_router(portal.router)
+app.include_router(library.router)
 
 
 # Google sign-in runs Firebase's script from gstatic.com, which talks to Google's
@@ -90,6 +92,9 @@ async def security(request: Request, call_next):
             return JSONResponse({"detail": "Cross-site request blocked."}, status_code=403)
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = CSP
+    if request.url.path.startswith(("/static/", "/offline/")):
+        # Always re-check with the server, so an updated page never runs with old scripts or styles.
+        response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["Permissions-Policy"] = "camera=(self), microphone=(self)"
@@ -213,12 +218,13 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
         try:
             hits = rag.search(question)
             sources = list(dict.fromkeys(h["title"] for h in hits))
+            links = library.links_for([h.get("module_id") for h in hits])
             yield _line({"stage": "thinking", "sources": sources})
             answer = rag.answer(question, hits)
         except Exception:
             log.exception("Answering failed")
             yield _line({"stage": "error", "message": "Sorry, something went wrong while answering. Please try again."})
             return
-        yield _line({"stage": "done", "answer": answer, "sources": sources})
+        yield _line({"stage": "done", "answer": answer, "sources": sources, "links": links})
 
     return StreamingResponse(steps(), media_type="application/x-ndjson", headers={"Cache-Control": "no-store"})

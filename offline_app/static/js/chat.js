@@ -124,11 +124,13 @@ function stopSpeaking() {
 
 // ---- Asking ----------------------------------------------------------------------
 
-function showAnswer(question, answer, sources) {
+function showAnswer(question, answer, sources, links = []) {
   lastAnswer = answer;
   $('aQuestion').textContent = `“${question}”`;
   $('aText').textContent = answer;
   $('aSources').textContent = sources && sources.length ? 'From: ' + sources.join(', ') : '';
+  $('aLinks').replaceChildren(...links.map((l) =>
+    el('a', { className: 'chip link', href: l.url }, icon(l.label === 'Event' ? 'events' : 'notes'), `${l.label}: ${l.title.replace(/^(Notes|Event): /, '')}`)));
   show('answer');
   speak(answer);
 }
@@ -163,7 +165,7 @@ async function ask(question) {
         setStep('thinking', 'active');
       } else if (msg.stage === 'done') {
         finished = true;
-        showAnswer(question, msg.answer, msg.sources);
+        showAnswer(question, msg.answer, msg.sources, msg.links);
       } else if (msg.stage === 'error') {
         finished = true;
         fail(msg.message);
@@ -188,7 +190,7 @@ const SYNC_TEXT = {
 
 function showSync(s) {
   if (!$('sync')) return;
-  const pending = s.pending ? ` (${s.pending} to send)` : '';
+  const pending = s.pending && s.state !== 'off' ? ` (${s.pending} to send)` : '';
   $('sync').textContent = (SYNC_TEXT[s.state] || s.state) + pending;
   $('sync').title = s.message || (s.last_sync ? `Last synced ${new Date(s.last_sync).toLocaleString()}` : '');
 }
@@ -208,6 +210,12 @@ $('mic').addEventListener('click', () => (recorder ? stopRecording() : startReco
 $('again').addEventListener('click', startRecording);
 $('replay').addEventListener('click', () => speak(lastAnswer));
 $('stop').addEventListener('click', stopSpeaking);
+for (const chip of document.querySelectorAll('[data-q]')) {
+  chip.addEventListener('click', () => {
+    stopSpeaking();
+    ask(chip.dataset.q);
+  });
+}
 $('typeForm').addEventListener('submit', (event) => {
   event.preventDefault();
   const question = $('typeInput').value.trim();
@@ -228,7 +236,7 @@ loadMe()
   .then((me) => {
     renderBar('/', me, [
       el('button', { id: 'sync', className: 'btn small', title: 'Sync with the college backend now' }, 'Sync…'),
-      el('a', { className: 'btn small ghost', href: '/connect' }, 'Connect a phone'),
+      el('a', { className: 'btn small ghost', href: '/connect', title: 'Connect a phone' }, 'Phone'),
     ]);
     $('sync').addEventListener('click', () => refreshSync('POST'));
     refreshSync();

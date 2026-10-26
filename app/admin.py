@@ -48,7 +48,8 @@ def _clean(body: ModuleIn) -> tuple[str, str]:
 
 @router.get("/modules", dependencies=[Depends(staff_user)])
 def list_modules():
-    return db.list_modules()
+    # Notes and events are managed on their own pages.
+    return [m for m in db.list_modules() if m["source"] not in ("note", "event")]
 
 
 @router.post("/modules", status_code=201)

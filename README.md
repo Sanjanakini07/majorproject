@@ -22,6 +22,7 @@ Tap, speak, tap
 | `app/main.py` | Pages, Google sign-in (Firebase), face enrol and verify endpoints, `/api/ask` |
 | `app/auth.py` | Who is allowed in, roles and permissions, plus lockout and rate limits |
 | `app/face.py`, `app/facelogin.py` | Face check with OpenCV (YuNet finds the face, SFace compares faces); enrolment and per-sign-in checks |
+| `app/library.py` | Notes (PDF or pasted text, semesters 1-8) and events, and making them searchable by the assistant |
 | `app/portal.py`, `app/academics.py` | Marks and attendance pages and APIs, the subjects, grades and sample data |
 | `app/rag.py` | Splitting text into chunks, the vector database, the Groq call |
 | `app/ingest.py` | Reading CSV files and text in images (RapidOCR) |
@@ -92,10 +93,17 @@ Always open the app as `http://localhost:8000`, not `127.0.0.1`: Firebase only a
 | Role | Can see | Can change |
 |---|---|---|
 | **Student** (everyone by default) | Their own marks and attendance, the assistant | Nothing |
-| **Teacher** | Every student's marks and attendance, the knowledge entries | Only what an admin switched on for them: **knowledge**, **attendance**, **marks** |
+| **Teacher** | Every student's marks and attendance, the knowledge entries | Only what an admin switched on for them: **content** (knowledge, notes and events), **attendance**, **marks** |
 | **Admin** | Everything | Everything, including staff and face resets |
 
 Addresses in `ADMIN_EMAILS` are admins and can't be changed from the website. Those admins add teachers (and more admins) in **Admin → Staff & access**, and switch each teacher's three permissions on or off. A change applies on the teacher's next click. An admin has to sign in with their own face first, like everyone else, so there is no command to run for the first admin.
+
+## Notes and events
+
+- **Notes:** semesters 1 to 8, each with three sample subjects. Under a subject, an admin (or a teacher with the **content** permission) adds notes either by **uploading a PDF** (up to 15 MB) or by **pasting text**. Students can open, download and read them, never change them.
+- **Events:** admins and permitted teachers publish an event with a title, date, time, venue, details and an optional PDF (poster, schedule). Students see upcoming and past events.
+- **The voice assistant knows them too.** The text of every note (pasted, or read out of the PDF) and every event is saved as a knowledge entry, so questions like "Explain round robin scheduling" or "What events are coming up?" are answered from them, with a link to the note or event under the answer. Deleting a note or event removes it from the assistant as well. A scanned PDF that is only pictures has no text; it is stored and shown with an "Assistant can't read this" tag.
+- Notes and events don't have a Knowledge-tab entry: they are managed on their own pages. On the offline version they are kept on that laptop; only the searchable text is synced.
 
 ## Marks and attendance
 
@@ -168,6 +176,7 @@ FACE_TEST_A=person1.jpg FACE_TEST_B=person2.jpg pytest
 
 | Problem | Fix |
 |---|---|
+| The page looks old, or a script crashes right after an update | Hard refresh once with Ctrl+Shift+R. The app now tells the browser to re-check its files every time. |
 | `start.bat` closes straight away or says Python is missing | Install Python 3.10+ from python.org with *Add python.exe to PATH* ticked, then run `start.bat` again. |
 | `start.bat` opens Notepad | A setting in `.env` is empty. The window lists which ones; fill them in, save, run `start.bat` again. |
 | "Please use your @nmamit.in college Google account" with a college account | Pick the @nmamit.in account in the Google window, not a personal one. Check `ALLOWED_DOMAIN`. |

@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
 
-from app import academics, admin, db, facelogin, portal, rag
+from app import academics, admin, db, facelogin, library, portal, rag
 from app import config as app_config
 from app.auth import ask_limit, role_of, verified_user
 
@@ -33,6 +33,7 @@ ROLL = re.compile(r"^[a-z0-9._-]{1,64}$")
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     db.init()
+    library.seed_subjects()
     sync.start()
     if not app_config.ADMIN_EMAILS:
         log.warning("ADMIN_EMAILS is empty: nobody can open the admin panel.")
@@ -51,6 +52,7 @@ app.mount("/static", StaticFiles(directory=app_config.BASE_DIR / "app" / "static
 app.mount("/offline", StaticFiles(directory=HERE / "static"), name="offline")
 app.include_router(admin.router)
 app.include_router(portal.router)
+app.include_router(library.router)
 
 CSP = (
     "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; script-src 'self'; "
@@ -67,6 +69,9 @@ async def security(request: Request, call_next):
             return JSONResponse({"detail": "Cross-site request blocked."}, status_code=403)
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = CSP
+    if request.url.path.startswith(("/static/", "/offline/")):
+        # Always re-check with the server, so an updated page never runs with old scripts or styles.
+        response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["Permissions-Policy"] = "camera=(self), microphone=(self)"
@@ -186,6 +191,7 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
         try:
             hits = rag.search(question)
             sources = list(dict.fromkeys(h["title"] for h in hits))
+            links = library.links_for([h.get("module_id") for h in hits])
             yield _line({"stage": "thinking", "sources": sources})
             answer = llm.answer(question, hits)
         except rag.AnswerError as e:
@@ -196,7 +202,7 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
             log.exception("Answering failed")
             yield _line({"stage": "error", "message": "Sorry, something went wrong while answering. Please try again."})
             return
-        yield _line({"stage": "done", "answer": answer, "sources": sources})
+        yield _line({"stage": "done", "answer": answer, "sources": sources, "links": links})
 
     return StreamingResponse(steps(), media_type="application/x-ndjson", headers={"Cache-Control": "no-store"})
 

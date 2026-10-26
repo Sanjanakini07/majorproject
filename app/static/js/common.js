@@ -59,11 +59,38 @@ function el(tag, props = {}, ...children) {
 
 // ---- Signed-in pages: top bar, profile, messages -------------------------------------
 
+const ICONS = {
+  chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  marks: '<path d="M18 20V10M12 20V4M6 20v-6"/>',
+  attendance: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/>',
+  notes: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M20 17v5H6.5A2.5 2.5 0 0 1 4 19.5"/>',
+  events: '<path d="M12 2l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 16.8 6.1 20l1.2-6.5L2.5 8.9 9.1 8z"/>',
+  admin: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  pdf: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  text: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  pin: '<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+};
+
+// An inline icon (a fixed string from ICONS above, never user text).
+function icon(name) {
+  const wrap = document.createElement('span');
+  wrap.className = 'icon';
+  wrap.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+  return wrap;
+}
+
 const LINKS = [
-  { href: '/', label: 'Assistant' },
-  { href: '/marks', label: 'Marks' },
-  { href: '/attendance', label: 'Attendance' },
-  { href: '/admin', label: 'Admin', staff: true },
+  { href: '/', label: 'Assistant', icon: 'chat' },
+  { href: '/notes', label: 'Notes', icon: 'notes' },
+  { href: '/events', label: 'Events', icon: 'events' },
+  { href: '/marks', label: 'Marks', icon: 'marks' },
+  { href: '/attendance', label: 'Attendance', icon: 'attendance' },
+  { href: '/admin', label: 'Admin', icon: 'admin', staff: true },
 ];
 
 async function loadMe() {
@@ -84,7 +111,7 @@ function renderBar(active, me, extra = []) {
     el('a', { className: 'brand', href: '/' }, el('span', { className: 'brand-mark' }, 'N'), 'NMAMIT Assistant'),
     el('nav', { className: 'nav' },
       ...LINKS.filter((l) => !l.staff || me.role !== 'student')
-        .map((l) => el('a', { href: l.href, className: l.href === active ? 'active' : '' }, l.label))),
+        .map((l) => el('a', { href: l.href, className: l.href === active ? 'active' : '' }, icon(l.icon), el('span', { className: 'label' }, l.label)))),
     el('div', { className: 'bar-right' },
       ...extra,
       el('span', { className: 'who' },

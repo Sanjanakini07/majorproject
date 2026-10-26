@@ -113,11 +113,13 @@ function fail(message) {
   showError(message);
 }
 
-function showAnswer(question, answer, sources) {
+function showAnswer(question, answer, sources, links = []) {
   lastAnswer = answer;
   $('aQuestion').textContent = `“${question}”`;
   $('aText').textContent = answer;
   $('aSources').textContent = sources && sources.length ? 'From: ' + sources.join(', ') : '';
+  $('aLinks').replaceChildren(...links.map((l) =>
+    el('a', { className: 'chip link', href: l.url }, icon(l.label === 'Event' ? 'events' : 'notes'), `${l.label}: ${l.title.replace(/^(Notes|Event): /, '')}`)));
   show('answer');
   speak(answer);
 }
@@ -153,7 +155,7 @@ async function ask(question) {
         setStep('thinking', 'active');
       } else if (msg.stage === 'done') {
         finished = true;
-        showAnswer(question, msg.answer, msg.sources);
+        showAnswer(question, msg.answer, msg.sources, msg.links);
       } else if (msg.stage === 'error') {
         finished = true;
         fail(msg.message);
@@ -171,6 +173,12 @@ $('mic').addEventListener('click', () => (listening ? stopListening() : startLis
 $('again').addEventListener('click', startListening);
 $('replay').addEventListener('click', () => speak(lastAnswer));
 $('stop').addEventListener('click', stopSpeaking);
+for (const chip of document.querySelectorAll('[data-q]')) {
+  chip.addEventListener('click', () => {
+    stopSpeaking();
+    ask(chip.dataset.q);
+  });
+}
 
 $('typeForm').addEventListener('submit', (event) => {
   event.preventDefault();

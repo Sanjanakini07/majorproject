@@ -18,6 +18,7 @@ numpy>=1.26
 chromadb>=1.0
 groq>=0.30
 rapidocr>=3.0
+pypdf>=5.0
 
 # Tests
 pytest>=8.0

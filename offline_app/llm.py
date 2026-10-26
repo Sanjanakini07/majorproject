@@ -28,7 +28,7 @@ def answer(question: str, hits: list[dict]) -> str:
                 "stream": False,
                 "options": {"temperature": 0.2},
                 "messages": [
-                    {"role": "system", "content": f"{rag.SYSTEM_PROMPT}\n\nContext:\n{context}"},
+                    {"role": "system", "content": rag.system_prompt(context)},
                     {"role": "user", "content": question},
                 ],
             },

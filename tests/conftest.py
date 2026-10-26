@@ -51,7 +51,7 @@ class FakeIndex:
     def search(self, question, k=4):
         words = set(question.lower().split())
         return [
-            {"title": m["title"], "text": m["content"], "distance": 0.1}
+            {"title": m["title"], "text": m["content"], "distance": 0.1, "module_id": m["id"]}
             for m in self.modules.values()
             if words & set(m["content"].lower().split())
         ][:k]
@@ -69,7 +69,7 @@ def index(monkeypatch):
 def client(index):
     db.init()
     with db.connect() as conn:
-        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance"):
+        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance", "notes", "events"):
             conn.execute(f"DELETE FROM {table}")
     with TestClient(app, base_url="http://testserver") as c:
         yield c

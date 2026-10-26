@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events · NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar" id="bar"></header>
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Events</h1>
+        <p class="muted">What's happening on campus. Ask the assistant "What events are coming up?" too.</p>
+      </div>
+      <button id="toggleForm" class="btn primary" hidden></button>
+    </div>
+    <p id="error" class="alert error" role="alert" hidden></p>
+    <div id="formBox"></div>
+    <div id="list"></div>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/events.js"></script>
+</body>
+</html>
