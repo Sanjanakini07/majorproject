@@ -1,4 +1,4 @@
-"""The offline app: sync with the backend, and face sign-in with the first photo."""
+"""The offline app: sync with the backend, and Face ID style sign-in."""
 import base64
 import sqlite3
 
@@ -45,7 +45,7 @@ def turso(monkeypatch, index):
     db.init()
     sync.init()
     with db.connect() as conn:
-        for table in ("modules", "faces", "first_faces", "module_uids", "outbox"):
+        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance", "module_uids", "outbox"):
             conn.execute(f"DELETE FROM {table}")
         conn.execute("DELETE FROM sync_meta WHERE k = 'pulled_until'")
     return fake
@@ -159,6 +159,39 @@ def test_turso_http_request_and_reply(monkeypatch):
         {"type": "integer", "value": "3"}, {"type": "text", "value": "hi"}, {"type": "null"}]
 
 
+def test_students_marks_and_roles_sync_too(turso):
+    from app import academics
+
+    academics.ensure_student("nnm23is001@nmamit.in", "NNM23IS001")
+    db.save_role("teacher@nmamit.in", "Prof", "teacher", {"content": True, "attendance": False, "marks": True}, "admin")
+    assert synced() == 0
+    assert len(turso.rows("nva_marks")) == 30 and len(turso.rows("nva_attendance")) == 6
+    assert list(turso.rows("nva_profiles")) == ["nnm23is001@nmamit.in"]
+    assert turso.rows("nva_roles")["teacher@nmamit.in"]["can_marks"] == "1"
+
+    # A teacher on another laptop corrects a mark; it comes down here and is not sent back.
+    key = "nnm23is001@nmamit.in|1|21MA101"
+    turso.conn.execute("UPDATE nva_marks SET internal = '50', updated_at = '2999-01-01T00:00:00+00:00', "
+                       "synced_at = strftime('%Y-%m-%dT%H:%M:%f', 'now') WHERE id = ?", (key,))
+    turso.conn.commit()
+    assert synced() == 0
+    assert [m for m in db.list_marks("nnm23is001@nmamit.in") if m["code"] == "21MA101"][0]["internal"] == 50
+
+
+def test_faces_with_several_photos_sync_and_damaged_ones_are_skipped(turso):
+    vecs = np.stack([np.ones(128, dtype=np.float32) * i for i in range(1, 7)])
+    db.save_face("a@nmamit.in", face.to_bytes(vecs), "a@nmamit.in")
+    assert synced() == 0
+    pushed = turso.rows("nva_faces")["a@nmamit.in"]["embedding"]
+    assert len(base64.b64decode(pushed)) == 6 * db.FACE_SIZE
+
+    turso.conn.execute("INSERT INTO nva_faces VALUES ('bad@nmamit.in', ?, 'x', '2026-01-01T00:00:00+00:00', 0, "
+                       "strftime('%Y-%m-%dT%H:%M:%f', 'now'))", (base64.b64encode(b"123").decode(),))
+    turso.conn.commit()
+    synced()
+    assert db.get_face("bad@nmamit.in") is None and db.get_face("a@nmamit.in") is not None
+
+
 # --- Face sign-in -----------------------------------------------------------------
 
 def unit(*xy):
@@ -167,38 +200,61 @@ def unit(*xy):
     return v / np.linalg.norm(v)
 
 
+OWNER = [f"me{i}".encode() for i in range(6)]
+
+
 @pytest.fixture
 def offline_client(monkeypatch, index):
-    faces = {b"college-ish": unit(0.6, 0.8), b"like-first": unit(0, 1), b"stranger": unit(0, 0, 1)}
+    faces = {name: unit(1, 0.12 * i) for i, name in enumerate(OWNER)}
+    faces.update({b"stranger": unit(0, 0, 1)})
     monkeypatch.setattr(face, "embedding", lambda data: faces[data])
+    from app.auth import face_lockout
+
+    face_lockout._fails.clear()
     with TestClient(offline_app, base_url="http://testserver") as c:
         with db.connect() as conn:
-            conn.execute("DELETE FROM faces")
-            conn.execute("DELETE FROM first_faces")
-        db.save_face("nnm23is001@nmamit.in", face.to_bytes(unit(1)), "college photos")
+            for table in ("faces", "profiles", "marks", "attendance", "roles"):
+                conn.execute(f"DELETE FROM {table}")
         yield c
 
 
-def sign_in(client, roll, photo):
-    return client.post("/api/login", data={"roll": roll}, files={"file": ("face.jpg", photo, "image/jpeg")})
+def sign_in(client, roll, *photos):
+    files = [("files", ("face.jpg", p, "image/jpeg")) for p in photos]
+    return client.post("/api/login", data={"roll": roll}, files=files)
 
 
-def test_first_photo_is_saved_and_used_next_time(offline_client):
-    # Before the first sign-in, only the college photo counts.
-    assert sign_in(offline_client, "NNM23IS001", b"like-first").status_code == 403
+def status(client, roll):
+    return client.post("/api/login/status", data={"roll": roll})
 
-    res = sign_in(offline_client, "NNM23IS001", b"college-ish")
-    assert res.status_code == 200 and res.json() == {"first_photo_saved": True}
-    assert offline_client.get("/api/me").json()["name"] == "NNM23IS001"
 
-    # Now a photo that only looks like the first photo also signs in, and nothing is saved again.
-    res = sign_in(offline_client, "nnm23is001@nmamit.in", b"like-first")
-    assert res.status_code == 200 and res.json() == {"first_photo_saved": False}
+def test_first_sign_in_enrols_then_each_sign_in_is_a_fresh_scan(offline_client):
+    assert status(offline_client, "NNM23IS001").json() == {"enrolled": False}
+
+    res = sign_in(offline_client, "NNM23IS001", *OWNER)
+    assert res.status_code == 200 and res.json() == {"enrolled_now": True}
+    me = offline_client.get("/api/me").json()
+    assert me["name"] == "NNM23IS001" and me["role"] == "student"
+    assert len(offline_client.get("/api/marks").json()["semesters"]) == 5   # sample marks on sign-up
+
+    offline_client.get("/logout")
+    assert status(offline_client, "nnm23is001@nmamit.in").json() == {"enrolled": True}
+    assert sign_in(offline_client, "NNM23IS001", b"stranger", b"stranger", b"stranger").status_code == 403
+    assert offline_client.get("/api/me").status_code == 401
+    res = sign_in(offline_client, "nnm23is001@nmamit.in", b"me2", b"me3", b"me4")
+    assert res.status_code == 200 and res.json() == {"enrolled_now": False}
 
 
 def test_sign_in_rejections(offline_client):
-    assert sign_in(offline_client, "NNM23IS001", b"stranger").status_code == 403
+    assert sign_in(offline_client, "../etc", *OWNER).status_code == 400
+    assert status(offline_client, "../etc").status_code == 400
+    assert sign_in(offline_client, "NNM23IS001", b"me0", b"me1").status_code == 400    # too few photos to enrol
     assert offline_client.get("/api/me").status_code == 401
-    assert sign_in(offline_client, "NNM23IS999", b"college-ish").status_code == 404
-    assert sign_in(offline_client, "../etc", b"college-ish").status_code == 400
     assert offline_client.post("/api/ask", json={"question": "hi"}).status_code == 401
+    assert offline_client.get("/marks", follow_redirects=False).status_code == 307
+
+
+def test_offline_admin_pages_follow_roles(offline_client):
+    sign_in(offline_client, "NNM23IS001", *OWNER)
+    assert offline_client.get("/admin", follow_redirects=False).status_code == 307
+    assert offline_client.get("/api/admin/staff").status_code == 403
+    assert offline_client.get("/marks").status_code == 200

@@ -1,11 +1,13 @@
-"""Face check with OpenCV, using one reference photo per user.
+"""Face check with OpenCV, like Face ID: several photos at enrolment, a fresh look at every sign-in.
 
 Two small pretrained models from the OpenCV model zoo do all the work:
   * YuNet finds the face in a photo.
   * SFace turns that face into 128 numbers (an "embedding").
 Two photos of the same person give embeddings that point in nearly the same
-direction, so we compare them with cosine similarity. That is why a single
-enrolled photo is enough; nothing has to be trained.
+direction, so we compare them with cosine similarity; nothing has to be trained.
+At enrolment we keep one embedding for each of several photos (different head
+positions) and a sign-in matches if it is close to any of them. Photos are never
+stored, only these numbers.
 """
 import logging
 import os
@@ -110,3 +112,13 @@ def to_bytes(vec: np.ndarray) -> bytes:
 
 def from_bytes(data: bytes) -> np.ndarray:
     return np.frombuffer(data, dtype=np.float32)
+
+
+def templates(data: bytes) -> np.ndarray:
+    """All enrolled signatures of one person as rows of a matrix."""
+    return from_bytes(data).reshape(-1, 128)
+
+
+def best_score(live: np.ndarray, enrolled: np.ndarray) -> float:
+    """Similarity to the closest enrolled photo."""
+    return max(similarity(live, row) for row in enrolled)

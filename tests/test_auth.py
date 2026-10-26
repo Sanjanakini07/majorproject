@@ -1,6 +1,7 @@
 import pytest
+from fastapi.testclient import TestClient
 
-from app import main
+from app import config, main
 from app.auth import FaceLockout, is_allowed_google_user, verify_firebase_token
 
 from .conftest import login
@@ -62,6 +63,13 @@ def test_signed_out_user_sees_login_page(client):
     assert "Sign in with your @nmamit.in" in res.text
 
 
+def test_127_host_redirects_to_localhost():
+    with TestClient(main.app, base_url="http://127.0.0.1:8000") as client:
+        res = client.get("/", follow_redirects=False)
+        assert res.status_code == 307
+        assert res.headers["location"] == "http://localhost:8000/"
+
+
 def test_face_check_required_before_chat(client):
     login(client, "s@nmamit.in", face_ok=False)
     res = client.get("/", follow_redirects=False)
@@ -99,11 +107,15 @@ def test_cross_site_posts_are_blocked(client):
     assert res.status_code == 403
 
 
-def test_face_verify_without_registered_face(client):
+def test_face_verify_without_enrolled_face(client):
     login(client, "new@nmamit.in", face_ok=False)
-    res = client.post("/api/face/verify", files={"file": ("f.jpg", b"x", "image/jpeg")})
+    res = client.post("/api/face/verify", files=[("files", ("f.jpg", b"x", "image/jpeg"))])
     assert res.status_code == 404
-    assert "not registered" in res.json()["detail"]
+    assert "not enrolled" in res.json()["detail"]
+
+
+def test_ten_face_tries_before_lockout():
+    assert config.FACE_MAX_FAILURES == 10
 
 
 def test_face_lockout_after_too_many_failures():
@@ -125,6 +137,8 @@ def test_me(client):
     assert body == {
         "email": "admin@nmamit.in",
         "name": "Admin",
+        "role": "admin",
+        "permissions": {"content": True, "attendance": True, "marks": True},
         "face_ok": True,
         "face_enrolled": False,
         "is_admin": True,

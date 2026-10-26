@@ -28,8 +28,9 @@ async function setup() {
   const cfg = await res.json();
   auth = getAuth(initializeApp({ apiKey: cfg.apiKey, authDomain: cfg.authDomain, projectId: cfg.projectId }));
   provider = new GoogleAuthProvider();
-  // Google shows only college accounts; the server checks again.
-  provider.setCustomParameters({ hd: cfg.allowedDomain, prompt: 'select_account' });
+  // Let Google show the account picker; the server still enforces the @nmamit.in-only policy.
+  // Hard-forcing hd=... can randomly fail when the browser has no matching local account available.
+  provider.setCustomParameters({ prompt: 'select_account' });
   button.disabled = false;
 }
 
@@ -62,6 +63,7 @@ async function signIn() {
   button.disabled = false;
 }
 
+document.getElementById('art').prepend(robot());
 button.addEventListener('click', signIn);
 setup().catch((e) => {
   console.error(e);

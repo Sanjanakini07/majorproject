@@ -1,7 +1,7 @@
 """The offline web app: face sign-in, voice questions and answers, all on this laptop.
 
 Start it with start_offline.bat, or:  python -m offline_app
-The admin panel, face check, knowledge store and search are reused from app/.
+The admin panel, marks, attendance, face check, knowledge store and search are reused from app/.
 """
 import json
 import logging
@@ -16,9 +16,9 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
 
-from app import admin, db, face, rag
+from app import academics, admin, db, facelogin, portal, rag
 from app import config as app_config
-from app.auth import ask_limit, face_lockout, is_admin, signed_in_user, verified_user
+from app.auth import ask_limit, role_of, verified_user
 
 from . import config, llm, net, sync, voice
 
@@ -50,6 +50,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=app_config.BASE_DIR / "app" / "static"), name="static")
 app.mount("/offline", StaticFiles(directory=HERE / "static"), name="offline")
 app.include_router(admin.router)
+app.include_router(portal.router)
 
 CSP = (
     "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; script-src 'self'; "
@@ -90,14 +91,6 @@ def connect_page():
     return page(HERE / "pages" / "connect.html")
 
 
-@app.get("/admin", include_in_schema=False)
-def admin_page(request: Request):
-    email = request.session.get("email")
-    if not request.session.get("face_ok") or not is_admin(email or ""):
-        return RedirectResponse("/")
-    return page(app_config.BASE_DIR / "app" / "pages" / "admin.html")
-
-
 @app.get("/logout", include_in_schema=False)
 def logout(request: Request):
     request.session.clear()
@@ -105,73 +98,43 @@ def logout(request: Request):
 
 
 # --- Face sign-in ------------------------------------------------------------------
-# The college photo (downloaded during setup) proves who the student is. The photo
-# taken at their first sign-in is saved too, and later sign-ins may match either one.
+# Like Face ID: the first time, six photos are taken while the student turns their head and
+# their face signature is saved. Every later sign-in takes fresh photos and compares them.
 
-def first_face(email: str) -> bytes | None:
-    with db.connect() as conn:
-        row = conn.execute("SELECT embedding FROM first_faces WHERE email = ?", (email,)).fetchone()
-    return row["embedding"] if row else None
+def roll_email(roll: str) -> tuple[str, str]:
+    roll = roll.strip().lower()
+    local = roll.removesuffix("@" + app_config.ALLOWED_DOMAIN)
+    if not ROLL.match(local):
+        raise HTTPException(400, "Enter your roll number, for example NNM23IS186.")
+    return local, f"{local}@{app_config.ALLOWED_DOMAIN}"
 
 
-def save_first_face(email: str, embedding: bytes) -> None:
-    with db.connect() as conn:
-        conn.execute(
-            "INSERT INTO first_faces (email, embedding, updated_by, updated_at) VALUES (?, ?, 'first sign-in', ?) "
-            "ON CONFLICT(email) DO NOTHING",
-            (email, embedding, db.now()),
-        )
+@app.post("/api/login/status")
+def login_status(roll: str = Form(..., max_length=100)):
+    """Tells the page whether to enrol (first time) or just check the face."""
+    _, email = roll_email(roll)
+    facelogin.check_not_locked(email)
+    return {"enrolled": db.get_face(email) is not None}
 
 
 @app.post("/api/login")
-async def login(request: Request, roll: str = Form(..., max_length=100), file: UploadFile = File(...)):
-    roll = roll.strip().lower()
-    domain = app_config.ALLOWED_DOMAIN
-    local = roll.removesuffix("@" + domain)
-    if not ROLL.match(local):
-        raise HTTPException(400, "Enter your roll number, for example NNM23IS186.")
-    email = f"{local}@{domain}"
+async def login(request: Request, roll: str = Form(..., max_length=100), files: list[UploadFile] = File(...)):
+    local, email = roll_email(roll)
+    facelogin.check_not_locked(email)
+    images = await facelogin.read_images(files)
 
-    wait = face_lockout.seconds_left(email)
-    if wait:
-        raise HTTPException(429, f"Too many failed tries. Try again in {wait // 60 + 1} minutes.")
-    college = db.get_face(email)
-    if college is None:
-        raise HTTPException(404, f"No college photo is registered for {local.upper()}. Ask an admin to add it.")
-
-    data = await admin.read_upload(file, admin.MAX_IMAGE_BYTES)
-    try:
-        live = await run_in_threadpool(face.embedding, data)
-    except face.FaceError as e:
-        raise HTTPException(400, str(e))  # a blurry or empty frame is not counted as a failed try
-
-    first = first_face(email)
-    scores = [face.similarity(live, face.from_bytes(college))]
-    if first:
-        scores.append(face.similarity(live, face.from_bytes(first)))
-    ok = max(scores) >= app_config.FACE_MATCH_THRESHOLD
-    log.info("Face sign-in for %s: scores=%s match=%s", email, [round(s, 3) for s in scores], ok)
-    if not ok:
-        face_lockout.fail(email)
-        raise HTTPException(403, f"Face did not match. {face_lockout.tries_left(email)} tries left.")
-
-    face_lockout.reset(email)
-    if first is None:
-        save_first_face(email, face.to_bytes(live))
+    first_time = db.get_face(email) is None
+    if first_time:
+        await run_in_threadpool(facelogin.enroll, email, images, email)
+        if role_of(email) == "student":
+            academics.ensure_student(email, local.upper())
         sync.sync_soon()
+    else:
+        await run_in_threadpool(facelogin.verify, email, images)
+
     request.session.clear()  # always start a fresh session after sign-in
     request.session.update({"email": email, "name": local.upper(), "face_ok": True})
-    return {"first_photo_saved": first is None}
-
-
-@app.get("/api/me")
-def me(user: dict = Depends(signed_in_user)):
-    return {
-        "email": user["email"],
-        "name": user["name"],
-        "is_admin": is_admin(user["email"]),
-        "entries": db.count_modules(),
-    }
+    return {"enrolled_now": first_time}
 
 
 # --- Voice -------------------------------------------------------------------------

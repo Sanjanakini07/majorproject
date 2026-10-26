@@ -1,84 +1,51 @@
-// Face check: show the webcam, send one frame to the server, which compares it
-// with the photo the admin registered.
+// Face check after Google sign-in.
+// First time: enrol six photos. Every later sign-in: a fresh scan that must match.
 
-const video = $('video');
-const button = $('verify');
-const status = $('status');
+const go = $('go');
+let mode = 'verify';
 
-function say(message, kind) {
-  status.textContent = message;
-  status.className = 'status' + (kind ? ' ' + kind : '');
-}
-
-async function startCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    say('This browser cannot use the camera. Try Chrome or Edge.', 'error');
+async function scan() {
+  go.hidden = true;
+  const ok = await FaceCam.attempt(mode, mode === 'enroll' ? '/api/face/enroll' : '/api/face/verify');
+  if (ok) {
+    FaceCam.stop();
+    setTimeout(() => (location.href = '/'), 900);
     return;
   }
-  try {
-    video.srcObject = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false,
-    });
-    // Wait for the first frame, or the captured picture would be empty.
-    if (video.readyState >= 2) button.disabled = false;
-    else video.addEventListener('loadeddata', () => (button.disabled = false), { once: true });
-  } catch (e) {
-    console.error(e);
-    say('Camera permission was blocked. Allow it in the address bar, then reload.', 'error');
-  }
+  go.textContent = 'Try again';
+  go.hidden = false;
 }
 
-function captureFrame() {
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
-}
-
-async function verify() {
-  button.disabled = true;
-  say('Checking…');
-  try {
-    const form = new FormData();
-    form.append('file', await captureFrame(), 'face.jpg');
-    const res = await fetch('/api/face/verify', { method: 'POST', body: form });
-    if (res.ok) {
-      say('Verified. Opening the assistant…', 'notice');
-      location.href = '/';
-      return;
-    }
-    if (res.status === 401) {
-      location.href = '/'; // signed out (session expired)
-      return;
-    }
-    say(await errorText(res), 'error');
-  } catch (e) {
-    console.error(e);
-    say('Could not reach the server. Check your connection.', 'error');
-  }
-  button.disabled = false;
-}
-
-// Check the student has a registered photo before asking for the camera.
 async function start() {
+  let me;
   try {
-    const res = await fetch('/api/me');
-    if (res.status === 401) {
-      location.href = '/';
-      return;
-    }
-    const me = await res.json();
-    if (!me.face_enrolled) {
-      say('Your face is not registered yet. Ask an admin to add your photo, then sign in again.', 'error');
-      return;
-    }
+    me = await loadMe();
   } catch (e) {
-    console.error(e); // the server check on Verify still applies
+    console.error(e);
+    FaceCam.say('Could not reach the server. Check your connection.', 'error');
+    return;
   }
-  startCamera();
+  if (me.face_ok) {
+    location.href = '/';
+    return;
+  }
+  mode = me.face_enrolled ? 'verify' : 'enroll';
+  const first = mode === 'enroll';
+  $('title').textContent = first ? 'Set up face sign-in' : 'Face check';
+  $('lead').textContent = first
+    ? `Hi ${me.name.split(' ')[0]}! We'll take six quick photos so we can recognise you next time.`
+    : 'Look at the camera. It only takes a moment.';
+  $('tips').hidden = !first;
+  go.textContent = first ? 'Start scan' : 'Scan my face';
+  go.addEventListener('click', scan);
+
+  if (!(await FaceCam.start())) return;
+  if (first) {
+    FaceCam.instruct('Ready when you are');
+    go.hidden = false;
+  } else {
+    scan();   // like Face ID: it starts looking as soon as the camera is on
+  }
 }
 
-button.addEventListener('click', verify);
 start();

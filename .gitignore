@@ -9,8 +9,5 @@ __pycache__/
 data/
 models/
 
-# College-provided student photos: downloaded by scripts/fetch_student_photos.py
-student_photos/
-
 # Walkthrough videos made by scripts/record_demo.py
 demo_video/

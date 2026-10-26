@@ -41,10 +41,10 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # --- Face check -------------------------------------------------------------
-# Cosine similarity between the live photo and the enrolled photo. 0.363 is the
+# Cosine similarity between a live photo and an enrolled one. 0.363 is the
 # value OpenCV recommends for the SFace model; raise it to be stricter.
 FACE_MATCH_THRESHOLD = float(os.getenv("FACE_MATCH_THRESHOLD", "0.363"))
-FACE_MAX_FAILURES = int(os.getenv("FACE_MAX_FAILURES", "5"))
+FACE_MAX_FAILURES = int(os.getenv("FACE_MAX_FAILURES", "10"))
 FACE_LOCK_MINUTES = int(os.getenv("FACE_LOCK_MINUTES", "10"))
 
 # --- RAG --------------------------------------------------------------------

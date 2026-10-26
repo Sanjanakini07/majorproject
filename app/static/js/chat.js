@@ -13,6 +13,7 @@ let lastAnswer = '';
 
 function show(screen) {
   for (const id of ['idle', 'processing', 'answer']) $(id).hidden = id !== screen;
+  mascot.classList.toggle('thinking', screen === 'processing');
   $('typeForm').hidden = screen === 'processing';
 }
 
@@ -95,11 +96,14 @@ function speak(text) {
   const voices = speechSynthesis.getVoices();
   const voice = voices.find((v) => v.lang === LANG) || voices.find((v) => v.lang.startsWith('en'));
   if (voice) utterance.voice = voice;
+  utterance.onstart = () => setTalking(true);
+  utterance.onend = utterance.onerror = () => setTalking(false);
   speechSynthesis.speak(utterance);
 }
 
 function stopSpeaking() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
+  setTalking(false);
 }
 
 // ---- Asking the server -----------------------------------------------------------
@@ -180,12 +184,18 @@ $('typeForm').addEventListener('submit', (event) => {
 // Some browsers load voices late; asking once makes them available for speak().
 if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
-fetch('/api/me')
-  .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+const mascot = robot();
+$('robotSlot').append(mascot);
+
+function setTalking(on) {
+  mascot.classList.toggle('talking', on);
+}
+
+loadMe()
   .then((me) => {
-    $('who').textContent = me.name;
-    $('adminLink').hidden = !me.is_admin;
-    if (me.is_admin && me.entries === 0) {
+    renderBar('/', me);
+    $('hello').textContent = `${greeting()}, ${me.name.split(' ')[0]}!`;
+    if (me.role !== 'student' && me.entries === 0) {
       showError('No college information has been added yet, so the assistant can’t answer anything. Add some on the Admin page.');
     }
   })
