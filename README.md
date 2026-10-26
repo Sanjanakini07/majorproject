@@ -4,6 +4,8 @@ A small website where an NMAMIT student signs in with their college Google accou
 
 **Quick tour (40 seconds, light theme):** [docs/demo-tour.mp4](docs/demo-tour.mp4). It shows sign-in, the face scan, the assistant, notes, events, marks, attendance, the robot's moods and sleep, and the admin and teacher tools. The demo used a test camera and a stand-in for the language model; search, permissions and everything on the pages are the real app.
 
+**How offline mode works (50 seconds):** [docs/offline-mode-explained.mp4](docs/offline-mode-explained.mp4). Each laptop is its own campus server with a local database and local AI models. With internet, the cloud database is the source of truth and the laptops sync with it. Without internet, each laptop keeps working alone and catches up later. (The animation's source is [docs/offline-explainer.html](docs/offline-explainer.html).)
+
 ```
 Student                        Server                                   Admin
 ───────                        ──────                                   ─────
