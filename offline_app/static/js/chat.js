@@ -15,7 +15,7 @@ player.addEventListener('pause', () => setTalking(false));
 
 function show(screen) {
   for (const id of ['idle', 'processing', 'answer']) $(id).hidden = id !== screen;
-  mascot.classList.toggle('thinking', screen === 'processing');
+  mascot.think(screen === 'processing');
   $('typeForm').hidden = screen === 'processing';
 }
 
@@ -24,12 +24,14 @@ function setStep(name, state) {
 }
 
 function setRecording(on) {
+  mascot.listen(on);
   $('mic').classList.toggle('on', on);
   $('mic').setAttribute('aria-label', on ? 'Tap when you are done' : 'Tap to speak');
   $('micHint').textContent = on ? 'Listening… tap when you’re done' : 'Tap to speak';
 }
 
 function fail(message) {
+  mascot.emote('confused', 3500);
   show('idle');
   showError(message);
 }
@@ -108,7 +110,7 @@ async function speak(text) {
   } catch (e) {
     // The laptop's voice is not available: use the browser's own voice instead.
     console.warn('Using the browser voice:', e);
-    if (!('speechSynthesis' in window)) return;
+    if (!('speechSynthesis' in window)) return mascot.speakFor(text.length * 60);
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.onstart = () => setTalking(true);
     utterance.onend = utterance.onerror = () => setTalking(false);
@@ -132,6 +134,8 @@ function showAnswer(question, answer, sources, links = []) {
   $('aLinks').replaceChildren(...links.map((l) =>
     el('a', { className: 'chip link', href: l.url }, icon(l.label === 'Event' ? 'events' : 'notes'), `${l.label}: ${l.title.replace(/^(Notes|Event): /, '')}`)));
   show('answer');
+  const noInfo = /^I don.t have (any )?information/i.test(answer);
+  mascot.emote(noInfo ? 'sad' : /\bthank/i.test(question) ? 'love' : 'happy', noInfo ? 3500 : 4500);
   speak(answer);
 }
 
@@ -225,11 +229,11 @@ $('typeForm').addEventListener('submit', (event) => {
   ask(question);
 });
 
-const mascot = robot();
-$('robotSlot').append(mascot);
+const mascot = createRobot();
+$('robotSlot').append(mascot.el);
 
 function setTalking(on) {
-  mascot.classList.toggle('talking', on);
+  mascot.talk(on);
 }
 
 loadMe()
@@ -240,6 +244,7 @@ loadMe()
     ]);
     $('sync').addEventListener('click', () => refreshSync('POST'));
     refreshSync();
+    mascot.greet();
     $('hello').textContent = `${greeting()}, ${me.name}!`;
     if (me.role !== 'student' && me.entries === 0) {
       showError('No college information has been added yet, so the assistant can’t answer anything. Add some on the Admin page.');

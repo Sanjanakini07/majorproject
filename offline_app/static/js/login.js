@@ -6,11 +6,14 @@ let roll = '';
 let enrolled = false;
 
 const go = $('go');
-document.getElementById('art').prepend(robot());
+const mascot = createRobot();
+document.getElementById('art').prepend(mascot.el);
+setTimeout(() => mascot.greet(), 500);
 
 async function scan() {
   go.hidden = true;
   const ok = await FaceCam.attempt(enrolled ? 'verify' : 'enroll', '/api/login', { roll });
+  mascot.emote(ok ? 'excited' : 'sad', 2500);
   if (ok) {
     FaceCam.stop();
     setTimeout(() => location.reload(), 900);
