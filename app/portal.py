@@ -18,7 +18,7 @@ def page(name: str) -> FileResponse:
     return FileResponse(PAGES / name, headers={"Cache-Control": "no-store"})
 
 
-def _gated(request: Request, name: str, staff_only: bool = False):
+def gated_page(request: Request, name: str, staff_only: bool = False):
     session = request.session
     if not session.get("email") or not session.get("face_ok"):
         return RedirectResponse("/")
@@ -29,17 +29,17 @@ def _gated(request: Request, name: str, staff_only: bool = False):
 
 @router.get("/marks", include_in_schema=False)
 def marks_page(request: Request):
-    return _gated(request, "marks.html")
+    return gated_page(request, "marks.html")
 
 
 @router.get("/attendance", include_in_schema=False)
 def attendance_page(request: Request):
-    return _gated(request, "attendance.html")
+    return gated_page(request, "attendance.html")
 
 
 @router.get("/admin", include_in_schema=False)
 def admin_page(request: Request):
-    return _gated(request, "admin.html", staff_only=True)
+    return gated_page(request, "admin.html", staff_only=True)
 
 
 @router.get("/api/me")

@@ -1,4 +1,4 @@
-"""SQLite storage: knowledge modules, enrolled faces, staff roles, marks and attendance.
+"""SQLite storage: knowledge modules, enrolled faces, staff roles, marks, attendance, notes and events.
 
 SQLite is the source of truth. The vector database (see rag.py) is an index
 built from the modules table and can always be rebuilt from it.
@@ -78,6 +78,43 @@ CREATE TABLE IF NOT EXISTS attendance (
     updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS attendance_email ON attendance (email);
+
+-- Notes library: semesters 1-8, a few subjects each, and files or pasted text under each subject.
+CREATE TABLE IF NOT EXISTS subjects (
+    code     TEXT PRIMARY KEY,
+    semester INTEGER NOT NULL,
+    name     TEXT NOT NULL
+);
+
+-- A note is a PDF (data) or pasted text. `content` is the text the AI reads (pasted, or taken from the PDF).
+-- module_id points at the knowledge entry that makes the note searchable by the assistant.
+CREATE TABLE IF NOT EXISTS notes (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    code        TEXT NOT NULL,
+    title       TEXT NOT NULL,
+    kind        TEXT NOT NULL,                 -- pdf | text
+    content     TEXT NOT NULL DEFAULT '',
+    filename    TEXT,
+    data        BLOB,
+    module_id   INTEGER,
+    uploaded_by TEXT,
+    created_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS notes_code ON notes (code);
+
+CREATE TABLE IF NOT EXISTS events (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    title       TEXT NOT NULL,
+    event_date  TEXT NOT NULL,                 -- YYYY-MM-DD
+    start_time  TEXT NOT NULL DEFAULT '',      -- HH:MM
+    venue       TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
+    filename    TEXT,
+    data        BLOB,
+    module_id   INTEGER,
+    created_by  TEXT,
+    created_at  TEXT NOT NULL
+);
 """
 
 
@@ -293,3 +330,106 @@ def update_attendance(email: str, semester: int, code: str, attended: int, total
             (attended, total, user, now(), f"{email}|{semester}|{code}"),
         )
     return cur.rowcount > 0
+
+
+# --- Notes and events -------------------------------------------------------------
+
+def add_subjects(rows: list[tuple[str, int, str]]) -> None:
+    with connect() as conn:
+        conn.executemany("INSERT OR IGNORE INTO subjects (code, semester, name) VALUES (?, ?, ?)", rows)
+
+
+def list_subjects() -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT s.code, s.semester, s.name, COUNT(n.id) AS notes FROM subjects s "
+            "LEFT JOIN notes n ON n.code = s.code GROUP BY s.code ORDER BY s.semester, s.code"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_subject(code: str) -> dict | None:
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM subjects WHERE code = ?", (code,)).fetchone()
+    return dict(row) if row else None
+
+
+_NOTE_LIST = "id, code, title, kind, filename, content != '' AS readable, uploaded_by, created_at, module_id"
+
+
+def list_notes(code: str) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute(
+            f"SELECT {_NOTE_LIST}, CASE WHEN kind = 'text' THEN content END AS text "
+            "FROM notes WHERE code = ? ORDER BY id DESC", (code,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_note(note_id: int) -> dict | None:
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def add_note(code: str, title: str, kind: str, content: str, filename: str | None, data: bytes | None, user: str) -> int:
+    with connect() as conn:
+        return conn.execute(
+            "INSERT INTO notes (code, title, kind, content, filename, data, uploaded_by, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (code, title, kind, content, filename, data, user, now()),
+        ).lastrowid
+
+
+def delete_note(note_id: int) -> bool:
+    with connect() as conn:
+        return conn.execute("DELETE FROM notes WHERE id = ?", (note_id,)).rowcount > 0
+
+
+def list_events() -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT id, title, event_date, start_time, venue, description, filename, data IS NOT NULL AS has_file, "
+            "created_by, created_at, module_id FROM events ORDER BY event_date, start_time, id"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_event(event_id: int) -> dict | None:
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM events WHERE id = ?", (event_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def add_event(title: str, event_date: str, start_time: str, venue: str, description: str,
+              filename: str | None, data: bytes | None, user: str) -> int:
+    with connect() as conn:
+        return conn.execute(
+            "INSERT INTO events (title, event_date, start_time, venue, description, filename, data, created_by, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (title, event_date, start_time, venue, description, filename, data, user, now()),
+        ).lastrowid
+
+
+def set_module(table: str, row_id: int, module_id: int | None) -> None:
+    assert table in ("notes", "events")
+    with connect() as conn:
+        conn.execute(f"UPDATE {table} SET module_id = ? WHERE id = ?", (module_id, row_id))
+
+
+def delete_event(event_id: int) -> bool:
+    with connect() as conn:
+        return conn.execute("DELETE FROM events WHERE id = ?", (event_id,)).rowcount > 0
+
+
+def links_for_modules(module_ids: list[int]) -> list[dict]:
+    """Which notes and events the given knowledge entries belong to (for links under an answer)."""
+    if not module_ids:
+        return []
+    marks = ",".join("?" * len(module_ids))
+    with connect() as conn:
+        notes = conn.execute(
+            f"SELECT n.id, n.title, n.kind, n.code, s.semester FROM notes n LEFT JOIN subjects s ON s.code = n.code "
+            f"WHERE n.module_id IN ({marks})", module_ids).fetchall()
+        events = conn.execute(f"SELECT id, title FROM events WHERE module_id IN ({marks})", module_ids).fetchall()
+    out = [{**dict(r), "kind": "note"} for r in notes] + [{**dict(r), "kind": "event"} for r in events]
+    return out

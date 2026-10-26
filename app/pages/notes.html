@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes · NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar" id="bar"></header>
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Notes</h1>
+        <p class="muted">Choose a semester and subject. Ask the assistant about anything in these notes too.</p>
+      </div>
+    </div>
+    <p id="error" class="alert error" role="alert" hidden></p>
+    <div id="pills" class="pills"></div>
+    <div id="subjects" class="grid cols-3"></div>
+    <div id="panel"></div>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/notes.js"></script>
+</body>
+</html>

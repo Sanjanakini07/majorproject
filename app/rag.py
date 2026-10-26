@@ -12,6 +12,7 @@ free. It is downloaded (~80 MB) the first time it is used.
 """
 import logging
 import threading
+from datetime import date
 from functools import lru_cache
 
 import chromadb
@@ -33,7 +34,13 @@ Rules:
 - Answer ONLY from the context below. If the context does not contain the answer, say you don't have that information yet and suggest checking with the college office.
 - Keep it short: at most 4 sentences.
 - Plain spoken English. No markdown, bullet points, tables, emojis or URLs.
-- Never invent dates, fees, names or phone numbers."""
+- Never invent dates, fees, names or phone numbers.
+- Some context comes from subject notes or events. Say which subject or event it is from, for example "From the Operating Systems notes". The screen shows a link, so don't read out any address.
+- For "upcoming" or "next" events, compare with today's date."""
+
+
+def system_prompt(context: str) -> str:
+    return f"{SYSTEM_PROMPT}\n\nToday is {date.today():%A %d %B %Y}.\n\nContext:\n{context}"
 
 
 @lru_cache(maxsize=1)
@@ -106,7 +113,7 @@ def search(question: str, k: int = config.TOP_K) -> list[dict]:
         return []
     res = col.query(query_texts=[question], n_results=min(k, col.count()))
     return [
-        {"title": meta["title"], "text": doc, "distance": dist}
+        {"title": meta["title"], "text": doc, "distance": dist, "module_id": meta["module_id"]}
         for doc, meta, dist in zip(res["documents"][0], res["metadatas"][0], res["distances"][0])
         if dist <= config.MAX_DISTANCE
     ]
@@ -131,7 +138,7 @@ def answer(question: str, hits: list[dict]) -> str:
         temperature=0.2,
         max_completion_tokens=1024,
         messages=[
-            {"role": "system", "content": f"{SYSTEM_PROMPT}\n\nContext:\n{context}"},
+            {"role": "system", "content": system_prompt(context)},
             {"role": "user", "content": question},
         ],
     )
