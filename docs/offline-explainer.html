@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How offline mode works</title>
+<style>
+  :root { --bg:#f3f4f9; --card:#fff; --text:#141a2e; --muted:#5d657c; --line:#e2e5ef; --brand:#b01f3a; --brand2:#7c1632;
+          --navy:#172a5c; --ok:#12804d; --warn:#e8a317; --err:#c0352a; }
+  * { box-sizing: border-box; }
+  body { margin:0; width:1280px; height:720px; overflow:hidden; background:var(--bg); color:var(--text); position:relative;
+         font:16px/1.4 system-ui,"Segoe UI",Roboto,sans-serif; }
+  .brand { position:absolute; left:28px; top:22px; display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; z-index:5; }
+  .brand i { width:34px; height:34px; border-radius:11px; display:grid; place-items:center; font-style:normal; color:#fff; font-size:15px;
+             background:linear-gradient(135deg,var(--brand),var(--navy)); }
+  #head { position:absolute; left:0; right:0; top:62px; text-align:center; z-index:4; padding:0 140px; }
+  #title { font-size:38px; font-weight:800; letter-spacing:-.02em; line-height:1.15; transition:opacity .35s; }
+  #net-badge { position:absolute; top:24px; right:28px; z-index:6; padding:8px 18px; border-radius:999px; font-weight:800; font-size:16px;
+               color:#fff; background:var(--ok); opacity:0; transition:opacity .4s, background .4s; }
+  #net-badge.off { background:var(--err); }
+  #cap { position:absolute; left:50%; bottom:24px; transform:translateX(-50%); z-index:9; background:rgba(15,23,60,.93); color:#fff;
+         font-weight:600; font-size:21px; padding:12px 28px; border-radius:999px; white-space:nowrap; transition:opacity .3s; max-width:1200px; }
+  svg { position:absolute; inset:0; width:1280px; height:720px; }
+  .scene { opacity:0; transition:opacity .5s; }
+  .scene.on { opacity:1; }
+  .link { stroke:var(--ok); stroke-width:4; transition:stroke .4s; }
+  .link.off { stroke:#a7afc6; stroke-dasharray:10 10; }
+  .x { opacity:0; transition:opacity .4s; }
+  .off-mode .x { opacity:1; }
+  .box { fill:#fff; stroke:#c9d1ea; stroke-width:2.5; transition:fill .25s, stroke .25s; }
+  .box.hot { fill:#fde9ee; stroke:var(--brand); }
+  .lbl { font-weight:700; font-size:19px; fill:var(--text); text-anchor:middle; }
+  .sublbl { font-size:15px; fill:var(--muted); text-anchor:middle; font-weight:500; }
+  .chip { position:absolute; transform:translate(-50%,0) scale(.7); opacity:0; transition:all .35s; z-index:7; font-weight:700; font-size:16px;
+          padding:7px 15px; border-radius:999px; background:#fff; border:2px solid var(--line); box-shadow:0 6px 18px rgba(20,26,46,.12); white-space:nowrap; }
+  .chip.show { opacity:1; transform:translate(-50%,0) scale(1); }
+  .chip.ok { border-color:var(--ok); color:var(--ok); }
+  .chip.warn { border-color:var(--warn); color:#9a6a00; background:#fff7e0; }
+  .chip.edit { border-color:var(--brand); color:var(--brand); }
+  .chip.tag { font-weight:600; font-size:14px; color:var(--muted); padding:5px 12px; }
+  #bubble { position:absolute; z-index:7; left:50%; transform:translateX(-50%); top:556px; width:760px; text-align:center; font-size:21px; font-weight:600; opacity:0; transition:opacity .3s; }
+  #bubble b { color:var(--brand); }
+  #summary { position:absolute; left:50%; top:200px; transform:translateX(-50%); width:880px; opacity:0; transition:opacity .6s; z-index:5; }
+  #summary.on { opacity:1; }
+  .point { display:flex; gap:18px; align-items:flex-start; background:#fff; border:1px solid var(--line); border-radius:20px; padding:20px 24px; margin-bottom:16px;
+           box-shadow:0 8px 24px rgba(20,26,46,.08); transform:translateY(14px); opacity:0; transition:all .5s; }
+  .point.show { transform:none; opacity:1; }
+  .point .n { flex:none; width:44px; height:44px; border-radius:14px; display:grid; place-items:center; font-weight:800; font-size:20px; color:#fff; }
+  .point h3 { margin:0 0 2px; font-size:23px; }
+  .point p { margin:0; color:var(--muted); font-size:17px; }
+  #foot { position:absolute; left:50%; transform:translateX(-50%); top:590px; width:880px; text-align:center; color:var(--muted); font-size:15px; opacity:0; transition:opacity .6s; z-index:5; }
+  #foot.on { opacity:1; }
+</style>
+</head>
+<body>
+<div class="brand"><i>N</i>NMAMIT Assistant · Offline mode</div>
+<div id="net-badge">Internet ON</div>
+<div id="head"><div id="title"></div></div>
+
+<svg id="stage" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="dbg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#27468f"/><stop offset=".5" stop-color="#3d63c0"/><stop offset="1" stop-color="#27468f"/></linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <g id="sA" class="scene"></g>
+  <g id="sB" class="scene"></g>
+  <g id="sN" class="scene"></g>
+  <g id="fx"></g>
+</svg>
+<div id="bubble"></div>
+<div id="summary"></div>
+<div id="foot">Synced: knowledge text, faces, staff roles, students, marks and attendance. Notes and event files stay on the laptop that added them.</div>
+<div id="cap"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+
+const laptop = (x, y, s, label, id) => `
+<g id="${id}" transform="translate(${x} ${y}) scale(${s})">
+  <rect x="-80" y="-60" width="160" height="104" rx="12" fill="#fff" stroke="#b7c1e0" stroke-width="3"/>
+  <rect x="-68" y="-48" width="136" height="80" rx="7" fill="#131d49"/>
+  <circle cx="-22" cy="-16" r="7" fill="#7ee0ff"/><circle cx="22" cy="-16" r="7" fill="#7ee0ff"/>
+  <path d="M-18 8 Q0 20 18 8" stroke="#7ee0ff" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M-100 50 H100 L88 64 H-88 Z" fill="#cdd5ee" stroke="#b7c1e0" stroke-width="2"/>
+  <text y="98" text-anchor="middle" font-size="${Math.round(20 / s)}" font-weight="800" fill="#141a2e">${label}</text>
+</g>`;
+
+const phone = (x, y, id) => `
+<g id="${id}" transform="translate(${x} ${y})">
+  <rect x="-28" y="-52" width="56" height="104" rx="13" fill="#fff" stroke="#b7c1e0" stroke-width="3"/>
+  <rect x="-21" y="-41" width="42" height="78" rx="7" fill="#131d49"/>
+  <circle cx="-8" cy="-14" r="4.5" fill="#7ee0ff"/><circle cx="8" cy="-14" r="4.5" fill="#7ee0ff"/>
+  <path d="M-8 6 Q0 13 8 6" stroke="#7ee0ff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+</g>`;
+
+const box = (x, y, w, h, label, sub, id) => `
+<g id="${id}"><rect class="box" x="${x}" y="${y}" width="${w}" height="${h}" rx="18"/>
+  <text class="lbl" x="${x + w / 2}" y="${y + h / 2 - (sub ? 4 : -6)}">${label}</text>
+  ${sub ? `<text class="sublbl" x="${x + w / 2}" y="${y + h / 2 + 20}">${sub}</text>` : ''}</g>`;
+
+const db = (x, y) => `
+<g transform="translate(${x} ${y})">
+  <ellipse id="dbglow" cx="0" cy="0" rx="120" ry="100" fill="#4f7be0" opacity="0" filter="url(#glow)"/>
+  <path d="M-72 -52 V54 A72 26 0 0 0 72 54 V-52" fill="url(#dbg)" stroke="#12285c" stroke-width="3"/>
+  <ellipse cx="0" cy="-52" rx="72" ry="26" fill="#4f7be0" stroke="#12285c" stroke-width="3"/>
+  <path d="M-72 -8 A72 26 0 0 0 72 -8 M-72 30 A72 26 0 0 0 72 30" fill="none" stroke="#b9c9f7" stroke-width="2.5" opacity=".7"/>
+  <text y="92" text-anchor="middle" font-size="22" font-weight="800" fill="#141a2e">Cloud database</text>
+  <text y="116" text-anchor="middle" font-size="16" font-weight="600" fill="#5d657c">the source of truth when online</text>
+</g>`;
+
+// ---- Scene A: your laptop is the server, phones connect over Wi-Fi ----
+$('sA').innerHTML = `
+  <path d="M470 330 Q300 330 215 300" class="wifi" fill="none" stroke="#b7c1e0" stroke-width="3" stroke-dasharray="8 8"/>
+  <path d="M470 400 Q300 400 215 450" fill="none" stroke="#b7c1e0" stroke-width="3" stroke-dasharray="8 8"/>
+  <path d="M810 330 Q980 330 1065 300" fill="none" stroke="#b7c1e0" stroke-width="3" stroke-dasharray="8 8"/>
+  <path d="M810 400 Q980 400 1065 450" fill="none" stroke="#b7c1e0" stroke-width="3" stroke-dasharray="8 8"/>
+  ${laptop(640, 330, 1.7, 'Your laptop = your own server', 'bigLaptop')}
+  ${phone(180, 290, 'p1')}${phone(180, 460, 'p2')}${phone(1100, 290, 'p3')}${phone(1100, 460, 'p4')}
+`;
+
+// ---- Scene B: inside the laptop ----
+$('sB').innerHTML = `
+  <rect x="150" y="150" width="980" height="440" rx="26" fill="#fff" stroke="#c9d1ea" stroke-width="3"/>
+  <text x="190" y="190" font-size="20" font-weight="800" fill="#5d657c">INSIDE ONE LAPTOP · NOTHING LEAVES IT</text>
+  ${box(190, 212, 270, 84, 'Web app', 'pages, sign-in, admin', 'bWeb')}
+  ${box(505, 212, 270, 84, 'Local database', 'marks, faces, notes (SQLite)', 'bDb')}
+  ${box(820, 212, 270, 84, 'Search index', 'what the assistant looks up', 'bIdx')}
+  ${box(190, 330, 200, 96, 'Whisper', 'speech to text', 'bWhisper')}
+  ${box(410, 330, 200, 96, 'Ollama', 'local AI answers', 'bOllama')}
+  ${box(630, 330, 200, 96, 'Piper', 'spoken voice', 'bPiper')}
+  ${box(850, 330, 240, 96, 'OpenCV', 'face scan sign-in', 'bFace')}
+  <text x="640" y="470" text-anchor="middle" font-size="17" font-weight="700" fill="#5d657c">ONE QUESTION, START TO FINISH</text>
+  ${['Mic', 'Whisper', 'Search', 'Ollama', 'Piper', 'Speaker'].map((t, i) => `
+    <g id="pipe${i}"><rect class="box" x="${190 + i * 150}" y="488" width="124" height="54" rx="27"/>
+    <text class="lbl" x="${252 + i * 150}" y="522" style="font-size:18px">${t}</text></g>
+    ${i < 5 ? `<path d="M${316 + i * 150} 515 h24" stroke="#a7afc6" stroke-width="3"/>` : ''}`).join('')}
+`;
+
+// ---- Scene N: laptops and the cloud database ----
+const LAP = { A: [240, 250], B: [240, 500], C: [1040, 380] };
+const DBP = [640, 365];
+$('sN').innerHTML = `
+  ${Object.entries(LAP).map(([k, [x, y]]) => `
+    <line class="link" id="link${k}" x1="${x}" y1="${y}" x2="${DBP[0]}" y2="${DBP[1]}"/>
+    <g class="x" transform="translate(${(x + DBP[0]) / 2} ${(y + DBP[1]) / 2})"><circle r="17" fill="#fff" stroke="#c0352a" stroke-width="3"/>
+      <path d="M-7 -7 L7 7 M7 -7 L-7 7" stroke="#c0352a" stroke-width="4" stroke-linecap="round"/></g>`).join('')}
+  ${db(DBP[0], DBP[1])}
+  ${laptop(LAP.A[0], LAP.A[1], 0.95, 'Laptop A · Library', 'lapA')}
+  ${laptop(LAP.B[0], LAP.B[1], 0.95, 'Laptop B · Block 2', 'lapB')}
+  ${laptop(LAP.C[0], LAP.C[1], 0.95, 'Laptop C · Hostel', 'lapC')}
+`;
+
+// ---- helpers ----
+const title = (t) => { $('title').style.opacity = 0; setTimeout(() => { $('title').textContent = t; $('title').style.opacity = 1; }, 280); };
+const cap = (t) => { $('cap').style.opacity = 0; setTimeout(() => { $('cap').textContent = t; $('cap').style.opacity = 1; }, 220); };
+const scene = (id, on) => $(id).classList.toggle('on', on);
+const badge = (on) => { const b = $('net-badge'); b.style.opacity = 1; b.textContent = on ? 'Internet ON' : 'Internet OFF'; b.classList.toggle('off', !on); };
+const netMode = (on) => {
+  document.body.classList.toggle('off-mode', !on);
+  document.querySelectorAll('.link').forEach((l) => l.classList.toggle('off', !on));
+};
+
+function chip(id, x, y, text, kind) {
+  let c = $(id);
+  if (!c) { c = document.createElement('div'); c.id = id; document.body.appendChild(c); }
+  c.className = 'chip ' + (kind || '');
+  c.style.left = x + 'px'; c.style.top = y + 'px';
+  c.textContent = text;
+  requestAnimationFrame(() => requestAnimationFrame(() => c.classList.add('show')));
+}
+const hideChip = (id) => { const c = $(id); if (c) c.classList.remove('show'); };
+
+function fly(x1, y1, x2, y2, color, ms, r = 9) {
+  const c = document.createElementNS(NS, 'circle');
+  c.setAttribute('r', r); c.setAttribute('fill', color);
+  $('fx').appendChild(c);
+  const t0 = performance.now();
+  const step = (now) => {
+    const u = Math.min(1, (now - t0) / ms), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+    c.setAttribute('cx', x1 + (x2 - x1) * e); c.setAttribute('cy', y1 + (y2 - y1) * e);
+    c.setAttribute('opacity', u > .9 ? (1 - u) * 10 : 1);
+    if (u < 1) requestAnimationFrame(step); else c.remove();
+  };
+  requestAnimationFrame(step);
+}
+const flash = () => { const g = $('dbglow'); g.setAttribute('opacity', .8); setTimeout(() => g.setAttribute('opacity', 0), 500); };
+const at = (id) => LAP[id];
+const hot = (id, on) => $(id).querySelector('.box').classList.toggle('hot', on);
+
+// ---- the story ----
+const TOTAL = 52000;
+const T = [];
+const when = (ms, fn) => T.push([ms, fn]);
+
+when(300, () => { title('How offline mode works'); cap('Every laptop is its own campus server'); scene('sA', true); });
+for (let i = 0; i < 6; i++) {
+  when(1200 + i * 800, () => {
+    const p = [[180, 290], [180, 460], [1100, 290], [1100, 460]][i % 4];
+    fly(p[0], p[1], 640, 330, '#b01f3a', 650);
+    setTimeout(() => fly(640, 330, p[0], p[1], '#12804d', 650), 700);
+  });
+}
+when(2000, () => cap('Phones join it over Wi-Fi: scan the QR code, no internet needed'));
+
+when(6500, () => { scene('sA', false); scene('sB', true); title('Everything runs on the laptop'); cap('Web app, database, search and the AI models are all local'); });
+const stages = [['pipe0', null], ['pipe1', 'bWhisper'], ['pipe2', 'bIdx'], ['pipe3', 'bOllama'], ['pipe4', 'bPiper'], ['pipe5', null]];
+stages.forEach(([p, m], i) => {
+  when(8200 + i * 1000, () => {
+    stages.forEach(([pp, mm]) => { hot(pp, false); if (mm) hot(mm, false); });
+    hot(p, true); if (m) hot(m, true);
+    const b = $('bubble');
+    b.style.opacity = 1;
+    b.innerHTML = [
+      'You speak: <b>“When is the library open?”</b>',
+      'Whisper turns your voice into text, on the laptop',
+      'The search index finds the matching college information',
+      'Ollama, a small local AI model, writes the answer',
+      'Piper speaks it out loud',
+      '<b>“The library opens at 8:30 AM.”</b> No internet used.',
+    ][i];
+  });
+});
+when(14800, () => { stages.forEach(([pp, mm]) => { hot(pp, false); if (mm) hot(mm, false); }); $('bubble').style.opacity = 0; });
+
+when(15600, () => {
+  scene('sB', false); scene('sN', true); badge(true); netMode(true);
+  title('Online: the cloud database is the source of truth');
+  cap('Each laptop saves locally first, then syncs with it every minute');
+});
+when(17800, () => { chip('eA', ...[at('A')[0], at('A')[1] - 120], 'Teacher edits marks on A', 'edit'); cap('A teacher changes a mark on Laptop A…'); });
+when(19400, () => { cap('…it is pushed to the cloud database…'); fly(...at('A'), ...DBP, '#b01f3a', 1100, 11); });
+when(20600, () => { flash(); hideChip('eA'); });
+when(21000, () => { cap('…and every other laptop pulls it. The newer edit always wins'); fly(...DBP, ...at('B'), '#12804d', 1100, 11); fly(...DBP, ...at('C'), '#12804d', 1100, 11); });
+when(22400, () => {
+  chip('uB', at('B')[0], at('B')[1] - 120, 'Marks updated', 'ok');
+  chip('uC', at('C')[0], at('C')[1] - 120, 'Marks updated', 'ok');
+});
+when(25000, () => { ['uB', 'uC'].forEach(hideChip); });
+
+when(26000, () => {
+  badge(false); netMode(false);
+  title('No internet? Each laptop carries on by itself');
+  cap('Voice, face login, notes and marks keep working: local models, local database');
+  chip('tA', at('A')[0], at('A')[1] + 128, 'works alone', 'tag');
+  chip('tB', at('B')[0], at('B')[1] + 128, 'works alone', 'tag');
+  chip('tC', at('C')[0], at('C')[1] + 128, 'works alone', 'tag');
+});
+when(29000, () => { chip('eB', at('B')[0], at('B')[1] - 120, 'Edit saved on B', 'edit'); setTimeout(() => { hideChip('eB'); chip('qB', at('B')[0], at('B')[1] - 120, '1 change waiting', 'warn'); }, 900); cap('Edits are saved on the laptop and queued for later'); });
+when(31500, () => { chip('eC', at('C')[0], at('C')[1] - 120, 'Edit saved on C', 'edit'); setTimeout(() => { hideChip('eC'); chip('qC', at('C')[0], at('C')[1] - 120, '1 change waiting', 'warn'); }, 900); });
+when(34200, () => { ['tA', 'tB', 'tC'].forEach(hideChip); });
+
+when(35200, () => {
+  badge(true); netMode(true);
+  title('Back online: they catch up automatically');
+  cap('Waiting changes are pushed first, then everyone pulls the latest');
+});
+when(36400, () => { fly(...at('B'), ...DBP, '#b01f3a', 1100, 11); fly(...at('C'), ...DBP, '#b01f3a', 1100, 11); hideChip('qB'); hideChip('qC'); });
+when(37700, () => { flash(); });
+when(38200, () => {
+  fly(...DBP, ...at('A'), '#12804d', 1100, 11); fly(...DBP, ...at('B'), '#12804d', 1100, 11); fly(...DBP, ...at('C'), '#12804d', 1100, 11);
+});
+when(39500, () => {
+  ['A', 'B', 'C'].forEach((k) => chip('ok' + k, at(k)[0], at(k)[1] - 120, 'Up to date', 'ok'));
+  cap('Nothing lost, and no manual step');
+});
+
+when(42500, () => {
+  scene('sN', false); ['okA', 'okB', 'okC', 'eB', 'eC'].forEach(hideChip); $('net-badge').style.opacity = 0;
+  title('In short'); cap('Your own server per laptop, one shared database behind them');
+  $('summary').classList.add('on');
+  $('summary').innerHTML = [
+    ['#12804d', '1', 'Internet on', 'The cloud database is the source of truth. Laptops sync with it every minute.'],
+    ['#b01f3a', '2', 'Internet off', 'Each laptop is a complete server on its own: local database, local AI models, local face scan.'],
+    ['#172a5c', '3', 'Internet back', 'Queued changes sync automatically. The newer edit wins; deletions sync too.'],
+  ].map(([c, n, h, p]) => `<div class="point"><div class="n" style="background:${c}">${n}</div><div><h3>${h}</h3><p>${p}</p></div></div>`).join('');
+  document.querySelectorAll('.point').forEach((el, i) => setTimeout(() => el.classList.add('show'), 300 + i * 900));
+  setTimeout(() => $('foot').classList.add('on'), 3600);
+});
+
+window.TOTAL = TOTAL;
+window.start = () => T.forEach(([ms, fn]) => setTimeout(fn, ms));
+window.addEventListener('load', () => setTimeout(window.start, 200));
+</script>
+</body>
+</html>
