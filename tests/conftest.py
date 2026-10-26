@@ -17,6 +17,8 @@ os.environ.update(
         "FIREBASE_API_KEY": "test-api-key",
         "FIREBASE_PROJECT_ID": "test-project",
         "GROQ_API_KEY": "",
+        "FACE_MAX_FAILURES": "10",
+        "FACE_MATCH_THRESHOLD": "0.363",
         "TURSO_DATABASE_URL": "",  # tests must never sync with the real backend
         "TURSO_AUTH_TOKEN": "",
     }
@@ -67,13 +69,14 @@ def index(monkeypatch):
 def client(index):
     db.init()
     with db.connect() as conn:
-        conn.execute("DELETE FROM modules")
-        conn.execute("DELETE FROM faces")
+        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance"):
+            conn.execute(f"DELETE FROM {table}")
     with TestClient(app, base_url="http://testserver") as c:
         yield c
 
 
 def login(client, email, face_ok=True, name="Test User"):
     """Put a signed session cookie on the client, as if Google sign-in had happened."""
+    client.cookies.clear()  # a response may have set its own session cookie
     data = base64.b64encode(json.dumps({"email": email, "name": name, "face_ok": face_ok}).encode())
     client.cookies.set("nva_session", TimestampSigner("test-secret").sign(data).decode())

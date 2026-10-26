@@ -1,67 +1,76 @@
-// Face sign-in: type the roll number, look at the camera, and one frame goes to
-// this laptop, which compares it with the college photo and the first sign-in photo.
+// Face sign-in on the laptop. Type the roll number, then:
+//   first time  -> six guided photos are enrolled (like setting up Face ID)
+//   every time after -> a fresh scan is compared with the enrolled face
 
-const video = $('video');
-const button = $('signin');
-const status = $('status');
+let roll = '';
+let enrolled = false;
 
-function say(message, kind) {
-  status.textContent = message;
-  status.className = 'status' + (kind ? ' ' + kind : '');
-}
+const go = $('go');
+document.getElementById('art').prepend(robot());
 
-async function startCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    say(location.protocol === 'http:' && location.hostname !== 'localhost'
-      ? 'The camera needs the https address. Scan the QR code on the laptop again.'
-      : 'This browser cannot use the camera. Try Chrome, Edge or Safari.', 'error');
+async function scan() {
+  go.hidden = true;
+  const ok = await FaceCam.attempt(enrolled ? 'verify' : 'enroll', '/api/login', { roll });
+  if (ok) {
+    FaceCam.stop();
+    setTimeout(() => location.reload(), 900);
     return;
   }
-  try {
-    video.srcObject = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false,
-    });
-    // Wait for the first frame, or the captured picture would be empty.
-    if (video.readyState >= 2) button.disabled = false;
-    else video.addEventListener('loadeddata', () => (button.disabled = false), { once: true });
-  } catch (e) {
-    console.error(e);
-    say('Camera permission was blocked. Allow it in the address bar, then reload.', 'error');
-  }
+  go.textContent = 'Try again';
+  go.hidden = false;
 }
 
-function captureFrame() {
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+function reset() {
+  FaceCam.stop();
+  FaceCam.state('');
+  FaceCam.say('');
+  FaceCam.instruct('');
+  $('camera').hidden = true;
+  $('rollForm').hidden = false;
+  $('title').textContent = 'Sign in';
+  $('lead').textContent = 'Enter your roll number, then look at the camera.';
 }
 
-$('form').addEventListener('submit', async (event) => {
+$('rollForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  button.disabled = true;
-  say('Checking your face…');
+  $('next').disabled = true;
+  FaceCam.say('');
   try {
     const form = new FormData();
     form.append('roll', $('roll').value);
-    form.append('file', await captureFrame(), 'face.jpg');
-    const res = await fetch('/api/login', { method: 'POST', body: form });
-    if (res.ok) {
-      const result = await res.json();
-      say(result.first_photo_saved
-        ? 'Welcome! This first photo is now saved and will be used to recognise you next time.'
-        : 'Recognised. Opening the assistant…', 'notice');
-      setTimeout(() => location.reload(), result.first_photo_saved ? 2500 : 300);
+    const res = await fetch('/api/login/status', { method: 'POST', body: form });
+    if (!res.ok) {
+      FaceCam.say(await errorText(res), 'error');
       return;
     }
-    say(await errorText(res), 'error');
+    roll = $('roll').value;
+    enrolled = (await res.json()).enrolled;
   } catch (e) {
     console.error(e);
-    say('Could not reach the laptop. Check that you are on the same Wi-Fi.', 'error');
+    FaceCam.say('Could not reach the laptop. Check that you are on the same Wi-Fi.', 'error');
+    return;
+  } finally {
+    $('next').disabled = false;
   }
-  button.disabled = false;
+
+  $('rollForm').hidden = true;
+  $('camera').hidden = false;
+  $('title').textContent = enrolled ? 'Look at the camera' : 'Set up face sign-in';
+  $('lead').textContent = enrolled
+    ? 'A quick scan, like Face ID.'
+    : 'First time here. We’ll take six quick photos so we can recognise you next time.';
+  $('tips').hidden = enrolled;
+  go.textContent = enrolled ? 'Scan my face' : 'Start scan';
+  FaceCam.setProgress(0, enrolled ? 3 : 6);
+
+  if (!(await FaceCam.start())) return;
+  if (enrolled) {
+    scan();   // starts looking as soon as the camera is on
+  } else {
+    FaceCam.instruct('Ready when you are');
+    go.hidden = false;
+  }
 });
 
-startCamera();
+go.addEventListener('click', scan);
+$('back').addEventListener('click', reset);

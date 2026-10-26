@@ -2,7 +2,7 @@
 
     python -m offline_app.setup
 
-* Face models, search model, student photos and faces (scripts/setup_models.py)
+* Face models and search model (scripts/setup_models.py)
 * Speech-to-text model (faster-whisper) and voice (Piper) into ./models
 * The local AI model, through Ollama
 * A first sync with the Turso backend, if it is set up

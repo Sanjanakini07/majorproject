@@ -7,11 +7,15 @@ let recorder = null;
 let stopTimer = null;
 let lastAnswer = '';
 const player = new Audio();
+player.addEventListener('play', () => setTalking(true));
+player.addEventListener('ended', () => setTalking(false));
+player.addEventListener('pause', () => setTalking(false));
 
 // ---- Screens ----------------------------------------------------------------
 
 function show(screen) {
   for (const id of ['idle', 'processing', 'answer']) $(id).hidden = id !== screen;
+  mascot.classList.toggle('thinking', screen === 'processing');
   $('typeForm').hidden = screen === 'processing';
 }
 
@@ -105,13 +109,17 @@ async function speak(text) {
     // The laptop's voice is not available: use the browser's own voice instead.
     console.warn('Using the browser voice:', e);
     if (!('speechSynthesis' in window)) return;
-    speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onstart = () => setTalking(true);
+    utterance.onend = utterance.onerror = () => setTalking(false);
+    speechSynthesis.speak(utterance);
   }
 }
 
 function stopSpeaking() {
   player.pause();
   if ('speechSynthesis' in window) speechSynthesis.cancel();
+  setTalking(false);
 }
 
 // ---- Asking ----------------------------------------------------------------------
@@ -179,6 +187,7 @@ const SYNC_TEXT = {
 };
 
 function showSync(s) {
+  if (!$('sync')) return;
   const pending = s.pending ? ` (${s.pending} to send)` : '';
   $('sync').textContent = (SYNC_TEXT[s.state] || s.state) + pending;
   $('sync').title = s.message || (s.last_sync ? `Last synced ${new Date(s.last_sync).toLocaleString()}` : '');
@@ -189,7 +198,7 @@ async function refreshSync(method = 'GET') {
     const res = await fetch('/api/sync', { method });
     if (res.ok) showSync(await res.json());
   } catch (e) {
-    $('sync').textContent = 'Laptop unreachable';
+    if ($('sync')) $('sync').textContent = 'Laptop unreachable';
   }
 }
 
@@ -199,8 +208,6 @@ $('mic').addEventListener('click', () => (recorder ? stopRecording() : startReco
 $('again').addEventListener('click', startRecording);
 $('replay').addEventListener('click', () => speak(lastAnswer));
 $('stop').addEventListener('click', stopSpeaking);
-$('sync').addEventListener('click', () => refreshSync('POST'));
-
 $('typeForm').addEventListener('submit', (event) => {
   event.preventDefault();
   const question = $('typeInput').value.trim();
@@ -210,16 +217,26 @@ $('typeForm').addEventListener('submit', (event) => {
   ask(question);
 });
 
-fetch('/api/me')
-  .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+const mascot = robot();
+$('robotSlot').append(mascot);
+
+function setTalking(on) {
+  mascot.classList.toggle('talking', on);
+}
+
+loadMe()
   .then((me) => {
-    $('who').textContent = me.name;
-    $('adminLink').hidden = !me.is_admin;
-    if (me.is_admin && me.entries === 0) {
+    renderBar('/', me, [
+      el('button', { id: 'sync', className: 'btn small', title: 'Sync with the college backend now' }, 'Sync…'),
+      el('a', { className: 'btn small ghost', href: '/connect' }, 'Connect a phone'),
+    ]);
+    $('sync').addEventListener('click', () => refreshSync('POST'));
+    refreshSync();
+    $('hello').textContent = `${greeting()}, ${me.name}!`;
+    if (me.role !== 'student' && me.entries === 0) {
       showError('No college information has been added yet, so the assistant can’t answer anything. Add some on the Admin page.');
     }
   })
   .catch((e) => console.error('Could not load profile', e));
 
-refreshSync();
 setInterval(refreshSync, 15000);

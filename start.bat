@@ -39,9 +39,9 @@ rem 3. Settings in .env
   exit /b 1
 )
 
-rem 4. Face models, search model, student photos and faces, done once
+rem 4. Face models and search model, done once
 if not exist data\setup-done (
-  echo Downloading models and student photos. This happens only once...
+  echo Downloading models. This happens only once...
   .venv\Scripts\python scripts\setup_models.py || goto :failed
   echo done> data\setup-done
 )
@@ -51,7 +51,7 @@ echo.
 echo Starting the app at %URL%
 echo Keep this window open while you use it. Close this window to stop the app.
 echo.
-start "" /b powershell -NoProfile -Command "for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest -UseBasicParsing '%URL%/' -TimeoutSec 2 | Out-Null; Start-Process '%URL%'; break } catch { Start-Sleep 1 } }"
+start "" /b powershell -NoProfile -Command "for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest -UseBasicParsing '%URL%/' -TimeoutSec 2 | Out-Null; $chrome = '%ProgramFiles%\Google\Chrome\Application\chrome.exe'; if (Test-Path $chrome) { Start-Process $chrome '%URL%' } else { Start-Process '%URL%' } ; break } catch { Start-Sleep 1 } }"
 .venv\Scripts\python -m uvicorn app.main:app --port 8000
 exit /b %errorlevel%
 

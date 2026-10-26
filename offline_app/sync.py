@@ -1,6 +1,6 @@
 """Offline-first sync between this laptop's SQLite database and the Turso backend.
 
-SQLite triggers write every change to modules, faces and first_faces into an
+SQLite triggers write every change to modules, faces, staff roles, profiles, marks and attendance into an
 outbox table, so the admin code in app/ works unchanged. When there is
 internet, sync_once():
   1. push: sends the outbox to Turso
@@ -24,16 +24,12 @@ from . import config
 
 log = logging.getLogger(__name__)
 
-FACE_BYTES = 128 * 4  # 128 float32 numbers
+FACE_BYTES = 128 * 4  # one face signature: 128 float32 numbers; a person has several
+BLOBS = {"embedding"}
 
 LOCAL_SCHEMA = """
--- The photo a student takes at their first sign-in, used next to the college photo.
-CREATE TABLE IF NOT EXISTS first_faces (
-    email      TEXT PRIMARY KEY,
-    embedding  BLOB NOT NULL,
-    updated_by TEXT,
-    updated_at TEXT NOT NULL
-);
+-- Older versions kept a separate "first sign-in photo"; faces now hold several photos each.
+DROP TABLE IF EXISTS first_faces;
 CREATE TABLE IF NOT EXISTS outbox (
     id  INTEGER PRIMARY KEY AUTOINCREMENT,
     tbl TEXT NOT NULL,
@@ -43,15 +39,19 @@ CREATE TABLE IF NOT EXISTS outbox (
 );
 CREATE TABLE IF NOT EXISTS module_uids (uid TEXT PRIMARY KEY, local_id INTEGER NOT NULL UNIQUE);
 CREATE TABLE IF NOT EXISTS sync_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL);
+DELETE FROM outbox WHERE tbl = 'first_faces';
 """
 
-LOCAL_KEY = {"modules": "id", "faces": "email", "first_faces": "email"}
-REMOTE = {"modules": "nva_modules", "faces": "nva_faces", "first_faces": "nva_first_faces"}
-REMOTE_KEY = {"modules": "uid", "faces": "email", "first_faces": "email"}
+LOCAL_KEY = {"modules": "id", "faces": "email", "roles": "email", "profiles": "email", "marks": "id", "attendance": "id"}
+REMOTE = {t: f"nva_{t}" for t in LOCAL_KEY}
+REMOTE_KEY = {**LOCAL_KEY, "modules": "uid"}
 COLUMNS = {
     "modules": ("title", "content", "source", "updated_by"),
     "faces": ("embedding", "updated_by"),
-    "first_faces": ("embedding", "updated_by"),
+    "roles": ("name", "role", "can_content", "can_attendance", "can_marks", "updated_by"),
+    "profiles": ("name", "branch", "semester", "updated_by"),
+    "marks": ("email", "semester", "code", "subject", "internal", "external", "updated_by"),
+    "attendance": ("email", "semester", "code", "subject", "attended", "total", "updated_by"),
 }
 # The nva_ prefix keeps these apart from other projects' tables in the same Turso database.
 # synced_at is Turso's own clock, so a laptop that was offline for days still gets pulled from.
@@ -234,22 +234,25 @@ def _apply_module(conn, row: dict, changed: list, removed: list) -> None:
     changed.append(new_id)
 
 
-def _apply_face(conn, tbl: str, row: dict) -> None:
-    local = conn.execute(f"SELECT updated_at FROM {tbl} WHERE email = ?", (row["email"],)).fetchone()
+def _apply_row(conn, tbl: str, row: dict) -> None:
+    """Apply one row from Turso to a table keyed by a single text column."""
+    key = LOCAL_KEY[tbl]
+    local = conn.execute(f"SELECT updated_at FROM {tbl} WHERE {key} = ?", (row[key],)).fetchone()
     if local and local["updated_at"] >= row["updated_at"]:
         return
     if row["deleted"]:
-        conn.execute(f"DELETE FROM {tbl} WHERE email = ?", (row["email"],))
+        conn.execute(f"DELETE FROM {tbl} WHERE {key} = ?", (row[key],))
         return
-    embedding = base64.b64decode(row["embedding"] or "")
-    if len(embedding) != FACE_BYTES:
-        log.warning("Skipping a damaged face signature for %s from Turso", row["email"])
+    values = [base64.b64decode(row[c] or "") if c in BLOBS else row[c] for c in COLUMNS[tbl]]
+    if tbl == "faces" and (not values[0] or len(values[0]) % FACE_BYTES):
+        log.warning("Skipping a damaged face signature for %s from Turso", row[key])
         return
+    names = [key, *COLUMNS[tbl], "updated_at"]
+    sets = ", ".join(f"{c} = excluded.{c}" for c in names[1:])
     conn.execute(
-        f"INSERT INTO {tbl} (email, embedding, updated_by, updated_at) VALUES (?, ?, ?, ?) "
-        "ON CONFLICT(email) DO UPDATE SET embedding = excluded.embedding, "
-        "updated_by = excluded.updated_by, updated_at = excluded.updated_at",
-        (row["email"], embedding, row["updated_by"], row["updated_at"]),
+        f"INSERT INTO {tbl} ({', '.join(names)}) VALUES ({', '.join('?' * len(names))}) "
+        f"ON CONFLICT({key}) DO UPDATE SET {sets}",
+        (row[key], *values, row["updated_at"]),
     )
 
 
@@ -271,7 +274,7 @@ def pull() -> bool:
                 if tbl == "modules":
                     _apply_module(conn, row, changed, removed)
                 else:
-                    _apply_face(conn, tbl, row)
+                    _apply_row(conn, tbl, row)
         conn.execute("DELETE FROM outbox")  # the triggers logged what came from Turso; don't send it back
         _set_meta(conn, "pulled_until", newest)
 

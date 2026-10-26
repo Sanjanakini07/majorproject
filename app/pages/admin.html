@@ -8,53 +8,58 @@
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header class="bar">
-    <span class="brand">NMAMIT Assistant · Admin</span>
-    <nav><a href="/">Back to assistant</a><a href="/logout">Sign out</a></nav>
-  </header>
+  <header class="bar" id="bar"></header>
 
   <main class="page">
-    <div class="tabs" role="tablist">
-      <button class="tab active" data-tab="knowledge" role="tab">Knowledge</button>
-      <button class="tab" data-tab="faces" role="tab">Faces</button>
+    <div class="page-title">
+      <h1>Admin</h1>
+      <p id="sub" class="muted"></p>
     </div>
 
-    <p id="error" class="error" role="alert" hidden></p>
-    <p id="notice" class="notice" role="status" hidden></p>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="knowledge" role="tab">Knowledge</button>
+      <button class="tab" data-tab="staff" role="tab" hidden>Staff &amp; access</button>
+      <button class="tab" data-tab="faces" role="tab" hidden>Students &amp; faces</button>
+    </div>
+
+    <p id="error" class="alert error" role="alert" hidden></p>
 
     <!-- Knowledge -->
     <section id="tab-knowledge">
-      <div class="card">
-        <h2 id="formTitle">Add knowledge</h2>
-        <form id="moduleForm">
-          <label>Title
-            <input id="mTitle" required maxlength="200" placeholder="e.g. Library timings">
-          </label>
-          <label>Content
-            <textarea id="mContent" rows="8" required maxlength="20000"
-              placeholder="Write the information in plain sentences."></textarea>
-          </label>
-          <div class="row">
-            <button class="btn primary" id="mSave">Save</button>
-            <button type="button" class="btn" id="mCancel" hidden>Cancel edit</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="card">
-        <h2>Upload</h2>
-        <div class="row">
-          <button type="button" class="btn" id="csvButton">Import CSV</button>
-          <button type="button" class="btn" id="imgButton">Read text from image</button>
-          <button type="button" class="btn" id="reindex">Rebuild search index</button>
-          <input type="file" id="csvFile" accept=".csv,text/csv" hidden>
-          <input type="file" id="imgFile" accept="image/*" hidden>
+      <p id="readonly" class="alert info" hidden>You can read the knowledge entries. An admin can switch on editing for you.</p>
+      <div id="editor">
+        <div class="card">
+          <h2 id="formTitle">Add knowledge</h2>
+          <form id="moduleForm">
+            <label>Title
+              <input id="mTitle" required maxlength="200" placeholder="e.g. Library timings">
+            </label>
+            <label>Content
+              <textarea id="mContent" rows="7" required maxlength="20000"
+                placeholder="Write the information in plain sentences."></textarea>
+            </label>
+            <div class="row">
+              <button class="btn primary" id="mSave">Save</button>
+              <button type="button" class="btn" id="mCancel" hidden>Cancel edit</button>
+            </div>
+          </form>
         </div>
-        <p class="muted small">
-          <strong>CSV:</strong> columns <code>title,content</code> give one entry per row. Any other CSV
-          (a timetable, a staff list) also works: each row becomes one entry.<br>
-          <strong>Image:</strong> the text in the picture is copied into the form above so you can check it before saving.
-        </p>
+
+        <div class="card">
+          <h2>Upload</h2>
+          <div class="row">
+            <button type="button" class="btn" id="csvButton">Import CSV</button>
+            <button type="button" class="btn" id="imgButton">Read text from image</button>
+            <button type="button" class="btn" id="reindex">Rebuild search index</button>
+            <input type="file" id="csvFile" accept=".csv,text/csv" hidden>
+            <input type="file" id="imgFile" accept="image/*" hidden>
+          </div>
+          <p class="muted small">
+            <strong>CSV:</strong> columns <code>title,content</code> give one entry per row. Any other CSV
+            (a timetable, a staff list) also works: each row becomes one entry.<br>
+            <strong>Image:</strong> the text in the picture is copied into the form above so you can check it before saving.
+          </p>
+        </div>
       </div>
 
       <div class="card">
@@ -66,23 +71,54 @@
       </div>
     </section>
 
-    <!-- Faces -->
-    <section id="tab-faces" hidden>
+    <!-- Staff -->
+    <section id="tab-staff" hidden>
       <div class="card">
-        <h2>Register a face</h2>
-        <form id="faceForm">
-          <label>Student email
-            <input id="fEmail" type="email" required placeholder="name@nmamit.in">
+        <h2>Add a teacher or admin</h2>
+        <form id="staffForm">
+          <div class="grid cols-2">
+            <label>College email
+              <input id="sEmail" type="email" required placeholder="name@nmamit.in">
+            </label>
+            <label>Name (optional)
+              <input id="sName" maxlength="100" placeholder="e.g. Prof. Rao">
+            </label>
+          </div>
+          <label>Role
+            <select id="sRole">
+              <option value="teacher">Teacher (can view; edits only what you allow)</option>
+              <option value="admin">Admin (can do everything)</option>
+            </select>
           </label>
-          <label>Photo (one clear, front-facing photo of only this person)
-            <input id="fFile" type="file" accept="image/*" required>
-          </label>
-          <button class="btn primary">Save face</button>
+          <div id="sPerms" class="row">
+            <label class="switch"><input type="checkbox" id="pContent"><span></span>Edit knowledge</label>
+            <label class="switch"><input type="checkbox" id="pAttendance"><span></span>Edit attendance</label>
+            <label class="switch"><input type="checkbox" id="pMarks"><span></span>Edit marks</label>
+          </div>
+          <button class="btn primary block">Add to staff</button>
         </form>
-        <p class="muted small">Only a 128-number face signature is stored, not the photo. Registering again replaces the old one.</p>
       </div>
       <div class="card">
-        <h2>Registered (<span id="faceCount">0</span>)</h2>
+        <h2>Staff (<span id="staffCount">0</span>)</h2>
+        <p class="muted small">Students can only view. Switch a permission on or off and it applies immediately.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Person</th><th>Role</th><th class="num">Knowledge</th><th class="num">Attendance</th><th class="num">Marks</th><th></th></tr></thead>
+            <tbody id="staff"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Students and faces -->
+    <section id="tab-faces" hidden>
+      <div class="card">
+        <h2>Enrolled students (<span id="faceCount">0</span>)</h2>
+        <p class="muted small">
+          Everyone enrols their own face the first time they sign in, from live camera photos. Only a numeric
+          signature is stored. Reset a face if someone changes their look or can't sign in; they will enrol again
+          at their next sign-in.
+        </p>
         <ul id="faces" class="list"></ul>
       </div>
     </section>

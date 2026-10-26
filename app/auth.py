@@ -1,13 +1,13 @@
-"""Who is allowed in: Google sign-in, then the face check, then (for admins) the admin list."""
+"""Who is allowed in: Google sign-in, then the face check, then what their role lets them change."""
 import threading
 import time
 from collections import defaultdict, deque
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
-from . import config
+from . import config, db
 
 _google = google_requests.Request()
 
@@ -38,8 +38,29 @@ def is_allowed_google_user(claims: dict) -> bool:
     )
 
 
+PERMISSIONS = ("content", "attendance", "marks")
+
+
+def role_of(email: str) -> str:
+    """admin, teacher or student. Addresses in ADMIN_EMAILS are always admins."""
+    email = email.lower()
+    if email in config.ADMIN_EMAILS:
+        return "admin"
+    row = db.get_role(email)
+    return row["role"] if row else "student"
+
+
 def is_admin(email: str) -> bool:
-    return email.lower() in config.ADMIN_EMAILS
+    return role_of(email) == "admin"
+
+
+def permissions_of(email: str) -> dict[str, bool]:
+    """What this person may change. Admins may change everything; students nothing."""
+    role = role_of(email)
+    if role == "admin":
+        return {p: True for p in PERMISSIONS}
+    row = db.get_role(email.lower()) if role == "teacher" else None
+    return {p: bool(row and row[f"can_{p}"]) for p in PERMISSIONS}
 
 
 # --- FastAPI dependencies -----------------------------------------------------
@@ -57,11 +78,25 @@ def verified_user(request: Request) -> dict:
     return user
 
 
-def admin_user(request: Request) -> dict:
-    user = verified_user(request)
+def staff_user(user: dict = Depends(verified_user)) -> dict:
+    if role_of(user["email"]) == "student":
+        raise HTTPException(403, "Staff only.")
+    return user
+
+
+def admin_user(user: dict = Depends(verified_user)) -> dict:
     if not is_admin(user["email"]):
         raise HTTPException(403, "Admins only.")
     return user
+
+
+def require(permission: str):
+    """Dependency: the signed-in person may change this kind of data."""
+    def check(user: dict = Depends(verified_user)) -> dict:
+        if not permissions_of(user["email"])[permission]:
+            raise HTTPException(403, "You don't have permission to change this. Ask an admin.")
+        return user
+    return check
 
 
 # --- Simple in-memory limits ------------------------------------------------------

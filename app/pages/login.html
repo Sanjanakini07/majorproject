@@ -7,13 +7,26 @@
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="center">
-  <main class="card narrow">
-    <h1>NMAMIT Campus Assistant</h1>
-    <p class="muted">Ask questions about the college by voice and hear the answer.</p>
-    <button id="signin" class="btn primary block" disabled>Sign in with your @nmamit.in Google account</button>
-    <p id="error" class="error" role="alert" hidden></p>
-  </main>
+<body>
+  <div class="login-wrap">
+    <section class="login-art" id="art">
+      <h1>NMAMIT Campus Assistant</h1>
+      <p>Ask about the college by voice, check your marks and attendance, all in one place.</p>
+    </section>
+    <main class="login-form">
+      <div class="card narrow">
+        <h1>Welcome</h1>
+        <p class="muted">Sign in with your college account. Then a quick face scan, like Face ID.</p>
+        <button id="signin" class="btn primary block" disabled>Sign in with your @nmamit.in Google account</button>
+        <p id="error" class="error" role="alert" hidden></p>
+        <ul class="perks">
+          <li>Your face is scanned fresh every time you sign in.</li>
+          <li>Only a numeric face signature is kept. Your photos are never saved.</li>
+        </ul>
+      </div>
+    </main>
+  </div>
+  <script src="/static/js/common.js"></script>
   <script type="module" src="/static/js/login.js"></script>
 </body>
 </html>

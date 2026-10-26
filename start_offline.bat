@@ -49,9 +49,9 @@ if not exist "%OLLAMA%" (
 if not exist "%OLLAMA%" goto :no_ollama
 curl -s -o nul http://127.0.0.1:11434/ 2>nul || start "" /min "%OLLAMA%" serve
 
-rem 5. Models, student photos and the first sync, done once
+rem 5. Models and the first sync, done once
 if not exist data\offline-setup-done (
-  echo Downloading models and student photos. This happens only once...
+  echo Downloading models. This happens only once...
   .venv\Scripts\python -m offline_app.setup || goto :failed
   echo done> data\offline-setup-done
 )

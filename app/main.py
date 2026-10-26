@@ -8,17 +8,17 @@ from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
+from starlette.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import admin, config, db, face, rag
+from . import academics, admin, config, db, facelogin, portal, rag
 from .auth import (
     ask_limit,
-    face_lockout,
-    is_admin,
     is_allowed_google_user,
+    role_of,
     signed_in_user,
     verified_user,
     verify_firebase_token,
@@ -54,6 +54,7 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(admin.router)
+app.include_router(portal.router)
 
 
 # Google sign-in runs Firebase's script from gstatic.com, which talks to Google's
@@ -66,6 +67,17 @@ CSP = (
     f"frame-src https://{config.FIREBASE_AUTH_DOMAIN} https://accounts.google.com; "
     "frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
 )
+
+
+@app.middleware("http")
+async def normalize_localhost(request: Request, call_next):
+    """Use localhost consistently so Firebase accepts the sign-in flow even if the browser hits 127.0.0.1."""
+    host = request.headers.get("host", "").split(":", 1)[0].strip("[]").lower()
+    if host in {"127.0.0.1", "::1"}:
+        port = request.url.port or (443 if request.url.scheme == "https" else 80)
+        netloc = f"localhost:{port}" if port not in (80, 443) else "localhost"
+        return RedirectResponse(request.url.replace(netloc=netloc), status_code=307)
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -107,16 +119,6 @@ def face_page(request: Request):
     if request.session.get("face_ok"):
         return RedirectResponse("/")
     return page("face.html")
-
-
-@app.get("/admin", include_in_schema=False)
-def admin_page(request: Request):
-    session = request.session
-    if not session.get("email") or not session.get("face_ok"):
-        return RedirectResponse("/")
-    if not is_admin(session["email"]):
-        return RedirectResponse("/")
-    return page("admin.html")
 
 
 # --- Google sign-in ---------------------------------------------------------------
@@ -163,46 +165,26 @@ def logout(request: Request):
     return RedirectResponse("/")
 
 
-@app.get("/api/me")
-def me(user: dict = Depends(signed_in_user)):
-    return {
-        "email": user["email"],
-        "name": user["name"],
-        "face_ok": bool(user.get("face_ok")),
-        "face_enrolled": db.get_face(user["email"]) is not None,
-        "is_admin": is_admin(user["email"]),
-        "entries": db.count_modules(),
-    }
-
-
 # --- Face check --------------------------------------------------------------------
+# First sign-in: enrol several photos. Every later sign-in: fresh photos are compared with them.
+
+@app.post("/api/face/enroll")
+async def enroll_face(request: Request, files: list[UploadFile] = File(...), user: dict = Depends(signed_in_user)):
+    email = user["email"]
+    if db.get_face(email) is not None:
+        raise HTTPException(409, "Your face is already enrolled. Ask an admin to reset it if you need to redo it.")
+    images = await facelogin.read_images(files)
+    await run_in_threadpool(facelogin.enroll, email, images, email)
+    if role_of(email) == "student":
+        academics.ensure_student(email, user["name"])
+    request.session["face_ok"] = True
+    return {"ok": True}
+
 
 @app.post("/api/face/verify")
-async def verify_face(request: Request, file: UploadFile = File(...), user: dict = Depends(signed_in_user)):
-    email = user["email"]
-    wait = face_lockout.seconds_left(email)
-    if wait:
-        raise HTTPException(429, f"Too many failed tries. Try again in {wait // 60 + 1} minutes.")
-
-    stored = db.get_face(email)
-    if stored is None:
-        raise HTTPException(404, "Your face is not registered yet. Ask an admin to add your photo.")
-
-    data = await admin.read_upload(file, admin.MAX_IMAGE_BYTES)
-    try:
-        live = face.embedding(data)
-    except face.FaceError as e:
-        # A blurry or empty frame is not counted as a failed try.
-        raise HTTPException(400, str(e))
-
-    ok, score = face.is_match(live, face.from_bytes(stored))
-    log.info("Face check for %s: score=%.3f match=%s", email, score, ok)
-    if not ok:
-        face_lockout.fail(email)
-        left = face_lockout.tries_left(email)
-        raise HTTPException(403, f"Face did not match. {left} tries left.")
-
-    face_lockout.reset(email)
+async def verify_face(request: Request, files: list[UploadFile] = File(...), user: dict = Depends(signed_in_user)):
+    images = await facelogin.read_images(files)
+    await run_in_threadpool(facelogin.verify, user["email"], images)
     request.session["face_ok"] = True
     return {"ok": True}
 

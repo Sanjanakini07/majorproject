@@ -8,16 +8,19 @@
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header class="bar">
-    <span class="brand">NMAMIT Assistant</span>
-    <nav>
-      <span id="who" class="muted small"></span>
-      <a id="adminLink" href="/admin" hidden>Admin</a>
-      <a href="/logout">Sign out</a>
-    </nav>
-  </header>
+  <header class="bar" id="bar"></header>
 
   <main class="chat">
+    <!-- 0. Greeting: the robot waves when the app opens -->
+    <section class="hero" id="hero">
+      <div id="robotSlot"></div>
+      <div class="greet">
+        <p class="eyebrow">NMAMIT Campus Assistant</p>
+        <h1 id="hello">Hello!</h1>
+        <p id="sub">Ask me about timings, notices and timetables. Tap the microphone and speak.</p>
+      </div>
+    </section>
+
     <!-- 1. Waiting / listening -->
     <section id="idle" class="screen">
       <button id="mic" class="mic" aria-label="Tap to speak">
@@ -28,7 +31,7 @@
         </svg>
       </button>
       <p id="micHint" class="hint">Tap to speak</p>
-      <p id="live" class="live" aria-live="polite">Ask about timings, notices, timetables and other college information.</p>
+      <p id="live" class="live" aria-live="polite"></p>
     </section>
 
     <!-- 2. Processing -->

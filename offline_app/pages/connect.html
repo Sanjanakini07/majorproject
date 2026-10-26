@@ -9,8 +9,8 @@
 </head>
 <body>
   <header class="bar">
-    <span class="brand">NMAMIT Assistant</span>
-    <nav><a href="/">Back to assistant</a></nav>
+    <a class="brand" href="/"><span class="brand-mark">N</span>NMAMIT Assistant</a>
+    <div class="bar-right"><a class="btn small ghost" href="/">Back to assistant</a></div>
   </header>
   <main class="page">
     <div class="card narrow">
@@ -21,7 +21,7 @@
         <li>The phone warns that the connection is not private. That is expected: this laptop made its own
           certificate. Tap <strong>Advanced</strong>, then <strong>Proceed</strong> (on iPhone: <strong>Show details → visit this website</strong>).</li>
       </ol>
-      <p id="error" class="error" role="alert" hidden></p>
+      <p id="error" class="alert error" role="alert" hidden></p>
       <div id="codes"></div>
       <p class="muted small">If the phone can't open it, allow Python through the Windows firewall on private networks
         (Windows asks the first time the app starts).</p>

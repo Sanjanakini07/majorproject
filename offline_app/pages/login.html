@@ -8,28 +8,43 @@
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header class="bar">
-    <span class="brand">NMAMIT Assistant</span>
-    <nav><a href="/connect">Connect a phone</a></nav>
-  </header>
-  <main class="page">
-    <div class="card narrow">
-      <h1>Sign in with your face</h1>
-      <form id="form">
-        <label>Roll number
-          <input id="roll" required maxlength="64" placeholder="NNM23IS186" autocomplete="username" autocapitalize="characters">
-        </label>
-        <div class="camera"><video id="video" autoplay playsinline muted></video></div>
-        <p class="muted small">
-          <strong>First time here?</strong> The photo you take now becomes your sign-in photo and is used to
-          recognise you next time. It is checked against your college ID photo first.
-        </p>
-        <button id="signin" class="btn primary block" disabled>Sign in</button>
-      </form>
-      <p id="status" class="status" role="status"></p>
-    </div>
-  </main>
+  <div class="login-wrap">
+    <section class="login-art" id="art">
+      <h1>NMAMIT Campus Assistant</h1>
+      <p>Works on this laptop without internet. Sign in with just your face.</p>
+    </section>
+    <main class="login-form">
+      <div class="card narrow centered">
+        <h1 id="title">Sign in</h1>
+        <p id="lead" class="muted">Enter your roll number, then look at the camera.</p>
+
+        <form id="rollForm">
+          <label>Roll number
+            <input id="roll" required maxlength="64" placeholder="NNM23IS186" autocomplete="username" autocapitalize="characters">
+          </label>
+          <button id="next" class="btn primary block">Continue</button>
+        </form>
+
+        <div id="camera" hidden>
+          <div id="scanner" class="scanner">
+            <div class="lens"><video id="video" autoplay playsinline muted></video><div class="sweep"></div><div class="tick">✓</div></div>
+          </div>
+          <p id="instruction" class="instruction"></p>
+          <div id="dots" class="dots"></div>
+          <ul id="tips" class="tips" hidden>
+            <li>Sit in good light, with your face fully in the circle.</li>
+            <li>Take off sunglasses and caps. Only you should be in view.</li>
+            <li>Follow the prompts and move your head slowly.</li>
+          </ul>
+          <button id="go" class="btn primary block" hidden></button>
+          <button id="back" class="btn ghost block" type="button">Use a different roll number</button>
+        </div>
+        <p id="status" class="status" role="status"></p>
+      </div>
+    </main>
+  </div>
   <script src="/static/js/common.js"></script>
+  <script src="/static/js/facecam.js"></script>
   <script src="/offline/js/login.js"></script>
 </body>
 </html>

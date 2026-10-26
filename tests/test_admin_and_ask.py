@@ -46,16 +46,6 @@ def test_csv_import(client, index):
     assert len(index.modules) == 6
 
 
-def test_face_enroll_rejects_outside_emails(client):
-    login(client, "admin@nmamit.in")
-    res = client.post(
-        "/api/admin/faces",
-        data={"email": "someone@gmail.com"},
-        files={"file": ("f.jpg", b"x", "image/jpeg")},
-    )
-    assert res.status_code == 400
-
-
 def test_ask_streams_progress_and_answer(client, index, monkeypatch):
     login(client, "admin@nmamit.in")
     client.post("/api/admin/modules", json={"title": "Library", "content": "The library opens at 8:30 AM"})
