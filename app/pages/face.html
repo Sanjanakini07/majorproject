@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Face check · NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar">
+    <span class="brand">NMAMIT Assistant</span>
+    <nav><a href="/logout">Sign out</a></nav>
+  </header>
+  <main class="page">
+    <div class="card narrow">
+      <h1>Face check</h1>
+      <p class="muted">One more step. Look straight at the camera in good light, then press the button.</p>
+      <div class="camera"><video id="video" autoplay playsinline muted></video></div>
+      <button id="verify" class="btn primary block" disabled>Verify my face</button>
+      <p id="status" class="status" role="status"></p>
+    </div>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/face.js"></script>
+</body>
+</html>

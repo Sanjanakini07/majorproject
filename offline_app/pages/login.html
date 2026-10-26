@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar">
+    <span class="brand">NMAMIT Assistant</span>
+    <nav><a href="/connect">Connect a phone</a></nav>
+  </header>
+  <main class="page">
+    <div class="card narrow">
+      <h1>Sign in with your face</h1>
+      <form id="form">
+        <label>Roll number
+          <input id="roll" required maxlength="64" placeholder="NNM23IS186" autocomplete="username" autocapitalize="characters">
+        </label>
+        <div class="camera"><video id="video" autoplay playsinline muted></video></div>
+        <p class="muted small">
+          <strong>First time here?</strong> The photo you take now becomes your sign-in photo and is used to
+          recognise you next time. It is checked against your college ID photo first.
+        </p>
+        <button id="signin" class="btn primary block" disabled>Sign in</button>
+      </form>
+      <p id="status" class="status" role="status"></p>
+    </div>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script src="/offline/js/login.js"></script>
+</body>
+</html>

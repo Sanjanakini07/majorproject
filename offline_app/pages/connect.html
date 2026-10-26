@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect a phone · NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar">
+    <span class="brand">NMAMIT Assistant</span>
+    <nav><a href="/">Back to assistant</a></nav>
+  </header>
+  <main class="page">
+    <div class="card narrow">
+      <h1>Connect a phone</h1>
+      <ol>
+        <li>Connect the phone to the same Wi-Fi or hotspot as this laptop.</li>
+        <li>Scan this code with the phone camera.</li>
+        <li>The phone warns that the connection is not private. That is expected: this laptop made its own
+          certificate. Tap <strong>Advanced</strong>, then <strong>Proceed</strong> (on iPhone: <strong>Show details → visit this website</strong>).</li>
+      </ol>
+      <p id="error" class="error" role="alert" hidden></p>
+      <div id="codes"></div>
+      <p class="muted small">If the phone can't open it, allow Python through the Windows firewall on private networks
+        (Windows asks the first time the app starts).</p>
+    </div>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script src="/offline/js/connect.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Web server
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+itsdangerous>=2.1
+python-dotenv>=1.0
+
+# Google sign-in (checks Firebase sign-in tokens); httpx is for the tests
+google-auth>=2.30
+requests>=2.31
+httpx>=0.27
+
+# Face check
+opencv-python-headless>=4.8
+numpy>=1.26
+
+# RAG: vector database + AI model + reading text from images
+chromadb>=1.0
+groq>=0.30
+rapidocr>=3.0
+
+# Tests
+pytest>=8.0

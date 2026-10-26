@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar">
+    <span class="brand">NMAMIT Assistant · Admin</span>
+    <nav><a href="/">Back to assistant</a><a href="/logout">Sign out</a></nav>
+  </header>
+
+  <main class="page">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="knowledge" role="tab">Knowledge</button>
+      <button class="tab" data-tab="faces" role="tab">Faces</button>
+    </div>
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <p id="notice" class="notice" role="status" hidden></p>
+
+    <!-- Knowledge -->
+    <section id="tab-knowledge">
+      <div class="card">
+        <h2 id="formTitle">Add knowledge</h2>
+        <form id="moduleForm">
+          <label>Title
+            <input id="mTitle" required maxlength="200" placeholder="e.g. Library timings">
+          </label>
+          <label>Content
+            <textarea id="mContent" rows="8" required maxlength="20000"
+              placeholder="Write the information in plain sentences."></textarea>
+          </label>
+          <div class="row">
+            <button class="btn primary" id="mSave">Save</button>
+            <button type="button" class="btn" id="mCancel" hidden>Cancel edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Upload</h2>
+        <div class="row">
+          <button type="button" class="btn" id="csvButton">Import CSV</button>
+          <button type="button" class="btn" id="imgButton">Read text from image</button>
+          <button type="button" class="btn" id="reindex">Rebuild search index</button>
+          <input type="file" id="csvFile" accept=".csv,text/csv" hidden>
+          <input type="file" id="imgFile" accept="image/*" hidden>
+        </div>
+        <p class="muted small">
+          <strong>CSV:</strong> columns <code>title,content</code> give one entry per row. Any other CSV
+          (a timetable, a staff list) also works: each row becomes one entry.<br>
+          <strong>Image:</strong> the text in the picture is copied into the form above so you can check it before saving.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="row between">
+          <h2>Entries (<span id="count">0</span>)</h2>
+          <input id="filter" type="search" placeholder="Filter" aria-label="Filter entries">
+        </div>
+        <ul id="modules" class="list"></ul>
+      </div>
+    </section>
+
+    <!-- Faces -->
+    <section id="tab-faces" hidden>
+      <div class="card">
+        <h2>Register a face</h2>
+        <form id="faceForm">
+          <label>Student email
+            <input id="fEmail" type="email" required placeholder="name@nmamit.in">
+          </label>
+          <label>Photo (one clear, front-facing photo of only this person)
+            <input id="fFile" type="file" accept="image/*" required>
+          </label>
+          <button class="btn primary">Save face</button>
+        </form>
+        <p class="muted small">Only a 128-number face signature is stored, not the photo. Registering again replaces the old one.</p>
+      </div>
+      <div class="card">
+        <h2>Registered (<span id="faceCount">0</span>)</h2>
+        <ul id="faces" class="list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>
