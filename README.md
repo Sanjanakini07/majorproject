@@ -2,6 +2,8 @@
 
 A small website where an NMAMIT student signs in with their college Google account, passes a Face ID style face scan, asks a question out loud and hears the answer. Students can also see their own marks and attendance. Answers come only from the information admins and permitted teachers add in the admin panel. This approach is called RAG (retrieval-augmented generation).
 
+**Quick tour (40 seconds, light theme):** [docs/demo-tour.mp4](docs/demo-tour.mp4). It shows sign-in, the face scan, the assistant, notes, events, marks, attendance, the robot's moods and sleep, and the admin and teacher tools. The demo used a test camera and a stand-in for the language model; search, permissions and everything on the pages are the real app.
+
 ```
 Student                        Server                                   Admin
 ───────                        ──────                                   ─────
