@@ -13,7 +13,7 @@ let lastAnswer = '';
 
 function show(screen) {
   for (const id of ['idle', 'processing', 'answer']) $(id).hidden = id !== screen;
-  mascot.classList.toggle('thinking', screen === 'processing');
+  mascot.think(screen === 'processing');
   $('typeForm').hidden = screen === 'processing';
 }
 
@@ -23,6 +23,7 @@ function setStep(name, state) {
 }
 
 function setListening(on) {
+  mascot.listen(on);
   listening = on;
   $('mic').classList.toggle('on', on);
   $('mic').setAttribute('aria-label', on ? 'Tap when you are done' : 'Tap to speak');
@@ -89,7 +90,7 @@ function stopListening() {
 // ---- Text to speech -----------------------------------------------------------
 
 function speak(text) {
-  if (!('speechSynthesis' in window)) return;
+  if (!('speechSynthesis' in window)) return mascot.speakFor(text.length * 60);
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = LANG;
@@ -109,6 +110,7 @@ function stopSpeaking() {
 // ---- Asking the server -----------------------------------------------------------
 
 function fail(message) {
+  mascot.emote('confused', 3500);
   show('idle');
   showError(message);
 }
@@ -121,6 +123,8 @@ function showAnswer(question, answer, sources, links = []) {
   $('aLinks').replaceChildren(...links.map((l) =>
     el('a', { className: 'chip link', href: l.url }, icon(l.label === 'Event' ? 'events' : 'notes'), `${l.label}: ${l.title.replace(/^(Notes|Event): /, '')}`)));
   show('answer');
+  const noInfo = /^I don.t have (any )?information/i.test(answer);
+  mascot.emote(noInfo ? 'sad' : /\bthank/i.test(question) ? 'love' : 'happy', noInfo ? 3500 : 4500);
   speak(answer);
 }
 
@@ -192,16 +196,17 @@ $('typeForm').addEventListener('submit', (event) => {
 // Some browsers load voices late; asking once makes them available for speak().
 if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
-const mascot = robot();
-$('robotSlot').append(mascot);
+const mascot = createRobot();
+$('robotSlot').append(mascot.el);
 
 function setTalking(on) {
-  mascot.classList.toggle('talking', on);
+  mascot.talk(on);
 }
 
 loadMe()
   .then((me) => {
     renderBar('/', me);
+    mascot.greet();
     $('hello').textContent = `${greeting()}, ${me.name.split(' ')[0]}!`;
     if (me.role !== 'student' && me.entries === 0) {
       showError('No college information has been added yet, so the assistant can’t answer anything. Add some on the Admin page.');

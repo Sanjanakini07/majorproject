@@ -118,6 +118,7 @@ function renderBar(active, me, extra = []) {
         el('span', { className: 'avatar' }, initials || '?'),
         el('span', { className: 'name' }, me.name),
         el('span', { className: `badge ${me.role}` }, me.role)),
+      Theme.button(),
       el('a', { className: 'btn small ghost', href: '/logout' }, 'Sign out')),
   );
 }
@@ -168,47 +169,6 @@ async function studentPicker(box, onPick) {
 function gradeChip(grade) {
   const kind = grade === 'F' ? 'F' : ['C', 'B'].includes(grade) ? 'mid' : '';
   return el('span', { className: 'grade ' + kind }, grade);
-}
-
-// ---- The robot ----------------------------------------------------------------------
-
-const ROBOT_SVG = `
-<svg class="robot" viewBox="0 0 200 210" role="img" aria-label="Friendly robot assistant">
-  <defs>
-    <linearGradient id="rb-head" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd6ec"/></linearGradient>
-    <linearGradient id="rb-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2552"/><stop offset="1" stop-color="#0c1230"/></linearGradient>
-  </defs>
-  <ellipse cx="100" cy="200" rx="52" ry="7" fill="rgba(0,0,0,.22)"/>
-  <line x1="100" y1="34" x2="100" y2="52" stroke="#cfd6ec" stroke-width="5" stroke-linecap="round"/>
-  <circle class="antenna-ball" cx="100" cy="28" r="9" fill="#f2b134"/>
-  <rect x="14" y="98" width="16" height="42" rx="8" fill="#b01f3a"/>
-  <rect x="170" y="98" width="16" height="42" rx="8" fill="#b01f3a"/>
-  <rect x="28" y="50" width="144" height="124" rx="40" fill="url(#rb-head)"/>
-  <rect x="42" y="64" width="116" height="94" rx="28" fill="url(#rb-screen)"/>
-  <g class="pupils">
-    <rect class="eye" x="64" y="88" width="22" height="30" rx="11" fill="#7ee0ff"/>
-    <rect class="eye" x="114" y="88" width="22" height="30" rx="11" fill="#7ee0ff"/>
-  </g>
-  <circle cx="58" cy="132" r="7" fill="#f0627c" opacity=".55"/>
-  <circle cx="142" cy="132" r="7" fill="#f0627c" opacity=".55"/>
-  <path class="smile" d="M80 134 Q100 150 120 134" fill="none" stroke="#7ee0ff" stroke-width="6" stroke-linecap="round"/>
-  <ellipse class="talk" cx="100" cy="140" rx="13" ry="9" fill="#7ee0ff"/>
-</svg>`;
-
-// Returns the robot as an element. Its eyes follow the pointer a little.
-// robot.classList 'talking' moves the mouth, 'thinking' makes the eyes look around.
-function robot() {
-  const wrap = document.createElement('div');
-  wrap.innerHTML = ROBOT_SVG;
-  const svg = wrap.firstElementChild;
-  const pupils = svg.querySelector('.pupils');
-  document.addEventListener('pointermove', (e) => {
-    const box = svg.getBoundingClientRect();
-    const dx = (e.clientX - (box.left + box.width / 2)) / window.innerWidth;
-    const dy = (e.clientY - (box.top + box.height / 2)) / window.innerHeight;
-    pupils.style.transform = `translate(${(dx * 9).toFixed(1)}px, ${(dy * 7).toFixed(1)}px)`;
-  });
-  return svg;
 }
 
 function greeting() {

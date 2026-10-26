@@ -98,6 +98,11 @@ Always open the app as `http://localhost:8000`, not `127.0.0.1`: Firebase only a
 
 Addresses in `ADMIN_EMAILS` are admins and can't be changed from the website. Those admins add teachers (and more admins) in **Admin → Staff & access**, and switch each teacher's three permissions on or off. A change applies on the teacher's next click. An admin has to sign in with their own face first, like everyone else, so there is no command to run for the first admin.
 
+## Theme and the robot
+
+- **Light / dark:** the sun and moon button in the top bar (or in the corner on the sign-in pages) switches the theme. It remembers your choice; until you choose, it follows your device's setting.
+- **The robot** (`app/static/js/robot.js`) has moods: it waves on arrival, leans in with glowing ears while you speak, looks up and shows thinking dots while it finds the answer, moves its mouth while talking, looks happy, sad, surprised or confused depending on the answer, and shows hearts if you thank it. Its eyes follow your pointer, it blinks, glances around and does small things by itself. After about 40 seconds with nobody around it gets drowsy, yawns and falls asleep (Zzz); any click, key press or mouse movement wakes it. Tapping it makes it wink. With the device set to reduce motion, it keeps the expressions but stops the idle movement.
+
 ## Notes and events
 
 - **Notes:** semesters 1 to 8, each with three sample subjects. Under a subject, an admin (or a teacher with the **content** permission) adds notes either by **uploading a PDF** (up to 15 MB) or by **pasting text**. Students can open, download and read them, never change them.

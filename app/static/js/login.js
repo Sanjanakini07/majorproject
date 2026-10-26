@@ -63,7 +63,9 @@ async function signIn() {
   button.disabled = false;
 }
 
-document.getElementById('art').prepend(robot());
+const mascot = createRobot();
+document.getElementById('art').prepend(mascot.el);
+setTimeout(() => mascot.greet(), 500);
 button.addEventListener('click', signIn);
 setup().catch((e) => {
   console.error(e);
