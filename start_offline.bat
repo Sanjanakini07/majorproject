@@ -1,6 +1,6 @@
 @echo off
-rem Double-click to start the offline NMAMIT Assistant: face sign-in, voice and AI all on this laptop.
-rem The first run needs internet and installs everything (about 10-20 minutes). After that no internet is needed.
+rem Double-click to start the offline NMAMIT Assistant: face sign-in, voice and AI all on this device.
+rem The app connects directly to the local database and runs completely offline.
 rem Keep this window open while using the app. Close it to stop the app.
 
 setlocal
@@ -41,28 +41,24 @@ rem 3. Settings in .env
   exit /b 1
 )
 
-rem 4. Ollama runs the local AI model
-if not exist "%OLLAMA%" (
-  echo Installing Ollama, which runs the AI model on this laptop...
-  winget install -e --id Ollama.Ollama --silent --accept-package-agreements --accept-source-agreements
+rem 4. Ollama runs the local AI model (optional fallback to facts)
+if exist "%OLLAMA%" (
+  curl -s -o nul http://127.0.0.1:11434/ 2>nul || start "" /min "%OLLAMA%" serve
 )
-if not exist "%OLLAMA%" goto :no_ollama
-curl -s -o nul http://127.0.0.1:11434/ 2>nul || start "" /min "%OLLAMA%" serve
 
-rem 5. Models and the first sync, done once
+rem 5. Models setup, done once
 if not exist data\offline-setup-done (
-  echo Downloading models. This happens only once...
+  echo Downloading local models. This happens only once...
   .venv\Scripts\python -m offline_app.setup || goto :failed
   echo done> data\offline-setup-done
 )
 
-rem 6. Start the app and open the browser when it is ready
+rem 6. Start the app and open the client when it is ready
 echo.
-echo Starting the app at %URL%
-echo Phones: open %URL%/connect on this laptop and scan the QR code.
+echo Starting NMAMIT Offline Assistant at %URL%
 echo Keep this window open while you use it. Close this window to stop the app.
 echo.
-start "" /b powershell -NoProfile -Command "for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest -UseBasicParsing '%URL%/' -TimeoutSec 2 | Out-Null; Start-Process '%URL%'; break } catch { Start-Sleep 1 } }"
+start "" /b powershell -NoProfile -Command "for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest -UseBasicParsing '%URL%/' -TimeoutSec 2 | Out-Null; $edge = '%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe'; if (Test-Path $edge) { Start-Process $edge '--app=%URL%' } else { Start-Process '%URL%' }; break } catch { Start-Sleep 1 } }"
 .venv\Scripts\python -m offline_app
 exit /b %errorlevel%
 
@@ -72,15 +68,8 @@ echo and tick "Add python.exe to PATH" during installation. Then double-click st
 pause
 exit /b 1
 
-:no_ollama
-echo Ollama could not be installed automatically. Install it from https://ollama.com/download
-echo then double-click start_offline.bat again.
-pause
-exit /b 1
-
 :failed
 echo.
-echo Something went wrong above. The first start needs internet; check it and try again.
-echo If it keeps failing, send a screenshot of this window to the project team.
+echo Something went wrong above. Check the log and try again.
 pause
 exit /b 1

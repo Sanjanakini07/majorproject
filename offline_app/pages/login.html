@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NMAMIT Assistant</title>
+  <title>NMAMIT Assistant · Offline</title>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <script src="/static/js/theme.js"></script>
   <link rel="stylesheet" href="/static/css/style.css">
@@ -12,18 +12,29 @@
   <div class="login-wrap">
     <section class="login-art" id="art">
       <h1>NMAMIT Campus Assistant</h1>
-      <p>Works on this laptop without internet. Sign in with just your face.</p>
+      <p>100% Offline · Private &amp; Secure Face Authentication directly on this device.</p>
     </section>
     <main class="login-form">
       <div class="card narrow centered">
-        <h1 id="title">Sign in</h1>
-        <p id="lead" class="muted">Enter your roll number, then look at the camera.</p>
+        <div class="tabs" id="authTabs" role="tablist">
+          <button type="button" class="tab active" id="tabSignin" role="tab" aria-selected="true">Sign In</button>
+          <button type="button" class="tab" id="tabRegister" role="tab" aria-selected="false">Register</button>
+        </div>
 
-        <form id="rollForm">
-          <label>Roll number
-            <input id="roll" required maxlength="64" placeholder="NNM23IS186" autocomplete="username" autocapitalize="characters">
+        <h1 id="title">Sign in</h1>
+        <p id="lead" class="muted">Enter your roll number, then verify with your face.</p>
+
+        <form id="authForm">
+          <label>Roll number / USN
+            <input id="roll" required maxlength="64" placeholder="e.g. NNM23IS186" autocomplete="username" autocapitalize="characters">
           </label>
+
+          <label id="nameWrap" hidden>Full name
+            <input id="name" maxlength="64" placeholder="e.g. Srujan M Padmashali" autocomplete="name">
+          </label>
+
           <button id="next" class="btn primary block">Continue</button>
+          <p id="modeHint" class="muted small" style="margin-top: 14px; text-align: center;"></p>
         </form>
 
         <div id="camera" hidden>

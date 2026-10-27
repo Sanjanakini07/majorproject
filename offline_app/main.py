@@ -1,6 +1,6 @@
-"""The offline web app: face sign-in, voice questions and answers, all on this laptop.
+"""The offline NMAMIT Assistant: face sign-in, voice questions and answers, all on this Windows device.
 
-Start it with start_offline.bat, or:  python -m offline_app
+Start it with:  python -m offline_app
 The admin panel, marks, attendance, face check, knowledge store and search are reused from app/.
 """
 import json
@@ -18,9 +18,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app import academics, admin, bus, db, facelogin, library, personal, portal, rag, seed
 from app import config as app_config
-from app.auth import ask_limit, role_of, verified_user
+from app.auth import ask_limit, role_of, signed_in_user, verified_user
 
-from . import config, llm, net, sync, voice
+from . import config, llm, voice
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("offline_app")
@@ -35,7 +35,6 @@ async def lifespan(_app: FastAPI):
     db.init()
     library.seed_subjects()
     await run_in_threadpool(seed.run)
-    sync.start()
     if not app_config.ADMIN_EMAILS:
         log.warning("ADMIN_EMAILS is empty: nobody can open the admin panel.")
     yield
@@ -57,7 +56,7 @@ app.include_router(library.router)
 app.include_router(bus.router)
 
 CSP = (
-    "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; script-src 'self'; "
+    "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; script-src 'self' 'unsafe-inline'; "
     "frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
 )
 
@@ -93,20 +92,16 @@ def home(request: Request):
     return page(HERE / "pages" / "chat.html")
 
 
-@app.get("/connect", include_in_schema=False)
-def connect_page():
-    return page(HERE / "pages" / "connect.html")
-
-
 @app.get("/logout", include_in_schema=False)
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse("/")
 
 
-# --- Face sign-in ------------------------------------------------------------------
-# Like Face ID: the first time, six photos are taken while the student turns their head and
-# their face signature is saved. Every later sign-in takes fresh photos and compares them.
+# --- Face sign-in & registration --------------------------------------------------
+# Offline Face Authentication:
+#   First time registration -> 6 guided photos enrolled locally in SQLite 'faces' table.
+#   Later sign-ins -> fresh photos compared against the enrolled signatures locally.
 
 def roll_email(roll: str) -> tuple[str, str]:
     roll = roll.strip().lower()
@@ -125,23 +120,57 @@ def login_status(roll: str = Form(..., max_length=100)):
 
 
 @app.post("/api/login")
-async def login(request: Request, roll: str = Form(..., max_length=100), files: list[UploadFile] = File(...)):
+async def login(
+    request: Request,
+    roll: str = Form(..., max_length=100),
+    name: str = Form(default="", max_length=100),
+    files: list[UploadFile] = File(...),
+):
     local, email = roll_email(roll)
     facelogin.check_not_locked(email)
     images = await facelogin.read_images(files)
 
+    display_name = name.strip() or local.upper()
     first_time = db.get_face(email) is None
     if first_time:
         await run_in_threadpool(facelogin.enroll, email, images, email)
         if role_of(email) == "student":
-            academics.ensure_student(email, local.upper())
-        sync.sync_soon()
+            academics.ensure_student(email, display_name)
+        if name.strip():
+            academics.adopt_name(email, name.strip())
+            profile = db.get_profile(email)
+            if profile and profile.get("name"):
+                display_name = profile["name"]
     else:
         await run_in_threadpool(facelogin.verify, email, images)
+        profile = db.get_profile(email)
+        if profile and profile.get("name"):
+            display_name = profile["name"]
 
     request.session.clear()  # always start a fresh session after sign-in
-    request.session.update({"email": email, "name": local.upper(), "face_ok": True})
+    request.session.update({"email": email, "name": display_name, "face_ok": True})
     return {"enrolled_now": first_time}
+
+
+@app.post("/api/face/enroll")
+async def enroll_face(request: Request, files: list[UploadFile] = File(...), user: dict = Depends(signed_in_user)):
+    email = user["email"]
+    if db.get_face(email) is not None:
+        raise HTTPException(409, "Your face is already enrolled. Ask an admin to reset it if you need to redo it.")
+    images = await facelogin.read_images(files)
+    await run_in_threadpool(facelogin.enroll, email, images, email)
+    if role_of(email) == "student":
+        academics.ensure_student(email, user["name"])
+    request.session["face_ok"] = True
+    return {"ok": True}
+
+
+@app.post("/api/face/verify")
+async def verify_face(request: Request, files: list[UploadFile] = File(...), user: dict = Depends(signed_in_user)):
+    images = await facelogin.read_images(files)
+    await run_in_threadpool(facelogin.verify, user["email"], images)
+    request.session["face_ok"] = True
+    return {"ok": True}
 
 
 # --- Voice -------------------------------------------------------------------------
@@ -212,31 +241,13 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
     return StreamingResponse(steps(), media_type="application/x-ndjson", headers={"Cache-Control": "no-store"})
 
 
-# --- Phones and sync ---------------------------------------------------------------
-
-def phone_urls() -> list[str]:
-    return [f"https://{ip}:{config.HTTPS_PORT}" for ip in net.lan_ips()]
-
-
-@app.get("/api/connect")
-def connect_info():
-    return {"phone_urls": phone_urls()}
-
-
-@app.get("/api/qr.svg")
-def qr(i: int = 0):
-    urls = phone_urls()
-    if not 0 <= i < len(urls):
-        raise HTTPException(404, "This laptop is not on a Wi-Fi network.")
-    return Response(net.qr_svg(urls[i]), media_type="image/svg+xml", headers={"Cache-Control": "no-store"})
-
+# --- Offline status compatibility --------------------------------------------------
 
 @app.get("/api/sync")
-def sync_status(user: dict = Depends(verified_user)):
-    return sync.current_status()
+def sync_status():
+    return {"state": "off", "message": "Offline only (local database is source of truth)", "pending": 0}
 
 
-@app.post("/api/sync", status_code=202)
-def sync_now(user: dict = Depends(verified_user)):
-    sync.sync_soon()
-    return sync.current_status()
+@app.post("/api/sync", status_code=200)
+def sync_now():
+    return {"state": "off", "message": "Offline only (local database is source of truth)", "pending": 0}

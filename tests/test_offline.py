@@ -259,3 +259,18 @@ def test_offline_admin_pages_follow_roles(offline_client):
     assert offline_client.get("/admin", follow_redirects=False).status_code == 307
     assert offline_client.get("/api/admin/staff").status_code == 403
     assert offline_client.get("/marks").status_code == 200
+
+
+def test_offline_register_with_name(offline_client):
+    files = [("files", ("face.jpg", p, "image/jpeg")) for p in OWNER]
+    res = offline_client.post("/api/login", data={"roll": "NNM23IS002", "name": "Srujan M Padmashali"}, files=files)
+    assert res.status_code == 200 and res.json() == {"enrolled_now": True}
+    me = offline_client.get("/api/me").json()
+    assert me["name"] == "Srujan M Padmashali"
+
+
+def test_offline_llm_answers_from_facts_when_ollama_unreachable(monkeypatch):
+    from offline_app import llm
+    monkeypatch.setattr(llm.app_config, "GROQ_API_KEY", "")
+    ans = llm.answer("What is my attendance?", [], "Attendance: 88.5% in semester 6.")
+    assert "88.5%" in ans
