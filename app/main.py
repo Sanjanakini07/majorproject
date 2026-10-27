@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import academics, admin, config, db, facelogin, library, portal, rag
+from . import academics, admin, bus, config, db, facelogin, library, personal, portal, rag, seed
 from .auth import (
     ask_limit,
     is_allowed_google_user,
@@ -35,6 +35,7 @@ PAGES = APP_DIR / "pages"
 async def lifespan(_app: FastAPI):
     db.init()
     library.seed_subjects()
+    await run_in_threadpool(seed.run)
     if not config.FIREBASE_API_KEY or not config.FIREBASE_PROJECT_ID:
         log.warning("FIREBASE_API_KEY / FIREBASE_PROJECT_ID are not set: sign-in will not work. See README.")
     if not config.GROQ_API_KEY:
@@ -57,6 +58,7 @@ app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(admin.router)
 app.include_router(portal.router)
 app.include_router(library.router)
+app.include_router(bus.router)
 
 
 # Google sign-in runs Firebase's script from gstatic.com, which talks to Google's
@@ -160,7 +162,9 @@ def sign_in(body: SignInIn, request: Request):
         raise HTTPException(403, f"Please use your @{config.ALLOWED_DOMAIN} college Google account.")
 
     email = claims["email"].lower()
-    request.session.update({"email": email, "name": claims.get("name") or email, "face_ok": False})
+    name = academics.clean_name(claims.get("name") or "", email) or email
+    request.session.update({"email": email, "name": name, "face_ok": False})
+    academics.adopt_name(email, name)
     return {"next": "/face"}
 
 
@@ -212,15 +216,18 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
     if not ask_limit.allow(user["email"]):
         raise HTTPException(429, "You're asking very fast. Wait a minute and try again.")
 
+    # Exact facts (their records, dates, the calendar) and which search results they make unnecessary.
+    facts = personal.build(user["email"], user.get("name", ""), question)
+
     def steps():
         # Each line tells the page which step we're on, so it can show progress.
         yield _line({"stage": "searching"})
         try:
-            hits = rag.search(question)
+            hits = personal.adjust_hits(rag.search(question), facts)
             sources = list(dict.fromkeys(h["title"] for h in hits))
             links = library.links_for([h.get("module_id") for h in hits])
             yield _line({"stage": "thinking", "sources": sources})
-            answer = rag.answer(question, hits)
+            answer = rag.answer(question, hits, facts.text)
         except Exception:
             log.exception("Answering failed")
             yield _line({"stage": "error", "message": "Sorry, something went wrong while answering. Please try again."})

@@ -61,7 +61,9 @@ function render(data) {
   const canEdit = me.permissions.attendance;
   const st = data.student;
   const req = data.required_percent;
-  $('sub').textContent = `${(st.name || st.email).toUpperCase()} · semester ${st.semester} · ${req}% needed to sit the exams`;
+  const floor = data.condonable_percent;
+  $('sub').textContent = `${(st.name || st.email).toUpperCase()} · semester ${st.semester} · ${req}% needed in every course`
+    + (floor ? ` (under ${floor}% you can't write the SEE)` : '');
   const low = data.subjects.filter((s) => s.percent < req).length;
   const cards = data.subjects.map((s) => subjectCard(s, req, canEdit, st.email));
   const stat = (num, label) => el('div', { className: 'card stat' }, el('span', { className: 'num' }, String(num)), el('span', { className: 'label' }, label));
@@ -93,7 +95,7 @@ async function load(email) {
 async function start() {
   me = await loadMe();
   renderBar('/attendance', me);
-  if (me.role === 'student') return load(null);
+  if (!me.permissions.attendance) return load(null);   // only people allowed to see others get the picker
   $('picker').hidden = false;
   await studentPicker($('picker'), (email) => (email ? load(email) : render({ student: null })));
 }

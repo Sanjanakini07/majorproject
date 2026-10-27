@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bus timings · NMAMIT Assistant</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <script src="/static/js/theme.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="bar" id="bar"></header>
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Bus timings</h1>
+        <p class="muted">Buses from and to Nitte. Ask the assistant too: "Next bus to Karkala?" or "Last bus to Mangalore?"</p>
+      </div>
+    </div>
+    <p id="error" class="alert error" role="alert" hidden></p>
+    <div class="tabs" id="routes" role="tablist"></div>
+    <div class="bus-tools">
+      <input type="search" id="search" placeholder="Search a bus name or place" aria-label="Search buses">
+      <select id="place" aria-label="Going to" hidden></select>
+      <label class="muted small"><input type="checkbox" id="upcoming" checked> Only from now on</label>
+    </div>
+    <div id="next" class="bus-next"></div>
+    <div class="card"><div class="table-wrap"><table>
+      <thead id="head"></thead>
+      <tbody id="rows"></tbody>
+    </table></div></div>
+    <p class="source" id="source"></p>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/bus.js"></script>
+</body>
+</html>

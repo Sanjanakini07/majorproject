@@ -8,35 +8,18 @@ admins) can correct any number afterwards.
 import random
 import re
 
-from . import db
+from . import db, syllabus
 
 CURRENT_SEMESTER = 6   # five semesters are finished, the sixth is running
-MAX_INTERNAL = 50
-MAX_EXTERNAL = 50
+MAX_INTERNAL = 50      # CIE
+MAX_EXTERNAL = 50      # SEE
 
-SUBJECTS = {
-    1: [("21MA101", "Calculus and Linear Algebra"), ("21PH102", "Engineering Physics"),
-        ("21CS103", "Problem Solving with C"), ("21EE104", "Basic Electrical Engineering"),
-        ("21ME105", "Engineering Graphics"), ("21HS106", "Communication Skills")],
-    2: [("21MA201", "Differential Equations"), ("21CH202", "Engineering Chemistry"),
-        ("21CS203", "Data Structures"), ("21EC204", "Basic Electronics"),
-        ("21CS205", "Python Programming"), ("21HS206", "Environmental Studies")],
-    3: [("21MA301", "Discrete Mathematics"), ("21IS302", "Digital Logic Design"),
-        ("21IS303", "Object Oriented Programming"), ("21IS304", "Computer Organisation"),
-        ("21IS305", "Analysis of Algorithms"), ("21HS306", "Universal Human Values")],
-    4: [("21MA401", "Probability and Statistics"), ("21IS402", "Operating Systems"),
-        ("21IS403", "Database Management Systems"), ("21IS404", "Computer Networks"),
-        ("21IS405", "Software Engineering"), ("21IS406", "Microprocessors")],
-    5: [("21IS501", "Theory of Computation"), ("21IS502", "Web Technologies"),
-        ("21IS503", "Artificial Intelligence"), ("21IS504", "Information Security"),
-        ("21IS505", "Cloud Computing"), ("21IS506", "Data Analytics Lab")],
-    6: [("21IS601", "Machine Learning"), ("21IS602", "Compiler Design"),
-        ("21IS603", "Big Data Technologies"), ("21IS604", "Mobile Application Development"),
-        ("21IS605", "Professional Elective"), ("21IS606", "Mini Project")],
-}
+# The real courses of the 2023-04 IS curriculum (see app/syllabus.py), semester by semester.
+SUBJECTS = {sem: syllabus.core_courses(sem) for sem in range(1, 9)}
 
-GRADES = [(90, "O"), (80, "A+"), (70, "A"), (60, "B+"), (50, "B"), (40, "C")]
-PASS_PERCENT = 40
+GRADES = [(floor, letter) for floor, letter, _ in syllabus.GRADES]
+GRADE_POINTS = {letter: points for _, letter, points in syllabus.GRADES} | {"F": 0}
+PASS_PERCENT = syllabus.PASS_PERCENT
 
 
 def grade(percent: float) -> str:
@@ -49,6 +32,21 @@ def branch_of(email: str) -> str:
     return m.group(1).upper() if m else ""
 
 
+ROLL = re.compile(r"^[a-z]{3}\d{2}[a-z]{2}\d{3}$", re.I)
+
+
+def clean_name(name: str, email: str = "") -> str:
+    """College Google names look like "NNM23IS186 SRUJAN M PADMASHALI": drop the USN, and soften all capitals.
+
+    "NNM23IS186 SRUJAN M PADMASHALI" -> "Srujan M Padmashali". A name that is only a USN stays as it is.
+    """
+    words = (name or "").split()
+    if len(words) > 1 and ROLL.match(words[0]):
+        words = words[1:]
+    text = " ".join(words)
+    return (text.title() if text.isupper() and not ROLL.match(text) else text) or name
+
+
 def _marks(rng: random.Random) -> tuple[int, int]:
     """Internal and external marks that rise and fall together, like a real student's do."""
     ability = rng.gauss(0.72, 0.12)
@@ -57,6 +55,11 @@ def _marks(rng: random.Random) -> tuple[int, int]:
     external = clamp((ability + rng.gauss(0, 0.1)) * MAX_EXTERNAL, MAX_EXTERNAL)
     # Passing an exam needs 40%; keep the sample data to students who did pass.
     return max(internal, 22), max(external, 20)
+
+
+def sample_codes() -> set[str]:
+    """The subject codes sample records use now (older versions used made-up codes)."""
+    return {code for sem in range(1, CURRENT_SEMESTER + 1) for code, _ in SUBJECTS[sem]}
 
 
 def sample_records(email: str) -> tuple[list[dict], list[dict]]:
@@ -74,20 +77,41 @@ def sample_records(email: str) -> tuple[list[dict], list[dict]]:
     attendance = []
     for code, subject in SUBJECTS[CURRENT_SEMESTER]:
         total = rng.randint(34, 48)
-        attended = min(total, round(total * rng.uniform(0.68, 1.0)))
+        attended = min(total, round(total * rng.uniform(0.7, 1.0)))
         attendance.append({"email": email, "semester": CURRENT_SEMESTER, "code": code, "subject": subject,
                            "attended": attended, "total": total})
     return marks, attendance
 
 
-def ensure_student(email: str, name: str) -> bool:
-    """Give a student their sample records the first time. Returns True if they were created."""
-    if db.get_profile(email):
+SEEDED_BY = "demo seed"   # profiles made by app/seed.py carry a made-up name until the real student enrols
+
+
+def adopt_name(email: str, name: str) -> None:
+    """A sample-data student signed in for real: show their real name instead of the USN placeholder."""
+    name = clean_name(name, email)
+    profile = db.get_profile(email)
+    # "sample data" profiles from older versions may still carry a made-up name; the signed-in person's own
+    # Google name is always right for their own profile. A name a teacher or admin typed in is left alone.
+    if (profile and profile["updated_by"] in (SEEDED_BY, "sample data") and name and not ROLL.match(name)
+            and profile["name"] != name):
+        db.rename_profile(email, name, email)
+
+
+def ensure_student(email: str, name: str, by: str = "sample data") -> bool:
+    """Give a student their sample records the first time. Returns True if they were created.
+
+    A student that app/seed.py made up gets their real name when they enrol.
+    """
+    name = clean_name(name, email)
+    existing = db.get_profile(email)
+    if existing:
+        if by != SEEDED_BY:
+            adopt_name(email, name)
         return False
     marks, attendance = sample_records(email)
     db.save_student(
         {"email": email, "name": name, "branch": branch_of(email), "semester": CURRENT_SEMESTER},
-        marks, attendance, "sample data",
+        marks, attendance, by,
     )
     return True
 
@@ -124,4 +148,4 @@ def attendance_report(email: str) -> dict:
     attended = sum(s["attended"] for s in subjects)
     total = sum(s["total"] for s in subjects)
     return {"subjects": subjects, "overall_percent": round(attended / total * 100, 1) if total else 0,
-            "required_percent": 75}
+            "required_percent": syllabus.REQUIRED_ATTENDANCE, "condonable_percent": syllabus.CONDONABLE_TO}

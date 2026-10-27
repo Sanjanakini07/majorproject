@@ -6,7 +6,7 @@ __pycache__/
 .pytest_cache/
 
 # Runtime data: SQLite database, vector database, downloaded models
-data/
+/data/
 models/
 
 # Walkthrough videos made by scripts/record_demo.py

@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
 
-from app import academics, admin, db, facelogin, library, portal, rag
+from app import academics, admin, bus, db, facelogin, library, personal, portal, rag, seed
 from app import config as app_config
 from app.auth import ask_limit, role_of, verified_user
 
@@ -34,6 +34,7 @@ ROLL = re.compile(r"^[a-z0-9._-]{1,64}$")
 async def lifespan(_app: FastAPI):
     db.init()
     library.seed_subjects()
+    await run_in_threadpool(seed.run)
     sync.start()
     if not app_config.ADMIN_EMAILS:
         log.warning("ADMIN_EMAILS is empty: nobody can open the admin panel.")
@@ -53,6 +54,7 @@ app.mount("/offline", StaticFiles(directory=HERE / "static"), name="offline")
 app.include_router(admin.router)
 app.include_router(portal.router)
 app.include_router(library.router)
+app.include_router(bus.router)
 
 CSP = (
     "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; script-src 'self'; "
@@ -186,14 +188,17 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
     if not ask_limit.allow(user["email"]):
         raise HTTPException(429, "You're asking very fast. Wait a minute and try again.")
 
+    # Exact facts (their records, dates, the calendar) and which search results they make unnecessary.
+    facts = personal.build(user["email"], user.get("name", ""), question)
+
     def steps():
         yield _line({"stage": "searching"})
         try:
-            hits = rag.search(question)
+            hits = personal.adjust_hits(rag.search(question), facts)
             sources = list(dict.fromkeys(h["title"] for h in hits))
             links = library.links_for([h.get("module_id") for h in hits])
             yield _line({"stage": "thinking", "sources": sources})
-            answer = llm.answer(question, hits)
+            answer = llm.answer(question, hits, facts.text)
         except rag.AnswerError as e:
             log.error("Answering failed: %s", e)
             yield _line({"stage": "error", "message": f"Sorry, I can't answer right now. {e}"})

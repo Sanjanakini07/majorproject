@@ -4,6 +4,8 @@ A small website where an NMAMIT student signs in with their college Google accou
 
 **Quick tour (40 seconds, light theme):** [docs/demo-tour.mp4](docs/demo-tour.mp4). It shows sign-in, the face scan, the assistant, notes, events, marks, attendance, the robot's moods and sleep, and the admin and teacher tools. The demo used a test camera and a stand-in for the language model; search, permissions and everything on the pages are the real app.
 
+**What's new (50 seconds):** [docs/whats-new.mp4](docs/whats-new.mp4). Notes and subjects now follow the official 2023 IS syllabus PDF, the assistant answers questions about you exactly (name, attendance, classes, events by date, syllabus units), there is a Bus page with every bus from and to Nitte, and marks and attendance sit behind the arrow in the menu. (Source: [docs/whats-new-explainer.html](docs/whats-new-explainer.html), recorded with `python scripts/record_explainer.py docs/whats-new-explainer.html docs/whats-new.mp4`.) Notes for whoever works on the code next are in [AGENT.md](AGENT.md).
+
 **How offline mode works (50 seconds):** [docs/offline-mode-explained.mp4](docs/offline-mode-explained.mp4). Each laptop is its own campus server with a local database and local AI models. With internet, the cloud database is the source of truth and the laptops sync with it. Without internet, each laptop keeps working alone and catches up later. (The animation's source is [docs/offline-explainer.html](docs/offline-explainer.html).)
 
 ```
@@ -27,6 +29,10 @@ Tap, speak, tap
 | `app/auth.py` | Who is allowed in, roles and permissions, plus lockout and rate limits |
 | `app/face.py`, `app/facelogin.py` | Face check with OpenCV (YuNet finds the face, SFace compares faces); enrolment and per-sign-in checks |
 | `app/library.py` | Notes (PDF or pasted text, semesters 1-8) and events, and making them searchable by the assistant |
+| `app/syllabus.py`, `app/data/syllabus_is_2023.json` | The official B.Tech. IS curriculum (2023-04 regulations): the subjects of every semester, each course's full syllabus, and the regulations (attendance, evaluation, grading). Made from the university PDF by `scripts/import_syllabus.py` |
+| `app/bus.py`, `app/data/bus_timings.json` | The Bus page and exact bus answers (next, first, last, after a time) from the community listing [Bus Timings: Nitte](https://bhvsh.notion.site/Bus-Timings-Nitte-de5c216b4a454653b1fd716742c85700) |
+| `app/personal.py` | Exact facts for each question: the asker's name, marks, CGPA and attendance, dates and events, classes, courses and buses |
+| `app/seed.py` | Default data on first start (see [Default data](#default-data)) |
 | `app/portal.py`, `app/academics.py` | Marks and attendance pages and APIs, the subjects, grades and sample data |
 | `app/rag.py` | Splitting text into chunks, the vector database, the Groq call |
 | `app/ingest.py` | Reading CSV files and text in images (RapidOCR) |
@@ -35,7 +41,7 @@ Tap, speak, tap
 | `app/pages/`, `app/static/` | Plain HTML, CSS and JavaScript (no framework) |
 | `offline_app/`, `start_offline.bat` | The offline version: see [Offline version](#offline-version-no-internet-needed) |
 | `start.bat` | One double-click: installs, checks settings, sets up once, starts the app |
-| `scripts/` | Settings check, one-time model download, recording the demo video |
+| `scripts/` | Settings check, one-time model download, syllabus import, recording the demo video |
 | `sample_data/` | Example CSVs to try the admin import |
 | `tests/` | `pytest` tests |
 
@@ -71,6 +77,19 @@ Then try it: sign in, set up your face (six guided photos, first time only), cli
 **Sync:** set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in `.env`. Every change (knowledge entries, faces, staff roles, students, marks and attendance) is saved on the laptop first, then sent to Turso every minute when online. Changes from other laptops come back the same way, and the newer edit wins. The button at the top of the assistant shows the state (Synced / Offline / items still to send) and syncs now when clicked. On Turso the tables are `nva_modules`, `nva_faces`, `nva_roles`, `nva_profiles`, `nva_marks` and `nva_attendance`, so they don't touch other tables in the same database. (`nva_first_faces` from older versions is no longer used and can be dropped.)
 
 **Tuning:** `OLLAMA_MODEL` (for example `qwen2.5:3b` for better answers, slower) and `WHISPER_MODEL` (`tiny.en`, `base.en`, `small.en`). After changing `OLLAMA_MODEL`, run `ollama pull <name>`. Run it by hand with `python -m offline_app.setup` once, then `python -m offline_app`.
+
+## Default data
+
+On the first start the app fills itself in, so no page is empty (turn this off with `SEED_DEMO_DATA=0`):
+
+- **Students** NNM23IS000 to NNM23IS300, named by their USN until they sign in with Google and their real name replaces it ("NNM23IS186 SRUJAN M PADMASHALI" becomes "Srujan M Padmashali"). They get sample marks and attendance for the real courses of the curriculum.
+- **Notes**: every course of the official IS syllabus under its semester, each with its full syllabus as a note. Professional electives are under semester 5 (group 1) and 6 (group 2).
+- **The assistant** also knows the regulations (85% attendance, condonation down to 75%, CIE and SEE, grades O to F) and the courses of other departments, and has timetables, events and campus information.
+- **Buses**: the Bus page and the assistant use the timings in `app/data/bus_timings.json`.
+
+Each step runs once, so what an admin edits or deletes stays that way. Making everything searchable takes a few minutes in the background after the first start. To update the syllabus from a newer PDF, run `python scripts/import_syllabus.py <pdf>` and delete the `syllabus_2023_04_v1` row from the `meta` table.
+
+Marks and attendance are under the arrow at the end of the navigation bar.
 
 ## The settings (`.env`)
 

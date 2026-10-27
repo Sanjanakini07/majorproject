@@ -74,6 +74,9 @@ const ICONS = {
   trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
   eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
   download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  bus: '<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M8 21v-3M16 21v-3"/><circle cx="8" cy="14.5" r="0.8"/><circle cx="16" cy="14.5" r="0.8"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
 };
 
 // An inline icon (a fixed string from ICONS above, never user text).
@@ -88,10 +91,44 @@ const LINKS = [
   { href: '/', label: 'Assistant', icon: 'chat' },
   { href: '/notes', label: 'Notes', icon: 'notes' },
   { href: '/events', label: 'Events', icon: 'events' },
-  { href: '/marks', label: 'Marks', icon: 'marks' },
-  { href: '/attendance', label: 'Attendance', icon: 'attendance' },
+  { href: '/bus', label: 'Bus', icon: 'bus' },
   { href: '/admin', label: 'Admin', icon: 'admin', staff: true },
 ];
+// Tucked away behind the arrow at the end of the bar.
+const MORE_LINKS = [
+  { href: '/marks', label: 'Marks', icon: 'marks' },
+  { href: '/attendance', label: 'Attendance', icon: 'attendance' },
+];
+
+// The arrow button and its little menu. The menu is fixed-positioned so the scrolling nav can't clip it.
+function moreMenu(active) {
+  const menu = el('div', { className: 'nav-menu', role: 'menu', hidden: '' },
+    ...MORE_LINKS.map((l) => el('a', { href: l.href, role: 'menuitem', className: l.href === active ? 'active' : '' },
+      icon(l.icon), el('span', {}, l.label))));
+  const button = el('button', {
+    type: 'button', className: 'nav-more' + (MORE_LINKS.some((l) => l.href === active) ? ' active' : ''),
+    'aria-label': 'More: marks and attendance', 'aria-haspopup': 'menu', 'aria-expanded': 'false',
+  }, icon('chevron'));
+  const close = () => {
+    menu.hidden = true;
+    button.setAttribute('aria-expanded', 'false');
+  };
+  button.addEventListener('click', (event) => {
+    event.stopPropagation();
+    if (!menu.hidden) return close();
+    menu.hidden = false;
+    button.setAttribute('aria-expanded', 'true');
+    const r = button.getBoundingClientRect();
+    const bottomBar = r.top > innerHeight / 2;          // on phones the nav sits at the bottom: open upwards
+    menu.style.left = `${Math.max(8, Math.min(r.right - menu.offsetWidth, innerWidth - menu.offsetWidth - 8))}px`;
+    menu.style.top = bottomBar ? `${r.top - menu.offsetHeight - 8}px` : `${r.bottom + 8}px`;
+  });
+  document.addEventListener('click', (event) => { if (!menu.contains(event.target)) close(); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') close(); });
+  addEventListener('resize', close);
+  document.body.append(menu);
+  return button;
+}
 
 async function loadMe() {
   const res = await fetch('/api/me');
@@ -111,7 +148,8 @@ function renderBar(active, me, extra = []) {
     el('a', { className: 'brand', href: '/' }, el('span', { className: 'brand-mark' }, 'N'), 'NMAMIT Assistant'),
     el('nav', { className: 'nav' },
       ...LINKS.filter((l) => !l.staff || me.role !== 'student')
-        .map((l) => el('a', { href: l.href, className: l.href === active ? 'active' : '' }, icon(l.icon), el('span', { className: 'label' }, l.label)))),
+        .map((l) => el('a', { href: l.href, className: l.href === active ? 'active' : '' }, icon(l.icon), el('span', { className: 'label' }, l.label))),
+      moreMenu(active)),
     el('div', { className: 'bar-right' },
       ...extra,
       el('span', { className: 'who' },

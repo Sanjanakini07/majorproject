@@ -482,3 +482,45 @@ td.num, th.num { text-align: center; font-variant-numeric: tabular-nums; }
   position: fixed; top: 14px; right: 14px; z-index: 40; background: var(--card); border: 1px solid var(--line);
   color: var(--text); box-shadow: var(--shadow); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; padding: 0;
 }
+
+/* "More" arrow at the end of the nav (marks and attendance) */
+.nav-more {
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; padding: 7px 10px; border: none;
+  border-radius: 999px; background: none; color: var(--muted); cursor: pointer; font: inherit;
+}
+.nav-more:hover, .nav-more[aria-expanded="true"] { color: var(--text); background: var(--card-2); }
+.nav-more.active { color: var(--brand); }
+.nav-more .icon svg { transition: transform 0.2s; }
+.nav-more[aria-expanded="true"] .icon svg { transform: rotate(180deg); }
+.nav-menu {
+  position: fixed; z-index: 60; min-width: 170px; padding: 6px; border-radius: 14px;
+  background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+}
+.nav-menu[hidden] { display: none; }
+.nav-menu a {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px;
+  color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.92rem;
+}
+.nav-menu a:hover { background: var(--card-2); }
+.nav-menu a.active { color: var(--brand); background: var(--brand-soft); }
+@media (max-width: 720px) {
+  .nav-more { flex: 0 0 44px; padding: 6px 4px; border-radius: 12px; }
+  .nav-more .icon svg { width: 22px; height: 22px; transform: rotate(180deg); }
+  .nav-more[aria-expanded="true"] .icon svg { transform: none; }
+}
+
+/* Bus page */
+.bus-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.bus-tools input[type="search"] { flex: 1 1 220px; min-width: 0; }
+.bus-tools select { width: auto; margin: 0; }
+.bus-next { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.bus-next .card { margin: 0; padding: 14px 16px; }
+.bus-next .when { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+.bus-next .in { color: var(--brand); font-weight: 700; font-size: 0.85rem; }
+.bus-row.gone td { color: var(--muted); }
+.bus-row.next td { background: var(--brand-soft); }
+.bus-row td:first-child { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: var(--card-2); border: 1px solid var(--line); margin-right: 4px; white-space: nowrap; }
+.tag.express { color: var(--brand); border-color: var(--brand-soft); background: var(--brand-soft); }
+.tag.uc { color: var(--muted); }
+.source { font-size: 0.85rem; color: var(--muted); margin-top: 14px; }

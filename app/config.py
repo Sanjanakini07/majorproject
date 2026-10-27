@@ -55,6 +55,10 @@ TOP_K = int(os.getenv("TOP_K", "4"))
 MAX_DISTANCE = float(os.getenv("MAX_DISTANCE", "0.7"))
 ASKS_PER_MINUTE = int(os.getenv("ASKS_PER_MINUTE", "15"))
 
+# --- Sample data ------------------------------------------------------------
+# On the first start, fill the database with dummy students, timetables, notes and events.
+SEED_DEMO_DATA = _bool("SEED_DEMO_DATA", True)
+
 # --- Storage ----------------------------------------------------------------
 DATA_DIR = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data")))
 MODELS_DIR = Path(os.getenv("MODELS_DIR", str(BASE_DIR / "models")))

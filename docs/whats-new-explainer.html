@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>What's new</title>
+<style>
+  :root { --bg:#f3f4f9; --card:#fff; --text:#141a2e; --muted:#5d657c; --line:#e2e5ef; --brand:#b01f3a; --soft:#fde9ee;
+          --navy:#172a5c; --ok:#12804d; --warn:#e8a317; }
+  * { box-sizing:border-box; }
+  body { margin:0; width:1280px; height:720px; overflow:hidden; background:var(--bg); color:var(--text); position:relative;
+         font:16px/1.4 system-ui,"Segoe UI",Roboto,sans-serif; }
+  .brand { position:absolute; left:28px; top:22px; display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; z-index:5; }
+  .brand i { width:34px; height:34px; border-radius:11px; display:grid; place-items:center; font-style:normal; color:#fff; font-size:15px;
+             background:linear-gradient(135deg,var(--brand),var(--navy)); }
+  #title { position:absolute; left:0; right:0; top:62px; text-align:center; font-size:38px; font-weight:800; letter-spacing:-.02em; transition:opacity .35s; z-index:4; }
+  #cap { position:absolute; left:50%; bottom:24px; transform:translateX(-50%); z-index:9; background:rgba(15,23,60,.93); color:#fff;
+         font-weight:600; font-size:21px; padding:12px 28px; border-radius:999px; white-space:nowrap; transition:opacity .3s; }
+  .scene { position:absolute; inset:0; opacity:0; transition:opacity .5s; pointer-events:none; }
+  .scene.on { opacity:1; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 24px rgba(20,26,46,.08); }
+  .pop { opacity:0; transform:translateY(14px); transition:all .45s; }
+  .pop.show { opacity:1; transform:none; }
+  .tiles { position:absolute; left:50%; top:200px; transform:translateX(-50%); display:grid; grid-template-columns:repeat(2, 420px); gap:22px; }
+  .tile { padding:24px 26px; display:flex; gap:18px; align-items:center; }
+  .tile b { font-size:23px; display:block; }
+  .tile span { color:var(--muted); font-size:17px; }
+  .ico { flex:none; width:58px; height:58px; border-radius:16px; display:grid; place-items:center; font-size:30px; color:#fff; }
+  /* syllabus scene */
+  .pdf { position:absolute; left:110px; top:220px; width:230px; height:290px; padding:22px; }
+  .pdf .tag { display:inline-block; background:var(--brand); color:#fff; font-weight:800; border-radius:8px; padding:4px 10px; font-size:15px; }
+  .pdf p { margin:14px 0 0; font-weight:700; font-size:18px; }
+  .pdf small { color:var(--muted); font-size:14px; display:block; margin-top:8px; }
+  .lines i { display:block; height:9px; border-radius:5px; background:#e9ecf4; margin-top:10px; }
+  .arrow { position:absolute; left:372px; top:338px; font-size:56px; color:var(--brand); font-weight:800; }
+  .notes { position:absolute; left:470px; top:160px; width:700px; padding:22px 26px; }
+  .pills { display:flex; gap:8px; margin-bottom:16px; }
+  .pill { padding:7px 14px; border-radius:12px; border:1px solid var(--line); font-weight:700; font-size:15px; color:var(--muted); }
+  .pill.on { background:linear-gradient(135deg,var(--navy),var(--brand)); color:#fff; border-color:transparent; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:11px 14px; border:1px solid var(--line); border-radius:12px; margin-top:8px; font-weight:700; font-size:17px; }
+  .row em { font-style:normal; color:var(--muted); font-weight:600; font-size:14px; }
+  .badge { font-size:13px; font-weight:700; padding:3px 10px; border-radius:999px; background:var(--soft); color:var(--brand); margin-left:6px; }
+  .badge.n { background:#e7ecfa; color:var(--navy); }
+  /* chat scene */
+  .chat { position:absolute; left:50%; top:132px; transform:translateX(-50%); width:900px; }
+  .q, .a { max-width:760px; padding:10px 18px; border-radius:18px; font-size:17px; margin-bottom:9px; }
+  .q { margin-left:auto; background:var(--navy); color:#fff; border-bottom-right-radius:6px; width:fit-content; }
+  .a { background:#fff; border:1px solid var(--line); border-bottom-left-radius:6px; }
+  .a b { color:var(--brand); }
+  /* bus scene */
+  .tabs { position:absolute; left:110px; top:150px; display:flex; gap:6px; padding:5px; background:#e9ecf4; border-radius:14px; }
+  .tabs span { padding:8px 16px; border-radius:10px; font-weight:700; color:var(--muted); font-size:15px; }
+  .tabs span.on { background:#fff; color:var(--brand); }
+  .next { position:absolute; left:110px; top:212px; display:flex; gap:14px; }
+  .next .card { width:200px; padding:14px 18px; }
+  .next .t { font-size:28px; font-weight:800; }
+  .next .in { color:var(--brand); font-weight:700; font-size:15px; }
+  .next .n { font-weight:700; }
+  .table { position:absolute; left:110px; top:350px; width:650px; padding:10px 18px; font-size:16px; }
+  .table div { display:grid; grid-template-columns:110px 1fr 1fr 100px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .table div.h { color:var(--muted); font-weight:700; font-size:14px; }
+  .table div.hl { background:var(--soft); border-radius:8px; }
+  .ask { position:absolute; left:800px; top:220px; width:380px; }
+  /* nav scene */
+  .bar { position:absolute; left:140px; top:230px; width:1000px; height:68px; display:flex; align-items:center; gap:10px; padding:0 22px; }
+  .bar .lnk { padding:9px 16px; border-radius:999px; font-weight:700; color:var(--muted); font-size:17px; }
+  .bar .lnk.on { background:var(--soft); color:var(--brand); }
+  .bar .more { width:44px; height:40px; border-radius:999px; display:grid; place-items:center; background:#e9ecf4; font-size:20px; font-weight:800; color:var(--navy); transition:transform .3s; }
+  .menu { position:absolute; left:700px; top:310px; width:220px; padding:8px; }
+  .menu div { padding:11px 14px; border-radius:10px; font-weight:700; font-size:17px; }
+  .menu div:first-child { background:#f3f4f9; }
+  /* summary */
+  .sum { position:absolute; left:50%; top:160px; transform:translateX(-50%); width:900px; }
+  .point { display:flex; gap:18px; align-items:flex-start; padding:18px 22px; margin-bottom:14px; }
+  .point .n { flex:none; width:42px; height:42px; border-radius:13px; display:grid; place-items:center; font-weight:800; font-size:19px; color:#fff; }
+  .point h3 { margin:0 0 2px; font-size:22px; }
+  .point p { margin:0; color:var(--muted); font-size:17px; }
+</style>
+</head>
+<body>
+<div class="brand"><i>N</i>NMAMIT Assistant · What's new</div>
+<div id="title"></div>
+<div id="cap" style="opacity:0"></div>
+
+<section class="scene" id="s1">
+  <div class="tiles">
+    <div class="card tile pop"><div class="ico" style="background:var(--brand)">📘</div><div><b>Official syllabus</b><span>Every subject, from the university PDF</span></div></div>
+    <div class="card tile pop"><div class="ico" style="background:var(--navy)">💬</div><div><b>Answers about you</b><span>Name, attendance, classes, dates</span></div></div>
+    <div class="card tile pop"><div class="ico" style="background:var(--ok)">🚌</div><div><b>Bus timings</b><span>196 buses from and to Nitte</span></div></div>
+    <div class="card tile pop"><div class="ico" style="background:#6b4bb8">☰</div><div><b>Cleaner menu</b><span>Marks and attendance behind one arrow</span></div></div>
+  </div>
+</section>
+
+<section class="scene" id="s2">
+  <div class="card pdf pop"><span class="tag">PDF</span><p>B.Tech. IS Syllabus<br>2023-04 Regulations</p><small>383 pages · Nitte (DU)</small>
+    <div class="lines"><i></i><i style="width:80%"></i><i></i><i style="width:65%"></i><i></i><i style="width:75%"></i></div></div>
+  <div class="arrow pop">→</div>
+  <div class="card notes pop">
+    <div class="pills"><span class="pill">Sem 3</span><span class="pill">Sem 4</span><span class="pill on">Sem 5</span><span class="pill">Sem 6</span><span class="pill">Sem 7</span></div>
+    <div class="row pop">Operating Systems Fundamentals <em>IS3101-1 <span class="badge">Syllabus</span><span class="badge n">Study notes</span></em></div>
+    <div class="row pop">Machine Learning Foundations <em>IS2002-1 <span class="badge">Syllabus</span><span class="badge n">Study notes</span></em></div>
+    <div class="row pop">Data Communication and Networking <em>IS3001-1 <span class="badge">Syllabus</span><span class="badge n">Study notes</span></em></div>
+    <div class="row pop">MERN Stack Development <em>IS1604-1 <span class="badge">Syllabus</span><span class="badge n">Study notes</span></em></div>
+    <div class="row pop">+ Professional Electives, Group 1 <em>20 courses</em></div>
+  </div>
+</section>
+
+<section class="scene" id="s3"><div class="chat" id="chat"></div></section>
+
+<section class="scene" id="s4">
+  <div class="tabs pop"><span class="on">To Karkala</span><span>To Udupi / Mangalore</span><span>Bypass to Nitte</span></div>
+  <div class="next">
+    <div class="card pop"><div class="t">2:06 PM</div><div class="in">in 4 min</div><div class="n">Pranam · Local</div></div>
+    <div class="card pop"><div class="t">2:08 PM</div><div class="in">in 6 min</div><div class="n">Vishal · Express</div></div>
+    <div class="card pop"><div class="t">2:15 PM</div><div class="in">in 13 min</div><div class="n">Mercy · Local</div></div>
+  </div>
+  <div class="card table pop">
+    <div class="h"><span>Time</span><span>Bus</span><span>Comes from</span><span>Type</span></div>
+    <div class="hl"><span>2:06 PM</span><span>Pranam</span><span>Kateel</span><span>Local</span></div>
+    <div><span>2:08 PM</span><span>Vishal</span><span>Mangalore</span><span>Express</span></div>
+    <div><span>2:15 PM</span><span>Mercy</span><span>Udupi</span><span>Local</span></div>
+    <div><span>2:25 PM</span><span>Navadurga</span><span>Mangalore</span><span>Express</span></div>
+  </div>
+  <div class="ask">
+    <div class="q pop" id="bq">Last bus to Karkala?</div>
+    <div class="a pop" id="ba">The last one is the <b>Padmambikaa express at 6:40 PM</b>. Times can vary by a few minutes.</div>
+  </div>
+</section>
+
+<section class="scene" id="s5">
+  <div class="card bar pop"><span class="lnk">Assistant</span><span class="lnk">Notes</span><span class="lnk">Events</span><span class="lnk on">Bus</span><span class="lnk">Admin</span><span class="more" id="more">⌄</span></div>
+  <div class="card menu pop" id="menu"><div>📊 Marks</div><div>🗓 Attendance</div></div>
+</section>
+
+<section class="scene" id="s6"><div class="sum" id="sum"></div></section>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const T = [];
+const when = (ms, fn) => T.push([ms, fn]);
+const TOTAL = 50000;
+function title(t) { $('title').style.opacity = 0; setTimeout(() => { $('title').textContent = t; $('title').style.opacity = 1; }, 300); }
+function cap(t) { $('cap').style.opacity = 0; setTimeout(() => { $('cap').textContent = t; $('cap').style.opacity = 1; }, 250); }
+function scene(id) { document.querySelectorAll('.scene').forEach((s) => s.classList.toggle('on', s.id === id)); }
+function popIn(sel, gap = 350) { document.querySelectorAll(sel).forEach((el, i) => setTimeout(() => el.classList.add('show'), i * gap)); }
+function say(cls, html) {
+  const el = document.createElement('div'); el.className = cls + ' pop'; el.innerHTML = html; $('chat').append(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+}
+
+when(200, () => { scene('s1'); title("What's new in the campus assistant"); cap('Four updates, in under a minute'); popIn('#s1 .pop', 500); });
+
+when(6000, () => { scene('s2'); title('Notes follow the official syllabus'); cap('All 102 courses of the 2023 IS curriculum, semester by semester'); popIn('#s2 > .pop', 600); });
+when(8200, () => popIn('#s2 .row', 450));
+when(11500, () => cap('Each subject has its full syllabus and unit-wise study notes'));
+
+when(16500, () => { scene('s3'); title('Ask about yourself, your dates, your subjects'); cap('Worked out exactly, then said in plain words'); });
+when(17300, () => say('q', 'What is my name?'));
+when(18300, () => say('a', 'Your name is <b>Srujan M Padmashali</b>.'));
+when(20000, () => say('q', 'Is there an event on October 30th?'));
+when(21000, () => say('a', 'Yes: <b>Mid-semester examination 2 begins</b> at 10 AM, in your classrooms.'));
+when(23000, () => say('q', 'What does unit 2 of machine learning cover?'));
+when(24000, () => say('a', 'From the Machine Learning Foundations syllabus: <b>Naive Bayes, SVM, association analysis and clustering</b>.'));
+when(26000, () => say('q', 'How many classes can I miss?'));
+when(27000, () => say('a', 'In Information & Network Security you are at 80.4%. The rule is <b>85%</b>; under <b>75%</b> you can\'t write the exam.'));
+
+when(30500, () => { scene('s4'); title('Bus timings, from and to Nitte'); cap('The next buses, live, plus every timing on each route'); popIn('#s4 .tabs, #s4 .next .pop, #s4 .table', 400); });
+when(34000, () => { $('bq').classList.add('show'); cap('And the assistant knows them: next, first, last, after a time'); });
+when(35000, () => $('ba').classList.add('show'));
+
+when(38500, () => { scene('s5'); title('A simpler menu'); cap('Marks and attendance are tucked behind one arrow'); $('menu').classList.remove('show'); popIn('#s5 .bar'); });
+when(40300, () => { $('more').style.transform = 'rotate(180deg)'; $('menu').classList.add('show'); });
+
+when(43500, () => {
+  scene('s6'); title('In short'); cap('Ready to use: restart the app and sign in');
+  $('sum').innerHTML = [
+    ['#b01f3a', '1', 'Official syllabus', 'Notes, subjects and rules come from the university PDF, not made-up data.'],
+    ['#172a5c', '2', 'Exact personal answers', 'Name, marks, attendance, classes, events by date, with the real rules.'],
+    ['#12804d', '3', 'Bus timings', 'A Bus page and spoken answers for every route around Nitte.'],
+    ['#6b4bb8', '4', 'Cleaner menu', 'The main pages up front; marks and attendance one tap away.'],
+  ].map(([c, n, h, p]) => `<div class="card point pop"><div class="n" style="background:${c}">${n}</div><div><h3>${h}</h3><p>${p}</p></div></div>`).join('');
+  popIn('#sum .point', 700);
+});
+
+window.TOTAL = TOTAL;
+window.start = () => T.forEach(([ms, fn]) => setTimeout(fn, ms));
+window.addEventListener('load', () => setTimeout(window.start, 200));
+</script>
+</body>
+</html>
