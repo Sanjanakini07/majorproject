@@ -136,6 +136,7 @@ code { font-size: 0.9em; background: var(--card-2); padding: 1px 6px; border-rad
   box-shadow: 0 6px 16px var(--brand-soft);
 }
 .btn.primary:hover { box-shadow: 0 8px 22px rgba(176, 31, 58, 0.3); }
+.btn.large { padding: 14px 24px; font-size: 1.1rem; }
 .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
 .btn.ghost:hover { background: var(--card-2); color: var(--text); }
 .btn.danger { color: var(--err); }
