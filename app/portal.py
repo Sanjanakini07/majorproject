@@ -1,14 +1,14 @@
 """Pages and APIs both apps share: who am I, marks, attendance, and the admin page.
 
-Students see only their own marks and attendance. Teachers can see every
-student's, and change them only if an admin switched that permission on.
+Students see only their own marks and attendance. Admins can see every student's.
+Teachers can see and change them only if an admin switched the marks or attendance permission on.
 """
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from . import academics, config, db
-from .auth import permissions_of, require, role_of, signed_in_user, staff_user, verified_user
+from .auth import permissions_of, require, role_of, signed_in_user, verified_user
 
 router = APIRouter()
 PAGES = config.BASE_DIR / "app" / "pages"
@@ -46,9 +46,10 @@ def admin_page(request: Request):
 def me(user: dict = Depends(signed_in_user)):
     email = user["email"]
     role = role_of(email)
+    academics.adopt_name(email, user["name"])   # a session from before the real name was saved
     return {
         "email": email,
-        "name": user["name"],
+        "name": academics.clean_name(user["name"], email),
         "role": role,
         "permissions": permissions_of(email),
         "is_admin": role == "admin",
@@ -60,12 +61,12 @@ def me(user: dict = Depends(signed_in_user)):
 
 # --- Students -----------------------------------------------------------------
 
-def _target(user: dict, email: str | None) -> str:
-    """Whose records to show: students only ever see their own."""
+def _target(user: dict, email: str | None, permission: str) -> str:
+    """Whose records to show: only admins, and teachers an admin gave this permission, see other people's."""
     own = user["email"]
     if not email or email.strip().lower() == own:
         return own
-    if role_of(own) == "student":
+    if not permissions_of(own)[permission]:
         raise HTTPException(403, "You can only see your own records.")
     return email.strip().lower()
 
@@ -76,19 +77,22 @@ def _student(email: str) -> dict | None:
 
 
 @router.get("/api/students")
-def students(q: str = "", user: dict = Depends(staff_user)):
+def students(q: str = "", user: dict = Depends(verified_user)):
+    perms = permissions_of(user["email"])
+    if not (perms["marks"] or perms["attendance"]):
+        raise HTTPException(403, "You don't have permission to see other students. Ask an admin.")
     return db.list_profiles(q)
 
 
 @router.get("/api/marks")
 def marks(email: str | None = None, user: dict = Depends(verified_user)):
-    target = _target(user, email)
+    target = _target(user, email, "marks")
     return {"student": _student(target), **academics.marks_report(target)}
 
 
 @router.get("/api/attendance")
 def attendance(email: str | None = None, user: dict = Depends(verified_user)):
-    target = _target(user, email)
+    target = _target(user, email, "attendance")
     return {"student": _student(target), **academics.attendance_report(target)}
 
 

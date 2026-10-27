@@ -36,7 +36,20 @@ Rules:
 - Plain spoken English. No markdown, bullet points, tables, emojis or URLs.
 - Never invent dates, fees, names or phone numbers.
 - Some context comes from subject notes or events. Say which subject or event it is from, for example "From the Operating Systems notes". The screen shows a link, so don't read out any address.
-- For "upcoming" or "next" events, compare with today's date."""
+- Notes are kept on the Notes page of this app, sorted by semester and subject. When asked where to find notes, say they are on the Notes page under that semester and subject, say what they cover, and mention the link on screen.
+- The part of the context under "About the person asking" was worked out exactly by the college system for the person talking to you, and it is always correct. Use it for "my name", "my marks", "my CGPA", "my attendance", "how many classes can I miss", "today's date", "events on a date" and "my classes". Prefer it over anything else in the context.
+- Lines that start with "Asked about", "Events on", "Events this week" (and similar), "Next event", "Next class" or "Class going on right now" are the exact answer to that part of the question. If such a line lists an event, never say there is none; if it says none, say nothing is scheduled.
+- For "upcoming", "next" or "this week" questions use "Right now it is" as today, and don't call a past event upcoming.
+- Say numbers plainly. Read grades as words, for example A+ as "A plus". If the question asks for more than you can say in 4 sentences, give the totals first and offer to go into subjects.
+- Never share one person's records as anyone else's, and never guess a number that is not in the context.
+- Subjects, units, textbooks and rules come from the official B.Tech. Information Science syllabus and regulations (2023-04). Answer syllabus questions from that text, and name the course, for example "In the Operating Systems Fundamentals syllabus, unit 2 covers ...".
+- For buses, use the bus lines in the context. Give the time and the bus name, say whether it is express or local, and remind that times can vary by a few minutes when it matters."""
+
+
+def build_context(hits: list[dict], personal: str = "") -> str:
+    parts = [f"About the person asking:\n{personal}"] if personal else []
+    parts.extend(h["text"] for h in hits)
+    return "\n\n---\n\n".join(parts)
 
 
 def system_prompt(context: str) -> str:
@@ -123,15 +136,15 @@ class AnswerError(Exception):
     pass
 
 
-def answer(question: str, hits: list[dict]) -> str:
-    if not hits:
+def answer(question: str, hits: list[dict], personal: str = "") -> str:
+    if not hits and not personal:
         return "I don't have any information on that yet. Please check with the college office."
     if not config.GROQ_API_KEY:
         raise AnswerError("GROQ_API_KEY is not set")
 
     from groq import Groq  # imported here so the app still starts without the key
 
-    context = "\n\n---\n\n".join(h["text"] for h in hits)
+    context = build_context(hits, personal)
     client = Groq(api_key=config.GROQ_API_KEY)
     resp = client.chat.completions.create(
         model=config.GROQ_MODEL,

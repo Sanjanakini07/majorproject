@@ -17,6 +17,7 @@ os.environ.update(
         "FIREBASE_API_KEY": "test-api-key",
         "FIREBASE_PROJECT_ID": "test-project",
         "GROQ_API_KEY": "",
+        "SEED_DEMO_DATA": "0",  # tests start from an empty database
         "FACE_MAX_FAILURES": "10",
         "FACE_MATCH_THRESHOLD": "0.363",
         "TURSO_DATABASE_URL": "",  # tests must never sync with the real backend

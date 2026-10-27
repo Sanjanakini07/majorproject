@@ -165,17 +165,18 @@ def test_students_marks_and_roles_sync_too(turso):
     academics.ensure_student("nnm23is001@nmamit.in", "NNM23IS001")
     db.save_role("teacher@nmamit.in", "Prof", "teacher", {"content": True, "attendance": False, "marks": True}, "admin")
     assert synced() == 0
-    assert len(turso.rows("nva_marks")) == 30 and len(turso.rows("nva_attendance")) == 6
+    assert len(turso.rows("nva_marks")) == sum(len(academics.SUBJECTS[sem]) for sem in range(1, 6))
+    assert len(turso.rows("nva_attendance")) == len(academics.SUBJECTS[6])
     assert list(turso.rows("nva_profiles")) == ["nnm23is001@nmamit.in"]
     assert turso.rows("nva_roles")["teacher@nmamit.in"]["can_marks"] == "1"
 
     # A teacher on another laptop corrects a mark; it comes down here and is not sent back.
-    key = "nnm23is001@nmamit.in|1|21MA101"
+    key = "nnm23is001@nmamit.in|1|MA1002-1"
     turso.conn.execute("UPDATE nva_marks SET internal = '50', updated_at = '2999-01-01T00:00:00+00:00', "
                        "synced_at = strftime('%Y-%m-%dT%H:%M:%f', 'now') WHERE id = ?", (key,))
     turso.conn.commit()
     assert synced() == 0
-    assert [m for m in db.list_marks("nnm23is001@nmamit.in") if m["code"] == "21MA101"][0]["internal"] == 50
+    assert [m for m in db.list_marks("nnm23is001@nmamit.in") if m["code"] == "MA1002-1"][0]["internal"] == 50
 
 
 def test_faces_with_several_photos_sync_and_damaged_ones_are_skipped(turso):

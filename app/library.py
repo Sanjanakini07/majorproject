@@ -14,7 +14,7 @@ from fastapi.responses import RedirectResponse, Response
 from pypdf import PdfReader
 from starlette.concurrency import run_in_threadpool
 
-from . import db, rag
+from . import db, rag, syllabus
 from .auth import require, verified_user
 from .portal import gated_page
 
@@ -24,21 +24,9 @@ MAX_PDF_BYTES = 15 * 1024 * 1024
 MAX_TEXT_CHARS = 100_000
 MAX_PDF_TEXT_CHARS = 150_000
 
-# Three sample subjects for every semester.
-SUBJECTS = {
-    1: [("21MA101", "Calculus and Linear Algebra"), ("21PH102", "Engineering Physics"), ("21CS103", "Problem Solving with C")],
-    2: [("21MA201", "Differential Equations"), ("21CS203", "Data Structures"), ("21CS205", "Python Programming")],
-    3: [("21IS302", "Digital Logic Design"), ("21IS303", "Object Oriented Programming"), ("21IS305", "Analysis of Algorithms")],
-    4: [("21IS402", "Operating Systems"), ("21IS403", "Database Management Systems"), ("21IS404", "Computer Networks")],
-    5: [("21IS501", "Theory of Computation"), ("21IS502", "Web Technologies"), ("21IS503", "Artificial Intelligence")],
-    6: [("21IS601", "Machine Learning"), ("21IS602", "Compiler Design"), ("21IS603", "Big Data Technologies")],
-    7: [("21IS701", "Deep Learning"), ("21IS702", "Internet of Things"), ("21IS703", "Blockchain Technology")],
-    8: [("21IS801", "Major Project"), ("21IS802", "Professional Ethics"), ("21IS803", "Industry Internship")],
-}
-
-
 def seed_subjects() -> None:
-    db.add_subjects([(code, sem, name) for sem, rows in SUBJECTS.items() for code, name in rows])
+    """Every course of the official IS curriculum (2023-04 regulations), under its semester."""
+    db.add_subjects(syllabus.note_subjects())
 
 
 def gated(request: Request, name: str):

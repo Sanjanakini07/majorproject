@@ -102,6 +102,12 @@ CREATE TABLE IF NOT EXISTS notes (
 );
 CREATE INDEX IF NOT EXISTS notes_code ON notes (code);
 
+-- Small settings kept with the data, for example "the sample data has been added".
+CREATE TABLE IF NOT EXISTS meta (
+    k TEXT PRIMARY KEY,
+    v TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS events (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     title       TEXT NOT NULL,
@@ -138,6 +144,17 @@ def init() -> None:
         conn.executescript(SCHEMA)
 
 
+def get_meta(key: str) -> str | None:
+    with connect() as conn:
+        row = conn.execute("SELECT v FROM meta WHERE k = ?", (key,)).fetchone()
+    return row["v"] if row else None
+
+
+def set_meta(key: str, value: str) -> None:
+    with connect() as conn:
+        conn.execute("INSERT INTO meta (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", (key, value))
+
+
 # --- Modules ----------------------------------------------------------------
 
 def list_modules() -> list[dict]:
@@ -154,6 +171,12 @@ def count_modules() -> int:
 def get_module(module_id: int) -> dict | None:
     with connect() as conn:
         row = conn.execute("SELECT * FROM modules WHERE id = ?", (module_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def get_module_by_title(title: str) -> dict | None:
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM modules WHERE title = ? ORDER BY id LIMIT 1", (title,)).fetchone()
     return dict(row) if row else None
 
 
@@ -302,6 +325,19 @@ def save_student(profile: dict, marks: list[dict], attendance: list[dict], user:
             )
 
 
+def rename_profile(email: str, name: str, user: str) -> None:
+    with connect() as conn:
+        conn.execute("UPDATE profiles SET name = ?, updated_by = ?, updated_at = ? WHERE email = ?",
+                     (name, user, now(), email))
+
+
+def unname_seeded_profiles() -> None:
+    """Profiles made by the sample data, that no real student has claimed yet, are named by their USN."""
+    with connect() as conn:
+        conn.execute("UPDATE profiles SET name = upper(substr(email, 1, instr(email, '@') - 1)) "
+                     "WHERE updated_by = 'demo seed' AND name != upper(substr(email, 1, instr(email, '@') - 1))")
+
+
 def list_marks(email: str) -> list[dict]:
     with connect() as conn:
         rows = conn.execute("SELECT * FROM marks WHERE email = ? ORDER BY semester, code", (email,)).fetchall()
@@ -378,6 +414,29 @@ def add_note(code: str, title: str, kind: str, content: str, filename: str | Non
             "INSERT INTO notes (code, title, kind, content, filename, data, uploaded_by, created_at) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (code, title, kind, content, filename, data, user, now()),
         ).lastrowid
+
+
+def note_modules(semesters: list[int]) -> list[dict]:
+    """The knowledge entries behind every note of these semesters (what the assistant reads)."""
+    if not semesters:
+        return []
+    marks = ",".join("?" * len(semesters))
+    with connect() as conn:
+        rows = conn.execute(
+            f"SELECT m.*, n.code AS note_code FROM notes n JOIN subjects s ON s.code = n.code JOIN modules m ON m.id = n.module_id "
+            f"WHERE s.semester IN ({marks}) ORDER BY s.semester, s.code, n.id", semesters).fetchall()
+    return [dict(r) for r in rows]
+
+
+def note_modules_for(codes: list[str]) -> list[dict]:
+    """The knowledge entries behind the notes of these subjects, in the order given."""
+    out = []
+    with connect() as conn:
+        for code in codes:
+            rows = conn.execute("SELECT m.*, n.code AS note_code FROM notes n JOIN modules m ON m.id = n.module_id "
+                                "WHERE n.code = ? ORDER BY n.id", (code,)).fetchall()
+            out += [dict(r) for r in rows]
+    return out
 
 
 def delete_note(note_id: int) -> bool:

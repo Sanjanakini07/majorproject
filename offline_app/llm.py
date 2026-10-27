@@ -16,10 +16,10 @@ log = logging.getLogger(__name__)
 NO_INFO = "I don't have any information on that yet. Please check with the college office."
 
 
-def answer(question: str, hits: list[dict]) -> str:
-    if not hits:
+def answer(question: str, hits: list[dict], personal: str = "") -> str:
+    if not hits and not personal:
         return NO_INFO
-    context = "\n\n---\n\n".join(h["text"] for h in hits)
+    context = rag.build_context(hits, personal)
     try:
         res = requests.post(
             f"{config.OLLAMA_URL}/api/chat",
@@ -38,7 +38,7 @@ def answer(question: str, hits: list[dict]) -> str:
         if not app_config.GROQ_API_KEY:
             raise rag.AnswerError("Ollama is not running. Start it from the Start menu (Ollama).")
         log.warning("Ollama is not running; using Groq instead")
-        return rag.answer(question, hits)
+        return rag.answer(question, hits, personal)
     if res.status_code == 404:
         raise rag.AnswerError(f"The model {config.OLLAMA_MODEL} is not downloaded. Run: ollama pull {config.OLLAMA_MODEL}")
     res.raise_for_status()

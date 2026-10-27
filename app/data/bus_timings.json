@@ -1,0 +1,1799 @@
+{
+ "source": "https://bhvsh.notion.site/Bus-Timings-Nitte-de5c216b4a454653b1fd716742c85700",
+ "credit": "Bus Timings: Nitte, a listing made by a student from travel observations, with entries contributed by others",
+ "updated": "14 October 2026",
+ "note": "Timings can vary by about 3 minutes. Times here are 24-hour (the listing writes afternoon times without PM). 'User contributed' entries came in through the listing's feedback form.",
+ "routes": [
+  {
+   "id": "to-karkala",
+   "title": "From Nitte to Karkala",
+   "from": "Nitte",
+   "to": "Karkala",
+   "about": "Buses passing Nitte towards Karkala. 'Comes from' is where the bus started.",
+   "buses": [
+    {
+     "time": "07:26",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "07:30",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "07:32",
+     "name": "Reshma",
+     "type": [
+      "Hybrid"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "07:35",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Shivmogga"
+    },
+    {
+     "time": "07:51",
+     "name": "Srilaxmi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Kateel"
+    },
+    {
+     "time": "08:03",
+     "name": "Kusuma",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "08:08",
+     "name": "Milan",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "08:10",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "08:22",
+     "name": "Mercy",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "08:36",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "08:37",
+     "name": "Keerthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "08:41",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "09:17",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "09:20",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "09:49",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "09:51",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "09:56",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "10:08",
+     "name": "P.M Travels",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "10:17",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "10:28",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "10:30",
+     "name": "Jeevan",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Manchakal"
+    },
+    {
+     "time": "10:45",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "10:55",
+     "name": "Shree Padma",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi via Kapu"
+    },
+    {
+     "time": "11:01",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "11:10",
+     "name": "Rajarajeshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "11:17",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "11:33",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "11:39",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "11:51",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "12:03",
+     "name": "Shahil",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi via Padubidri"
+    },
+    {
+     "time": "12:05",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "12:11",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "12:11",
+     "name": "Christa Jyothi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "12:14",
+     "name": "Nandini",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "12:16",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "12:24",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "12:36",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "12:43",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mulki"
+    },
+    {
+     "time": "12:44",
+     "name": "Bharathi",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Padubidri"
+    },
+    {
+     "time": "12:50",
+     "name": "Bharathi",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "12:52",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "13:03",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "13:10",
+     "name": "Milan",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "13:16",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "13:20",
+     "name": "Keerthi",
+     "type": [
+      "Fast Service - Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "13:23",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "13:35",
+     "name": "Reshma",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "13:43",
+     "name": "Christa Jyothi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "13:44",
+     "name": "Star",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "13:49",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "14:06",
+     "name": "Pranam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Kateel"
+    },
+    {
+     "time": "14:08",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "14:15",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "14:25",
+     "name": "Rashmi Travels",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Kateel"
+    },
+    {
+     "time": "14:36",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "14:38",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "14:51",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "14:52",
+     "name": "Christa Kiran",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "15:06",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "15:09",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "15:23",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "15:25",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "15:28",
+     "name": "Ayra",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "15:32",
+     "name": "Shree Padma",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi via Kapu"
+    },
+    {
+     "time": "15:40",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "15:43",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "15:55",
+     "name": "Shree Annapoorneshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "16:05",
+     "name": "Sri Laxmi Travels",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Kateel"
+    },
+    {
+     "time": "16:08",
+     "name": "Mercy",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "16:12",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "16:21",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "16:26",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "16:35",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "16:40",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "16:44",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "16:46",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "16:58",
+     "name": "Bharathi",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "16:59",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "17:07",
+     "name": "Pranam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "comes_from": "Kateel"
+    },
+    {
+     "time": "17:25",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "17:39",
+     "name": "Rajarajeshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "17:40",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "17:45",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mulki"
+    },
+    {
+     "time": "17:49",
+     "name": "Keerthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "17:51",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    },
+    {
+     "time": "18:05",
+     "name": "Star",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "18:37",
+     "name": "Star",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Udupi"
+    },
+    {
+     "time": "18:40",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "comes_from": "Mangalore"
+    }
+   ]
+  },
+  {
+   "id": "to-mangalore-udupi",
+   "title": "From Nitte to Belman, Padubidri, Udupi and Mangalore",
+   "from": "Nitte",
+   "to": "Belman / Padubidri (Udupi-Mangalore side)",
+   "about": "Buses from Nitte towards Belman and Padubidri, going on to Udupi or Mangalore. 'Goes to' is the final stop.",
+   "buses": [
+    {
+     "time": "08:00",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "08:10",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "08:45",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "goes_to": "Padubidri"
+    },
+    {
+     "time": "08:46",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "09:20",
+     "name": "Mercy",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "09:20",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "09:30",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "09:45",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "09:54",
+     "name": "Christa Jyothi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "09:58",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "09:59",
+     "name": "Decent",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "10:05",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "10:11",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Padubidri"
+    },
+    {
+     "time": "10:18",
+     "name": "Pranam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Kateel"
+    },
+    {
+     "time": "10:23",
+     "name": "Christa Jyothi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "10:26",
+     "name": "Reshma",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "10:36",
+     "name": "Sangam",
+     "type": [
+      "Fast Service - Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "10:50",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "10:55",
+     "name": "P M Travels",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "goes_to": "Manchakal"
+    },
+    {
+     "time": "11:08",
+     "name": "Pranam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Kateel"
+    },
+    {
+     "time": "11:10",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "11:20",
+     "name": "Christa Kiran",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "11:26",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "11:28",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "11:29",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "11:33",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "11:36",
+     "name": "Jason",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mulki"
+    },
+    {
+     "time": "11:40",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "11:44",
+     "name": "Rashmi Travels",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi via Kapu"
+    },
+    {
+     "time": "11:51",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:00",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:09",
+     "name": "Rajarajeshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:09",
+     "name": "Shree Annapoorneshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:11",
+     "name": "Srilaxmi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Kateel"
+    },
+    {
+     "time": "12:18",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "12:25",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:33",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:35",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:38",
+     "name": "Shree Padma",
+     "type": [
+      "Fast Service - Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "12:45",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "12:52",
+     "name": "Shahil",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi via Padubidri"
+    },
+    {
+     "time": "12:56",
+     "name": "Rajarajeshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "13:07",
+     "name": "Christa Jyothi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "13:10",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "13:21",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "13:30",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "13:32",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "13:43",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "13:50",
+     "name": "Bharathi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "13:59",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "14:00",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "14:07",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mulki"
+    },
+    {
+     "time": "14:10",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "14:15",
+     "name": "Laxmi Ganesh",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "14:34",
+     "name": "Pranam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Kateel"
+    },
+    {
+     "time": "14:37",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "14:44",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "14:55",
+     "name": "Pranam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Kateel"
+    },
+    {
+     "time": "14:57",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "15:05",
+     "name": "Reshma",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "15:12",
+     "name": "Christa Jyothi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "15:16",
+     "name": "Star",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "15:20",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "15:31",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "15:33",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "15:43",
+     "name": "Sangam",
+     "type": [
+      "Fast Service - Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Padubidri"
+    },
+    {
+     "time": "15:45",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "15:48",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "15:54",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "15:59",
+     "name": "Padmambikaa",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "16:10",
+     "name": "Ayra",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "16:19",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "16:25",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "16:29",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "16:30",
+     "name": "Bharathi",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Padubidri"
+    },
+    {
+     "time": "16:35",
+     "name": "Sai Ram",
+     "type": [
+      "Fast Service - Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Padubidri"
+    },
+    {
+     "time": "16:41",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "16:49",
+     "name": "Shree Padma",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi via Kapu"
+    },
+    {
+     "time": "16:56",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "17:02",
+     "name": "Mercy",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "17:05",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "17:07",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "17:20",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "17:21",
+     "name": "Shree Padma",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "17:22",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "17:38",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "17:40",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "goes_to": "Mulki"
+    },
+    {
+     "time": "17:45",
+     "name": "Milan",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "goes_to": "Udupi"
+    },
+    {
+     "time": "17:50",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": true,
+     "goes_to": "Mangalore"
+    },
+    {
+     "time": "18:00",
+     "name": "Reshma",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "goes_to": "Udupi"
+    }
+   ]
+  },
+  {
+   "id": "bypass-to-nitte",
+   "title": "From Karkala Bypass to Nitte (morning, 7:30 to 11:00 AM)",
+   "from": "Karkala Bypass",
+   "to": "Nitte",
+   "about": "Morning buses from Karkala Bypass to the college. Tentative timings.",
+   "buses": [
+    {
+     "time": "07:41",
+     "name": "Rajarajeshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "07:50"
+    },
+    {
+     "time": "07:45",
+     "name": "Kanthi",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "07:59"
+    },
+    {
+     "time": "07:50",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "07:59"
+    },
+    {
+     "time": "07:52",
+     "name": "Mercy",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:07"
+    },
+    {
+     "time": "07:58",
+     "name": "Naveen",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:12"
+    },
+    {
+     "time": "08:00",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:10"
+    },
+    {
+     "time": "08:05",
+     "name": "Ayra",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:15"
+    },
+    {
+     "time": "08:05",
+     "name": "Shahil",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:19"
+    },
+    {
+     "time": "08:15",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:25"
+    },
+    {
+     "time": "08:25",
+     "name": "Reshma",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:35"
+    },
+    {
+     "time": "08:30",
+     "name": "Sangam",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:45"
+    },
+    {
+     "time": "08:35",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "08:47"
+    },
+    {
+     "time": "08:48",
+     "name": "Vishal",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "09:02"
+    },
+    {
+     "time": "08:59",
+     "name": "Annapoorneshwari",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "09:10"
+    },
+    {
+     "time": "09:00",
+     "name": "Jeevan",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "09:15"
+    },
+    {
+     "time": "09:05",
+     "name": "Mercy",
+     "type": [
+      "Local"
+     ],
+     "user_contributed": true,
+     "reaches_nitte": "09:21"
+    },
+    {
+     "time": "09:10",
+     "name": "Navadurga Prasad",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "09:19"
+    },
+    {
+     "time": "11:01",
+     "name": "Padmambika",
+     "type": [
+      "Express"
+     ],
+     "user_contributed": false,
+     "reaches_nitte": "11:10"
+    }
+   ]
+  }
+ ]
+}

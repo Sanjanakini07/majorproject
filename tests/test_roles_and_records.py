@@ -46,7 +46,7 @@ def test_first_sign_in_enrols_six_photos_and_creates_the_student(client):
 
     marks = client.get("/api/marks").json()
     assert [s["semester"] for s in marks["semesters"]] == [1, 2, 3, 4, 5]
-    assert all(len(s["subjects"]) == 6 for s in marks["semesters"])
+    assert all(len(s["subjects"]) == len(academics.SUBJECTS[s["semester"]]) for s in marks["semesters"])
     assert marks["student"]["branch"] == "IS"
     assert client.get("/api/attendance").json()["subjects"]
 
@@ -119,9 +119,9 @@ def test_students_only_view_and_only_their_own(client):
     assert client.get("/api/students").status_code == 403
     assert client.get("/api/admin/modules").status_code == 403
     assert client.get("/api/admin/staff").status_code == 403
-    body = {"email": "nnm23is002@nmamit.in", "semester": 1, "code": "21MA101", "internal": 50, "external": 50}
+    body = {"email": "nnm23is002@nmamit.in", "semester": 1, "code": "MA1002-1", "internal": 50, "external": 50}
     assert client.put("/api/marks", json=body).status_code == 403
-    att = {"email": "nnm23is002@nmamit.in", "semester": 6, "code": "21IS601", "attended": 40, "total": 40}
+    att = {"email": "nnm23is002@nmamit.in", "semester": 6, "code": "IS4001-1", "attended": 40, "total": 40}
     assert client.put("/api/attendance", json=att).status_code == 403
     assert client.post("/api/admin/modules", json={"title": "t", "content": "c"}).status_code == 403
 
@@ -137,13 +137,13 @@ def test_teacher_edits_only_what_an_admin_allowed(client):
     assert client.get("/api/students").json()[0]["email"] == "nnm23is001@nmamit.in"
     assert client.get("/api/marks?email=nnm23is001@nmamit.in").status_code == 200
 
-    mark = {"email": "nnm23is001@nmamit.in", "semester": 1, "code": "21MA101", "internal": 41, "external": 44}
+    mark = {"email": "nnm23is001@nmamit.in", "semester": 1, "code": "MA1002-1", "internal": 41, "external": 44}
     assert client.put("/api/marks", json=mark).status_code == 200
     subjects = client.get("/api/marks?email=nnm23is001@nmamit.in").json()["semesters"][0]["subjects"]
-    updated = next(s for s in subjects if s["code"] == "21MA101")
+    updated = next(s for s in subjects if s["code"] == "MA1002-1")
     assert (updated["internal"], updated["external"], updated["total"]) == (41, 44, 85)
 
-    att = {"email": "nnm23is001@nmamit.in", "semester": 6, "code": "21IS601", "attended": 30, "total": 40}
+    att = {"email": "nnm23is001@nmamit.in", "semester": 6, "code": "IS4001-1", "attended": 30, "total": 40}
     assert client.put("/api/attendance", json=att).status_code == 403          # not allowed
     assert client.post("/api/admin/modules", json={"title": "t", "content": "c"}).status_code == 403
     assert client.get("/api/admin/modules").status_code == 200                 # can read
@@ -154,7 +154,7 @@ def test_teacher_edits_only_what_an_admin_allowed(client):
 def test_admin_changes_access_and_it_applies_straight_away(client):
     enroll(client, "nnm23is001@nmamit.in")
     add_teacher(client)
-    att = {"email": "nnm23is001@nmamit.in", "semester": 6, "code": "21IS601", "attended": 30, "total": 40}
+    att = {"email": "nnm23is001@nmamit.in", "semester": 6, "code": "IS4001-1", "attended": 30, "total": 40}
     login(client, "teacher@nmamit.in")
     assert client.put("/api/attendance", json=att).status_code == 403
 
@@ -176,9 +176,9 @@ def test_admin_changes_access_and_it_applies_straight_away(client):
 def test_attendance_cannot_exceed_classes_held(client):
     enroll(client, "nnm23is001@nmamit.in")
     login(client, "admin@nmamit.in")
-    att = {"email": "nnm23is001@nmamit.in", "semester": 6, "code": "21IS601", "attended": 41, "total": 40}
+    att = {"email": "nnm23is001@nmamit.in", "semester": 6, "code": "IS4001-1", "attended": 41, "total": 40}
     assert client.put("/api/attendance", json=att).status_code == 422
-    bad_mark = {"email": "nnm23is001@nmamit.in", "semester": 1, "code": "21MA101", "internal": 51, "external": 0}
+    bad_mark = {"email": "nnm23is001@nmamit.in", "semester": 1, "code": "MA1002-1", "internal": 51, "external": 0}
     assert client.put("/api/marks", json=bad_mark).status_code == 422
     unknown = {**bad_mark, "internal": 10, "code": "NOPE"}
     assert client.put("/api/marks", json=unknown).status_code == 404
@@ -220,7 +220,8 @@ def test_sample_marks_are_random_but_stable_and_believable():
     again, _ = academics.sample_records("nnm23is186@nmamit.in")
     other, _ = academics.sample_records("nnm23is187@nmamit.in")
     assert marks == again and marks != other
-    assert len(marks) == 5 * 6 and len(attendance) == 6
+    assert len(marks) == sum(len(academics.SUBJECTS[sem]) for sem in range(1, 6))
+    assert len(attendance) == len(academics.SUBJECTS[6])
     assert all(0 <= m["internal"] <= 50 and 0 <= m["external"] <= 50 for m in marks)
     assert all(m["internal"] + m["external"] >= 40 for m in marks)
     assert all(0 < a["attended"] <= a["total"] for a in attendance)
@@ -228,7 +229,26 @@ def test_sample_marks_are_random_but_stable_and_believable():
 
 
 def test_grades_and_branch():
-    assert [academics.grade(p) for p in (95, 85, 75, 65, 55, 45, 30)] == ["O", "A+", "A", "B+", "B", "C", "F"]
+    assert [academics.grade(p) for p in (95, 85, 75, 65, 55, 45, 30)] == ["O", "A+", "A", "B+", "B", "P", "F"]
     assert academics.branch_of("nnm23is186@nmamit.in") == "IS"
     assert academics.branch_of("nnm23cs004@nmamit.in") == "CS"
     assert academics.branch_of("admin@nmamit.in") == ""
+
+
+def test_teacher_without_permission_cannot_see_other_students(client):
+    login(client, "admin@nmamit.in")
+    add_teacher(client)   # no permissions
+    enroll(client, "nnm23is001@nmamit.in")
+    login(client, "teacher@nmamit.in")
+    assert client.get("/api/marks?email=nnm23is001@nmamit.in").status_code == 403
+    assert client.get("/api/attendance?email=nnm23is001@nmamit.in").status_code == 403
+    assert client.get("/api/students").status_code == 403
+
+
+def test_real_name_replaces_the_made_up_one_on_enrolment(client):
+    academics.ensure_student("nnm23is186@nmamit.in", "Made Up", academics.SEEDED_BY)
+    login(client, "nnm23is186@nmamit.in", face_ok=False, name="NNM23IS186 SRUJAN M PADMASHALI")
+    assert client.post("/api/face/enroll", files=photos(*OWNER)).status_code == 200
+    assert db.get_profile("nnm23is186@nmamit.in")["name"] == "Srujan M Padmashali"
+    assert client.get("/api/me").json()["name"] == "Srujan M Padmashali"     # greeting says "Good evening, Srujan!"
+    assert len(client.get("/api/marks").json()["semesters"]) == 5     # keeps the sample records

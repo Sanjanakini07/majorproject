@@ -49,7 +49,7 @@ def test_csv_import(client, index):
 def test_ask_streams_progress_and_answer(client, index, monkeypatch):
     login(client, "admin@nmamit.in")
     client.post("/api/admin/modules", json={"title": "Library", "content": "The library opens at 8:30 AM"})
-    monkeypatch.setattr(rag, "answer", lambda q, hits: f"Answer from {hits[0]['title']}")
+    monkeypatch.setattr(rag, "answer", lambda q, hits, personal="": f"Answer from {hits[0]['title']}")
 
     login(client, "student@nmamit.in")
     events = stream(client.post("/api/ask", json={"question": "when does the library open"}))

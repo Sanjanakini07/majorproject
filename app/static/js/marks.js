@@ -100,7 +100,7 @@ async function load(email) {
 async function start() {
   me = await loadMe();
   renderBar('/marks', me);
-  if (me.role === 'student') return load(null);
+  if (!me.permissions.marks) return load(null);   // only people allowed to see others get the picker
   $('picker').hidden = false;
   await studentPicker($('picker'), (email) => (email ? load(email) : render({ student: null })));
 }
