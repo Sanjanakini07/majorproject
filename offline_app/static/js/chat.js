@@ -43,7 +43,7 @@ async function startRecording() {
   hideError();
   show('idle');
   if (!navigator.mediaDevices || !window.MediaRecorder) {
-    showError('Voice input needs Chrome, Edge or Safari on the https address. You can type your question below.');
+    showError('Voice input needs a modern browser. You can type your question below.');
     return;
   }
   let stream;
@@ -87,7 +87,7 @@ async function transcribe(blob) {
     res = await fetch('/api/stt', { method: 'POST', body: form });
   } catch (e) {
     console.error(e);
-    return fail('Could not reach the laptop. Check that you are on the same Wi-Fi.');
+    return fail('Could not reach the assistant service. Please check that the app is running.');
   }
   if (res.status === 401 || res.status === 403) return (location.href = '/');
   if (!res.ok) return fail(await errorText(res));
@@ -156,7 +156,7 @@ async function ask(question) {
     });
   } catch (e) {
     console.error(e);
-    return fail('Could not reach the laptop. Check that you are on the same Wi-Fi.');
+    return fail('Could not reach the assistant service. Please check that the app is running.');
   }
   if (res.status === 401 || res.status === 403) return (location.href = '/');
   if (!res.ok) return fail(await errorText(res));
@@ -179,33 +179,6 @@ async function ask(question) {
     console.error(e);
   }
   if (!finished) fail('The answer was cut off. Please try again.');
-}
-
-// ---- Sync status -----------------------------------------------------------------
-
-const SYNC_TEXT = {
-  off: 'Offline only',
-  waiting: 'Sync starting…',
-  syncing: 'Syncing…',
-  synced: 'Synced',
-  offline: 'Offline',
-  error: 'Sync problem',
-};
-
-function showSync(s) {
-  if (!$('sync')) return;
-  const pending = s.pending && s.state !== 'off' ? ` (${s.pending} to send)` : '';
-  $('sync').textContent = (SYNC_TEXT[s.state] || s.state) + pending;
-  $('sync').title = s.message || (s.last_sync ? `Last synced ${new Date(s.last_sync).toLocaleString()}` : '');
-}
-
-async function refreshSync(method = 'GET') {
-  try {
-    const res = await fetch('/api/sync', { method });
-    if (res.ok) showSync(await res.json());
-  } catch (e) {
-    if ($('sync')) $('sync').textContent = 'Laptop unreachable';
-  }
 }
 
 // ---- Wiring -----------------------------------------------------------------------
@@ -238,12 +211,7 @@ function setTalking(on) {
 
 loadMe()
   .then((me) => {
-    renderBar('/', me, [
-      el('button', { id: 'sync', className: 'btn small', title: 'Sync with the college backend now' }, 'Sync…'),
-      el('a', { className: 'btn small ghost', href: '/connect', title: 'Connect a phone' }, 'Phone'),
-    ]);
-    $('sync').addEventListener('click', () => refreshSync('POST'));
-    refreshSync();
+    renderBar('/', me);
     mascot.greet();
     $('hello').textContent = `${greeting()}, ${me.name}!`;
     if (me.role !== 'student' && me.entries === 0) {
@@ -251,5 +219,3 @@ loadMe()
     }
   })
   .catch((e) => console.error('Could not load profile', e));
-
-setInterval(refreshSync, 15000);

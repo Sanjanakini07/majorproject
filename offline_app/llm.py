@@ -1,6 +1,7 @@
 """Answers from a small AI model running on this laptop through Ollama (https://ollama.com).
 
-If Ollama is not running and GROQ_API_KEY is set, the online Groq model is used instead.
+If Ollama is not running and GROQ_API_KEY is set, the Groq model is used.
+If offline and facts were computed, the exact facts are returned directly.
 """
 import logging
 
@@ -35,14 +36,23 @@ def answer(question: str, hits: list[dict], personal: str = "") -> str:
             timeout=180,
         )
     except requests.ConnectionError:
-        if not app_config.GROQ_API_KEY:
-            raise rag.AnswerError("Ollama is not running. Start it from the Start menu (Ollama).")
-        log.warning("Ollama is not running; using Groq instead")
-        return rag.answer(question, hits, personal)
+        if app_config.GROQ_API_KEY:
+            log.warning("Ollama is not running; using Groq instead")
+            return rag.answer(question, hits, personal)
+        if personal:
+            log.info("Ollama is not running; answering directly from exact personal facts")
+            return personal.strip()
+        raise rag.AnswerError("Ollama is not running. Start it from the Start menu (Ollama) or set GROQ_API_KEY in .env.")
     if res.status_code == 404:
+        if app_config.GROQ_API_KEY:
+            return rag.answer(question, hits, personal)
+        if personal:
+            return personal.strip()
         raise rag.AnswerError(f"The model {config.OLLAMA_MODEL} is not downloaded. Run: ollama pull {config.OLLAMA_MODEL}")
     res.raise_for_status()
     text = (res.json().get("message") or {}).get("content", "").strip()
     if not text:
+        if personal:
+            return personal.strip()
         raise rag.AnswerError("The model returned an empty answer")
     return text

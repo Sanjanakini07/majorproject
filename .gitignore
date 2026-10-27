@@ -11,3 +11,9 @@ models/
 
 # Walkthrough videos made by scripts/record_demo.py
 demo_video/
+
+# Packaging and distribution
+dist/
+build/
+payload.zip
+*.spec
