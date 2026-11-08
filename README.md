@@ -1,4 +1,4 @@
-# NMAMIT Campus Voice Assistant
+## NMAMIT Campus Voice Assistant
 
 A small website where an NMAMIT student signs in with their college Google account, passes a Face ID style face scan, asks a question out loud and hears the answer. Students can also see their own marks and attendance. Answers come only from the information admins and permitted teachers add in the admin panel. This approach is called RAG (retrieval-augmented generation).
 
