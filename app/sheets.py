@@ -179,8 +179,8 @@ def _teacher_line(t: dict) -> str:
         line += f" How to get there: {t['directions'].rstrip('.')}."
     if t.get("subjects"):
         line += f" Subjects taught: {t['subjects'].rstrip('.')}."
-    if t.get("email"):
-        line += f" Email: {t['email']}."
+    # Said outright when missing: a small model otherwise borrows the only email or room it can see.
+    line += f" Email: {t['email']}." if t.get("email") else " Email: not in the teacher list."
     return line
 
 
@@ -201,16 +201,26 @@ def match_teachers(q: str, teachers: list[dict]) -> list[dict]:
     return [t for s, t in scored if s == top][:6]
 
 
+# Words in many subject names ("Database Management Systems", "Financial Management"), so they don't pick a subject.
+GENERIC_SUBJECT_WORDS = {"management", "system", "systems", "engineering", "programming", "design", "data",
+                         "applications", "application", "introduction", "advanced", "fundamentals", "theory", "lab",
+                         "laboratory", "using", "computer", "science", "analysis", "development", "basic", "concepts",
+                         "principles", "technology", "technologies", "subject", "subjects", "course", "courses"}
+
+
 def _teachers_for_subject(q: str, teachers: list[dict]) -> list[dict]:
-    wanted = [c["title"].lower() for _, c in syllabus.find_courses(q)]
-    words = [w for w in _tokens(q) if len(w) >= 4 and w not in NOT_NAMES and w not in TITLES]
+    # A course the question names (by title, short name or initials) is matched by its title's first two words;
+    # otherwise only distinctive words count ("python", "blockchain"), never "management" or "systems".
+    courses = [c for _, c in syllabus.find_courses(q)]
+    named = [c for c in courses if c["title"].lower() in q]    # "database management systems" is that course only,
+    phrases = [" ".join(c["title"].lower().split()[:2]) for c in (named or courses)]   # not "Database Applications"
+    words = [] if phrases else [w for w in _tokens(q) if len(w) >= 4 and w not in NOT_NAMES and w not in TITLES
+                                and w not in GENERIC_SUBJECT_WORDS]
     found = []
     for t in teachers:
         subjects = (t.get("subjects") or "").lower()
-        if not subjects:
-            continue
-        if any(title in subjects or " ".join(title.split()[:2]) in subjects for title in wanted) or any(
-                re.search(rf"\b{re.escape(w)}\b", subjects) for w in words):
+        if subjects and (any(p in subjects for p in phrases)
+                         or any(re.search(rf"\b{re.escape(w)}\b", subjects) for w in words)):
             found.append(t)
     return found[:8]
 
@@ -223,10 +233,16 @@ def facts(q: str, today: date, want_bus: bool = False) -> list[str]:
     if named:
         lines.append("Asked about a teacher (from the college's teacher list): "
                      + " ".join(_teacher_line(t) for t in named))
+    elif re.search(r"\b(hod|head of (the )?department|department head)\b", q):
+        heads = [t for t in teachers if re.search(r"\bhead\b", (t.get("designation") or "").lower())]
+        lines.append("Asked about the head of department (from the college's teacher list): "
+                     + (" ".join(_teacher_line(t) for t in heads) if heads else "no head of department is listed."))
     elif TEACHER_WORDS.search(q):
         by_subject = _teachers_for_subject(q, teachers)
-        if by_subject:
-            lines.append("Teachers whose subjects match the question: " + " ".join(_teacher_line(t) for t in by_subject))
+        if by_subject:   # short lines: with whole profiles a small model picked a teacher from the wrong subject
+            lines.append("Asked who teaches it (teachers whose listed subjects include it): " + "; ".join(
+                f"{t['name']}" + (f", {t['designation']}" if t.get("designation") else "")
+                + (f", cabin {t['cabin']}" if t.get("cabin") else ", cabin not entered yet") for t in by_subject) + ".")
         else:
             dept = [t["name"] for t in teachers if (t.get("department") or "").startswith("Information Science")]
             lines.append(f"The college's teacher list has {len(teachers)} teachers. Information Science teachers: "

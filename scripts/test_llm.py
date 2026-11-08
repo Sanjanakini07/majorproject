@@ -22,12 +22,16 @@ from offline_app import llm  # noqa: E402
 
 EMAIL, NAME = "nnm23is042@nmamit.in", "NNM23IS042 ASHA K RAO"
 GAP_SECONDS = 10
-NO_INFO = r"don't have|do not have|not have (that|any)|no information|not sure|college office|check with"
+NO_INFO = (r"don't have|do not have|not have (that|any|the)|no information|not sure|college office|check with|"
+           r"not (been )?(entered|added|available|listed|included|part of)|isn't (listed|available|in)|not yet|"
+           r"doesn't (have|include|list)|does not (have|include|list)|here is what the college information says")
+A_DATE = r"\b\d{1,2}(st|nd|rd|th)? (of )?(nov|dec|jan)|(november|december|january),? \d"
 
-# (question, regex the answer must match, regex it must NOT match)
+# (question, regex the answer must match, regex it must NOT match). The second half checks that nothing is made up.
 CASES = [
     ("What is my name?", r"asha", None),
     ("What is my USN?", r"nnm23is042", None),
+    ("Which semester am I in?", r"\b7|seventh", r"\b6(th)? sem|sixth"),
     ("What is my attendance?", r"\d+(\.\d+)?\s?(percent|%)", None),
     ("How many classes can I miss and still stay above 85 percent?", r"\d", None),
     ("What is my CGPA?", r"\d\.\d|(one|two|three|four|five|six|seven|eight|nine|ten) point", None),
@@ -35,15 +39,29 @@ CASES = [
     ("What does unit 2 of operating systems cover?", r"(process|thread|schedul|memory|synchroni|deadlock)", None),
     ("Where can I find DBMS notes?", r"notes", None),
     ("What is the minimum attendance needed to write the SEE?", r"75", None),
-    ("How are CIE marks split?", r"(40|forty)", r"diary|viva"),
+    ("How are CIE marks split?", r"(40|forty)", r"diary|viva|40 marks each"),
     ("What grade do I get for 85 percent?", r"a\s?(\+|plus)", None),
     ("I got 38 marks in DBMS, did I pass?", r"fail|did not pass|didn't pass|not pass", r"yes|you passed|you did pass"),
-    ("What events are coming up?", r"\w", NO_INFO),
+    ("When is the FM SEE?", r"10(th)? (of )?dec|december 10", r"\b15\b|\b12(th)? dec"),
+    ("When is the ethical hacking exam?", r"21(st)? (of )?dec|december 21", r"\b10(th)? dec|\b17(th)? dec"),
+    ("When is the OOMD SEE?", r"12(th)? (of )?dec|december 12", None),
+    ("When is MSE 2?", NO_INFO, A_DATE),
+    ("When is the IoT exam?", NO_INFO, A_DATE),
+    ("Where is Jason sir's cabin?", r"apj", None),
+    ("Who is the HOD?", r"ashwini", None),
+    ("Where is Dr. Rashmi Naveen's cabin?", NO_INFO, r"apj|smv|floor \d|\d(st|nd|rd|th) floor"),
+    ("What is Mr. Devidas's email?", NO_INFO, r"@"),
+    ("Who teaches database management systems?", r"jason|ravi|naganna", None),
+    ("When is the Wipfli drive?", r"12(th)? (of )?nov|november 12", None),
+    ("What events are coming up?", r"drive|placement|wipfli|infosys|taurani|mathco", None),
     ("When is the next bus to Karkala?", r"\d{1,2}[:.]\d{2}|\d{1,2} ?(am|pm|a\.m|p\.m)", None),
-    ("When is the library open?", r"\d", None),
+    ("Do I have any class right now?", NO_INFO + r"|\bno\b|sunday|none", r"\d{1,2}[:.]\d{2}"),
+    ("When is the library open?", NO_INFO, r"\d"),
+    ("What is the hostel fee?", NO_INFO, r"\d"),
     ("What is the capital of France?", NO_INFO, r"paris"),
     ("Who is the principal's wife?", NO_INFO, None),
     ("wat r the electiv subjcts in 6th sem", r"elective", None),
+    ("what were my marks last semester?", r"sample", None),
 ]
 
 

@@ -70,7 +70,8 @@ def answer(question: str, hits: list[dict], personal: str = "") -> str:
     if not hits and not personal:
         return NO_INFO
     try:
-        return complete(rag.system_prompt(rag.build_context(hits, personal)), question)
+        # Numbers the context doesn't contain get one retry, then the context's own words (rag.grounded_answer).
+        return rag.grounded_answer(question, rag.build_context(hits, personal), complete)
     except rag.AnswerError:
         if personal:  # no model at all: the exact facts still answer "my attendance", "events today"...
             log.info("No model available; answering directly from the exact facts")

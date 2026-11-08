@@ -200,15 +200,36 @@ _STOP = {"and", "of", "the", "to", "in", "for", "with", "its", "on", "using", "i
          "foundations"}
 
 
+# Short words that are also course initials but mostly mean something else in a question ("or", "is", "it").
+_NOT_ACRONYMS = {"or", "is", "it", "in", "as", "at", "on", "me", "my", "do", "go", "no", "so", "up", "us", "we", "an",
+                 "am", "be", "by", "he", "if", "of", "to", "ok", "hi", "pm", "id", "ca", "ia", "cs", "see", "mse",
+                 "cie", "lab", "sem", "all", "and", "are", "can", "for", "the", "was", "who", "how", "why"}
+
+
+_ACRONYM_SKIP = {"and", "of", "the", "in", "with", "to", "on", "using", "its", "a"}
+
+
+def acronyms(title: str) -> set[str]:
+    """Initials students and notices use: Financial Management -> fm, Object Oriented Modeling and Design -> oomd,
+    Ethical Hacking and Network Defence -> ehnd, Total Quality Management for Sustainable Growth -> tqm."""
+    def initials(text: str) -> str:
+        return "".join(w[0] for w in re.findall(r"[a-z]+", text) if w not in _ACRONYM_SKIP)
+    title = title.lower()
+    return {initials(title), initials(title.split(" for ")[0])} - {""}
+
+
 def find_courses(q: str) -> list[tuple[int, dict]]:
-    """Courses a question names: by code, by full or distinctive title words, or by a common short name (OS, DBMS)."""
-    q = q.lower()
+    """Courses a question names: by code, by full or distinctive title words, by a common short name (OS, DBMS),
+    or by its initials (FM, OOMD, SDN, EH&ND)."""
+    q = re.sub(r"(?<=[a-z])&(?=[a-z])", "", q.lower())   # "eh&nd" -> "ehnd"
     words = set(re.findall(r"[a-z+]+", q))
     found = []
     for sem, c in listed():
         title = c["title"].lower()
         key = [w for w in re.findall(r"[a-z+]+", title) if w not in _STOP and len(w) > 2]
+        initials = {a for a in acronyms(title) if len(a) >= 2 and a not in _NOT_ACRONYMS and a not in ALIASES}
         if (c["code"].lower() in q or c["code"].lower().split("-")[0] in q or title in q
+                or initials & words
                 or (len(key) >= 2 and all(w in words for w in key))
                 or (len(key) == 1 and key[0] in words and len(key[0]) > 4)
                 or any(a in words and ALIASES[a] in title for a in ALIASES if " " not in a)

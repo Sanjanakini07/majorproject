@@ -11,6 +11,7 @@ ChromaDB's built-in embedding model (all-MiniLM-L6-v2) runs locally and is
 free. It is downloaded (~80 MB) the first time it is used.
 """
 import logging
+import re
 import threading
 from datetime import date
 from functools import lru_cache
@@ -163,10 +164,118 @@ def groq_complete(system: str, user: str, max_tokens: int = 2048) -> str:
     return text
 
 
+NO_INFO = "I don't have any information on that yet. Please check with the college office."
+
+
 def answer(question: str, hits: list[dict], personal: str = "") -> str:
     if not hits and not personal:
-        return "I don't have any information on that yet. Please check with the college office."
-    return groq_complete(system_prompt(build_context(hits, personal)), question)
+        return NO_INFO
+    return grounded_answer(question, build_context(hits, personal), groq_complete)
+
+
+# --- Keeping answers to what the context says ----------------------------------------
+# Models, the small offline one most of all, sometimes state a date, time, mark or percentage that isn't in the
+# context. Every number in an answer must appear in the context or the question; if not, the model gets one more
+# try with the invented numbers named, and after that the reply is the context's own most relevant sentences.
+
+_NUMBER = re.compile(r"\d+(?:[.:]\d+)?")
+_WORD = re.compile(r"[a-z0-9]+")
+_COMMON = {"the", "and", "for", "what", "when", "where", "which", "who", "how", "is", "are", "was", "will", "can",
+           "does", "do", "my", "me", "i", "a", "an", "of", "to", "in", "on", "at", "it", "this", "that", "there",
+           "tell", "about", "please", "college", "nmamit", "any", "get", "have", "has", "be"}
+
+
+def _numbers(text: str, answer_side: bool = False) -> set[str]:
+    out = set()
+    for n in _NUMBER.findall(text):
+        if ":" in n:
+            hour, minute = n.split(":")
+            hour = hour.lstrip("0") or "0"
+            if minute == "00":
+                out.add(hour)              # "1:00 PM" and "1 PM" are the same time
+                if not answer_side:
+                    out.add(f"{hour}:00")
+            else:
+                out.add(f"{hour}:{minute}")
+        elif "." in n:
+            out.add(n)
+        else:
+            out.add(n.lstrip("0") or "0")          # "09" December is 9
+    return out
+
+
+def unsupported_numbers(text: str, context: str, question: str = "") -> list[str]:
+    """Numbers in an answer that neither the context nor the question contains."""
+    have = _numbers(context) | _numbers(question)
+    return sorted(n for n in _numbers(text, answer_side=True) if n not in have)
+
+
+def quote_context(question: str, context: str, limit: int = 2) -> str:
+    """The context's sentences that share the most words with the question, word for word."""
+    wanted = {w for w in _WORD.findall(question.lower()) if w not in _COMMON and len(w) > 1}
+    wanted |= {w for _, c in syllabus.find_courses(question) for w in _WORD.findall(c["title"].lower()) if len(w) > 3}
+    sentences = [s.strip() for line in context.splitlines() for s in re.split(r"(?<=[.!?])\s+", line) if s.strip()]
+    scored = sorted(((len(wanted & set(_WORD.findall(s.lower()))), -i, s) for i, s in enumerate(sentences)
+                     if not s.startswith(("About the person asking", "---"))), reverse=True)
+    best = [s for score, _, s in scored[:limit] if score > 0]
+    if not best:
+        return NO_INFO
+    return "Here is what the college information says: " + " ".join(s[:400] for s in best)
+
+
+# Words that don't name what a question is about, so they can't show that the context covers it.
+_NOT_TOPIC = _COMMON | {
+    "open", "opens", "opening", "close", "closes", "closing", "timing", "timings", "time", "times", "today",
+    "tomorrow", "now", "right", "there", "available", "much", "many", "long", "need", "give", "know", "show",
+    "list", "say", "find", "want", "like", "should", "could", "would", "also", "some", "next", "last", "first",
+    "best", "good", "still", "yet", "going", "happen", "happening", "held", "start", "starts", "end", "ends",
+    "your", "you", "they", "them", "their", "our", "we", "us", "am", "im", "whats", "when's", "hey", "hello", "hi",
+    "sir", "madam", "mam", "ok", "okay", "thanks", "thank", "any", "all", "with", "from", "into", "if", "or", "not",
+    "did", "does", "doing", "done", "go", "goes", "make", "take", "put", "use", "used", "much", "more", "less",
+}
+_SAME_TOPIC = {"hod": "head", "fees": "fee", "teachers": "teacher", "classes": "class"}
+
+
+def on_topic(question: str, context: str) -> bool:
+    """False when no word that says what the question is about appears in the context: there is nothing to answer
+    from, and a small model would otherwise make the answer up ("When is the library open?" with no library info)."""
+    ctx = context.lower()
+    words = [w for w in _WORD.findall(question.lower()) if len(w) > 2 and w not in _NOT_TOPIC and not w.isdigit()]
+    if not words:
+        return True
+    words += [w for _, c in syllabus.find_courses(question) for w in _WORD.findall(c["title"].lower())]
+    return any(w in ctx or _SAME_TOPIC.get(w, w) in ctx or w.rstrip("s") in ctx for w in words)
+
+
+SAMPLE_MARK = "sample data made by this app"
+
+
+def grounded_answer(question: str, context: str, write) -> str:
+    """write(system, user) -> text: Groq, or the offline app's Groq-then-local chain."""
+    if not on_topic(question, context):
+        log.info("Nothing in the context is about this question; not asking the model")
+        return NO_INFO
+    final = _checked(question, context, write)
+    # Sample marks and attendance must be called that, even when the model leaves it out.
+    if SAMPLE_MARK in context and "sample" not in final.lower() and final != NO_INFO:
+        final += " (These records are sample data made by the app, not official college records.)"
+    return final
+
+
+def _checked(question: str, context: str, write) -> str:
+    system = system_prompt(context)
+    text = write(system, question)
+    bad = unsupported_numbers(text, context, question)
+    if not bad:
+        return text
+    log.warning("Answer had numbers that aren't in the context (%s); asking again", ", ".join(bad))
+    retry = write(system + "\n\nYour last answer used numbers that are NOT in the context: " + ", ".join(bad)
+                  + ". Answer again using only numbers, dates and times that appear in the context. If the context "
+                  "doesn't have the answer, say you don't have that information yet.", question)
+    if not unsupported_numbers(retry, context, question):
+        return retry
+    log.warning("Still not supported by the context; answering with the context's own words")
+    return quote_context(question, context)
 
 
 TIDY_PROMPT = """You clean up information that college staff typed or pasted into the NMAMIT campus assistant, so the assistant can answer students from it.

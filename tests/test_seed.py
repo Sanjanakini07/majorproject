@@ -16,20 +16,22 @@ def test_seed_fills_every_page_once(client, index, monkeypatch):
     assert len(db.list_profiles(limit=1000)) == 301
     assert db.get_profile("nnm23is000@nmamit.in") and db.get_profile("nnm23is300@nmamit.in")
     from app import academics
-    assert len(db.list_marks("nnm23is150@nmamit.in")) == sum(len(academics.SUBJECTS[s]) for s in range(1, 6))
-    assert len(db.list_attendance("nnm23is150@nmamit.in")) == len(academics.SUBJECTS[6])
+    now = academics.CURRENT_SEMESTER
+    assert len(db.list_marks("nnm23is150@nmamit.in")) == sum(len(academics.SUBJECTS[s]) for s in range(1, now))
+    assert len(db.list_attendance("nnm23is150@nmamit.in")) == len(academics.SUBJECTS[now])
     assert all(s["notes"] == 2 for s in db.list_subjects())          # its official syllabus and study notes
-    assert any(e["event_date"] >= date.today().isoformat() for e in db.list_events())
+    assert db.list_events() == []                            # no made-up events: admins and EMS add real ones
     titles = [m["title"] for m in db.list_modules()]
-    assert "Timetable: Semester 6, Monday" in titles and "Library timings" in titles
+    assert seed.SEE_TITLE in titles                          # the real SEE timetable
+    assert not [t for t in titles if t.startswith("Timetable: ") or t in seed.INVENTED_TITLES]
     assert len(index.modules) == db.count_modules()          # everything is searchable
 
     # a student sees their own sample records through the normal pages
     login(client, "nnm23is150@nmamit.in")
-    assert len(client.get("/api/marks").json()["semesters"]) == 5
+    assert len(client.get("/api/marks").json()["semesters"]) == now - 1
 
     # second start adds nothing, even after an admin deleted something
-    db.delete_event(db.list_events()[0]["id"])
+    db.delete_module(db.get_module_by_title(seed.SEE_TITLE)["id"])
     before = (db.count_modules(), len(db.list_events()))
     seed.run()
     assert (db.count_modules(), len(db.list_events())) == before
@@ -52,15 +54,17 @@ def test_assistant_gets_the_askers_own_records(client, index, monkeypatch):
     assert "Marks" not in ctx                                    # only when asked
 
     marks = personal.context_for(me, "", "what are my marks last sem and first sem", monday)
-    assert "Semester 5:" in marks and "Semester 1:" in marks and "Semester 6 is going on" in marks
+    assert "Semester 6:" in marks and "Semester 1:" in marks and "Semester 7 is going on" in marks
+    assert "sample data made by this app, not official college records" in marks
     assert db.get_profile(other)["name"] not in marks            # nobody else's data
 
     att = personal.context_for(me, "", "what is my attendance", monday)
-    assert "Attendance this semester" in att and "Information & Network Security" in att and "85 percent" in att
+    assert "Attendance this semester" in att and "Financial Management" in att and "85 percent" in att
 
     events = personal.context_for(me, "", "what events are there today", monday)
     assert "Events on Monday 26 October 2026 (today):" in events and "Full event calendar" in events
-    assert "Classes today (Monday 26 October 2026): Semester 6 timetable for Monday" in personal.context_for(me, "", "what classes do i have today", monday)
+    classes = personal.context_for(me, "", "what classes do i have today", monday)
+    assert "no timetable has been added for semester 7 on Mondays" in classes   # never a made-up one
 
     assert personal.context_for(me, "", "zzz") == ""             # unrelated questions get nothing extra
 

@@ -219,13 +219,27 @@ def _marks(email: str, current: int, asked: list[tuple[int, str]]) -> str:
     lines.append(f"Overall: {report['overall_percent']} percent, CGPA {_gpa([x['grade'] for x in every])} out of 10. "
                  f"Best subject: {best['subject']} ({best['total']}). Lowest: {worst['subject']} ({worst['total']}). "
                  f"Backlogs: {', '.join(failed) if failed else 'none'}.")
-    return "\n".join(lines)
+    return "\n".join([*lines, _sample_note("marks", db.list_marks(email))])
+
+
+SAMPLE_BY = {academics.SEEDED_BY, "sample data"}
+
+
+def _sample_note(what: str, rows: list[dict]) -> str:
+    """Records this app made up are said to be so: they are not the student's official results."""
+    made_up = sum(r["updated_by"] in SAMPLE_BY for r in rows)
+    if not made_up:
+        return ""
+    some = "These" if made_up == len(rows) else f"{made_up} of these"
+    return (f"Important: {some} {what} records are sample data made by this app, not official college records, "
+            f"until a teacher enters the real ones. Say so when giving them.")
 
 
 def _attendance(email: str) -> str:
     report = academics.attendance_report(email)
     if not report["subjects"]:
         return "No attendance is recorded for this person yet."
+    sample = _sample_note("attendance", db.list_attendance(email))
     need, floor = report["required_percent"], report["condonable_percent"]
 
     def can_miss(s: dict, limit: int) -> int:        # classes that can be missed and still be at the limit
@@ -253,7 +267,8 @@ def _attendance(email: str) -> str:
             f"in every course; up to 10 percent can be condoned, and under {floor} percent the student can't write that "
             f"course's SEE. " + ". ".join(parts) + ". "
             + (f"Below {need} percent: {', '.join(short)}. " if short else f"Every subject is at {need} percent or more. ")
-            + (f"Under {floor} percent: {', '.join(barred)}." if barred else f"No subject is under {floor} percent."))
+            + (f"Under {floor} percent: {', '.join(barred)}." if barred else f"No subject is under {floor} percent.")
+            + (f" {sample}" if sample else ""))
 
 
 def _show(e: dict, details: bool = False) -> str:
@@ -468,6 +483,54 @@ GROUP_ENTRIES = 3      # per group
 GROUP_TEXT_CHARS = 2500
 
 
+# Words that don't say which line of a notice is meant ("when is the exam"), so they never select one.
+NOTICE_COMMON = {"when", "what", "where", "which", "exam", "exams", "examination", "date", "dates", "time", "timing",
+                 "semester", "paper", "test", "tests", "schedule", "scheduled", "timetable", "drive", "drives",
+                 "placement", "placements", "company", "about", "there", "this", "that", "will", "have", "held",
+                 "next", "upcoming", "tell", "please", "know", "does", "from", "with", "venue", "where", "happen"}
+
+
+def _notice_lines(q: str, groups: tuple[str, ...], days: list[date]) -> list[str]:
+    """The lines of exam and placement notices that name what the question asks about (a course by code, title or
+    initials, MSE, a company), picked here so even a small model only has to repeat them."""
+    prefixes = [p for p in groups if p in ("Exam: ", "Placement: ")]
+    if not prefixes:
+        return []
+    courses = syllabus.find_courses(q)
+    terms = set()
+    for _, c in courses:
+        title = c["title"].lower()
+        terms |= {c["code"].lower(), title}
+        terms |= {a for a in syllabus.acronyms(title) if len(a) >= 2 and a not in syllabus._NOT_ACRONYMS}  # not "it"
+        terms |= {short for short, full in syllabus.ALIASES.items() if full in title and len(short) >= 2}    # "iot"
+    if re.search(r"\b(mse|mid ?-?sem\w*|mid ?terms?|internals?)\b", q):
+        terms |= {"mid-semester", "mid semester", "mse"}
+    terms |= {f"{d.day} {d:%B}".lower() for d in days}           # "17th december" -> the line "... 17 December ..."
+    terms |= {w for w in re.findall(r"[a-z]{4,}", q) if w not in NOTICE_COMMON and w not in STOPWORDS_FOR_NOTICES
+              and w not in MONTHS and w not in WEEKDAYS}
+    if not terms:
+        return []
+    lines, any_notice = [], False
+    for prefix in prefixes:
+        for module in db.modules_titled(prefix, GROUP_ENTRIES):
+            any_notice = True
+            originals = [s.strip() for line in module["content"].splitlines()
+                         for s in re.split(r"(?<=[.!?])\s+(?=[A-Z])", line) if s.strip()]
+            for sentence in originals:
+                plain = re.sub(r"(?<=[a-z])&(?=[a-z])", "", sentence.lower())
+                if any(re.search(rf"(?<![a-z0-9]){re.escape(t)}(?![a-z0-9])", plain) for t in terms):
+                    lines.append(f"{sentence} (from {module['title'].split(': ', 1)[-1]})")
+    if lines:
+        return ["Asked about this; the matching lines of the college's notices: " + " ".join(lines[:5])]
+    if any_notice and courses and "Exam: " in prefixes:
+        names = ", ".join(c["title"] for _, c in courses)
+        return [f"Asked about {names}: the exam notices in the app don't mention it, so its exam date isn't known here."]
+    return []
+
+
+STOPWORDS_FOR_NOTICES = {"would", "could", "should", "their", "there", "these", "those", "your", "mine", "they"}
+
+
 def adjust_hits(hits: list[dict], facts: Facts) -> list[dict]:
     """Drop search results the exact facts replace or that are from the wrong semester; add the courses asked about."""
     def wrong_semester(title: str) -> bool:
@@ -525,17 +588,22 @@ def build(email: str, session_name: str, question: str, today: date | None = Non
     want_rules = bool(RULE_WORDS.search(q))
     profile = db.get_profile(email)
     list_facts = sheets.facts(q, today, want_bus)   # teachers and cabins, placements, college buses
+    notice = _notice_lines(q, groups, days)          # the exact lines of exam and placement notices
+    list_facts += notice
+    # Once the right lines are picked, the whole notice only offers a small model the wrong row to read.
+    picked = [g for g in groups if g in ("Exam: ", "Placement: ")] if notice and "matching lines" in notice[0] else []
+    groups = tuple(g for g in groups if g not in picked)
     if not (want_marks or want_attendance or want_events or want_classes or want_notes or want_bus or want_electives
             or want_rules or list_facts or ME_WORDS.search(q)):
         return Facts(timetable_semesters=(profile["semester"],) if profile else (), groups=groups)
 
     name = academics.clean_name((profile or {}).get("name") or session_name or "", email) or email
-    lines = [f"Name: {name}. Roll number: {email.split('@')[0].upper()}. College email: {email}."]
+    lines = [f"Name: {name}. Roll number (USN): {email.split('@')[0].upper()}. College email: {email}."]
     if profile:
         lines.append(f"Branch: {profile['branch'] or 'not known'}. Current semester: {profile['semester']}.")
     lines.append(f"Right now it is {_day(today)}" + (f", {_clock(now)}" if now else "") + ".")
     lines.extend(list_facts)
-    covered = []
+    covered = list(picked)
     current = profile["semester"] if profile else 6
     asked_semesters = semesters_in(q, current)
     # "What grade is 85 percent", "how are CIE marks split": about the rules, not this student's six semesters of

@@ -10,7 +10,7 @@ import re
 
 from . import db, syllabus
 
-CURRENT_SEMESTER = 6   # five semesters are finished, the sixth is running
+CURRENT_SEMESTER = 7   # the 2023 batch: six semesters are finished, the seventh is running (Aug-Dec 2026)
 MAX_INTERNAL = 50      # CIE
 MAX_EXTERNAL = 50      # SEE
 
@@ -63,7 +63,7 @@ def sample_codes() -> set[str]:
 
 
 def sample_records(email: str) -> tuple[list[dict], list[dict]]:
-    """Random marks (semesters 1-5) and attendance (current semester) for one student.
+    """Random marks (the finished semesters) and attendance (current semester) for one student.
 
     Seeded by the email, so the same student always gets the same numbers.
     """

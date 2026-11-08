@@ -190,8 +190,8 @@ def test_students_marks_and_roles_sync_too(turso):
     academics.ensure_student("nnm23is001@nmamit.in", "NNM23IS001")
     db.save_role("teacher@nmamit.in", "Prof", "teacher", {"content": True, "attendance": False, "marks": True}, "admin")
     assert synced() == 0
-    assert len(turso.rows("nva_marks")) == sum(len(academics.SUBJECTS[sem]) for sem in range(1, 6))
-    assert len(turso.rows("nva_attendance")) == len(academics.SUBJECTS[6])
+    assert len(turso.rows("nva_marks")) == sum(len(academics.SUBJECTS[sem]) for sem in range(1, academics.CURRENT_SEMESTER))
+    assert len(turso.rows("nva_attendance")) == len(academics.SUBJECTS[academics.CURRENT_SEMESTER])
     assert list(turso.rows("nva_profiles")) == ["nnm23is001@nmamit.in"]
     assert turso.rows("nva_roles")["teacher@nmamit.in"]["can_marks"] == "1"
 
@@ -260,7 +260,7 @@ def test_first_sign_in_enrols_then_each_sign_in_is_a_fresh_scan(offline_client):
     assert res.status_code == 200 and res.json() == {"enrolled_now": True}
     me = offline_client.get("/api/me").json()
     assert me["name"] == "NNM23IS001" and me["role"] == "student"
-    assert len(offline_client.get("/api/marks").json()["semesters"]) == 5   # sample marks on sign-up
+    assert len(offline_client.get("/api/marks").json()["semesters"]) == academics.CURRENT_SEMESTER - 1   # sample marks
 
     offline_client.get("/logout")
     assert status(offline_client, "nnm23is001@nmamit.in").json() == {"enrolled": True}

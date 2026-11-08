@@ -115,9 +115,7 @@ def test_group_entries_reach_the_model_even_when_search_misses_them(client):
     exam = db.create_module("Exam: MSE 2 timetable", "27/11 fri EH&ND 10am", "manual", "admin@nmamit.in")
     db.create_module("Placement: Wipfli", "drive 12 nov", "manual", "admin@nmamit.in")
     facts = personal.build("x@nmamit.in", "", "what time is the mse for ethical hacking")
-    assert facts.groups == ("Exam: ",)
-    hits = personal.adjust_hits([], facts)
-    assert hits[0]["module_id"] == exam["id"] and "EH&ND" in hits[0]["text"]
+    assert "27/11 fri EH&ND 10am" in facts.text and facts.groups == ()   # the picked line itself
     assert personal.build("x@nmamit.in", "", "where is ravi sir cabin").groups == ("Teacher: ",)
     assert "Placement: " in personal.build("x@nmamit.in", "", "whats the ctc for wipfli drive").groups
 

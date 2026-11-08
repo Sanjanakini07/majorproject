@@ -10,7 +10,6 @@ that way. Turn it off with SEED_DEMO_DATA=0 in .env.
 import json
 import logging
 import threading
-from datetime import date, timedelta
 
 from . import academics, config, db, library, rag, sheets, syllabus
 
@@ -20,77 +19,38 @@ MARKER = "demo_data_v1"
 SYLLABUS_MARKER = "syllabus_2023_04_v1"
 STUDY_MARKER = "study_notes_v1"
 SHEETS_MARKER = "sheets_v1"   # teacher list and placement drives (app/data)
+ACCURACY_MARKER = "accuracy_v1"   # made-up content removed, real SEE timetable, semester 7
 USER = "sample data"
 FIRST_ROLL, LAST_ROLL = 0, 300
-
-
-# --- Timetable -----------------------------------------------------------------------
-
-SLOTS = ["9:00 AM to 10:00 AM", "10:00 AM to 11:00 AM", "11:15 AM to 12:15 PM", "12:15 PM to 1:15 PM",
-         "2:00 PM to 3:00 PM", "3:00 PM to 4:00 PM"]
-DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-
-
-def timetable_entries() -> list[tuple[str, str]]:
-    """One knowledge entry per semester and weekday, with that semester's real courses, read-out friendly."""
-    out = []
-    for sem in range(1, 9):
-        subjects = academics.SUBJECTS.get(sem) or [("UC3002-1", "Major Project Phase II (project work)")]
-        if sem == 8:
-            subjects = [("UC3002-1", "Major Project Phase II (project work)"), ("UC2001-1", "Internship-II reviews")]
-        for d, day in enumerate(DAYS):
-            lines = []
-            for offset, slot in enumerate(SLOTS):
-                code, name = subjects[(d + offset) % len(subjects)]
-                room = f"LH-{sem}{(d + offset) % 4 + 1:02d}"
-                lab = " (lab)" if syllabus.is_lab(code) else ""
-                lines.append(f"{slot}: {name}{lab}, {code}, room {room}")
-            note = " Saturday classes end at 1:15 PM, with no afternoon session." if day == "Saturday" else ""
-            body = (f"Semester {sem} timetable for {day}. " + ". ".join(lines[:4 if day == "Saturday" else 6])
-                    + f". Tea break 11:00 AM to 11:15 AM, lunch 1:15 PM to 2:00 PM.{note}")
-            out.append((f"Timetable: Semester {sem}, {day}", body))
-    return out
 
 
 # --- College information ------------------------------------------------------------------
 
 INFO = [
-    ("Library timings", "The central library is open from 8:30 AM to 8:00 PM on weekdays and from 9:00 AM to 1:00 PM on Saturdays. It is closed on Sundays and public holidays. Students can borrow up to four books for 14 days. A late fee of 2 rupees per book per day applies."),
-    ("Lost ID card", "If you lose your college ID card, report it at the administrative office and fill in the duplicate ID card form. A replacement is usually issued within a week. A fee of 100 rupees is charged."),
-    ("Fee payment", "Tuition and other fees are paid at the accounts section on the ground floor of the administrative block, from 10:00 AM to 3:00 PM on working days. Online payment is also open through the college portal. Late payment after the due date carries a fine of 50 rupees per day."),
-    ("Hostel", "Separate hostels are available for boys and girls. The mess serves breakfast from 7:30 to 9:00 AM, lunch from 12:30 to 2:00 PM, snacks from 4:30 to 5:30 PM and dinner from 7:30 to 9:00 PM. Hostel gates close at 9:30 PM. Apply for a room at the hostel office at the start of the academic year."),
-    ("Canteen", "The main canteen is open from 8:00 AM to 5:30 PM on working days. It serves breakfast, a South Indian lunch, snacks and juices. A smaller coffee counter near the library stays open until 6:30 PM."),
-    ("Placement cell", "The training and placement cell runs aptitude, coding and interview practice sessions from the fifth semester. Companies visit from August to February. Students need at least 60 percent marks and no active backlogs to sit for placements. Register on the placement portal with your resume."),
-    ("Sports and clubs", "The college has cricket, football, volleyball, basketball and badminton teams, and a gym. Technical clubs include coding, robotics, AI and cyber security. Cultural clubs cover music, dance, drama and photography. Join through the student activities office or the club's stall during the orientation week."),
-    ("Wi-Fi and computer labs", "Campus Wi-Fi is free for students. Use your roll number as the user name. Computer labs are open until 5:00 PM on working days, and the department lab stays open until 6:00 PM during project work. Report problems at the IT help desk."),
-    ("Scholarships", "Merit and government scholarships are handled by the scholarship section in the administrative block. Applications open in August on the state scholarship portal. Bring your income certificate, caste certificate if applicable, marks cards and bank passbook."),
-    ("Department of Information Science", "The Information Science and Engineering department is on the second floor of the academic block. The head of department's office is open from 9:30 AM to 4:30 PM. Major Project Phase I is in the seventh semester and Phase II in the eighth, as in the 2023-04 curriculum."),
     # These three follow the 2023-04 regulations (sections 9 and 11); the full sections are in the knowledge base too.
     ("Attendance rules (2023 regulations)", "Every course needs at least 85 percent attendance. The principal can condone up to 10 percent for reasons such as medical grounds or taking part in university sports, cultural activities, seminars, workshops and paper presentations. A student with less than 75 percent in a course can't write that course's semester end exam (SEE) and gets an N grade, and has to repeat the course when it is offered next. Attendance is told to students in the first week of every month."),
     ("Evaluation and grading rules (2023 regulations)", "Each course has 50 marks of continuous internal evaluation (CIE) and 50 marks of semester end examination (SEE). CIE has two mid-semester examinations (40 marks) and quizzes, tutorials and assignments (10 marks); for project based and integrated lab courses the PBL or lab work counts too. To pass, a student needs 40 percent of the course total (CIE plus SEE). Grades are absolute: O for 90 percent and above (10 points), A+ for 80 to 89 (9), A for 70 to 79 (8), B+ for 60 to 69 (7), B for 55 to 59 (6), C for 50 to 54 (5), P for 40 to 49 (4) and F below 40 (0). A CGPA of 7 or more is first class with distinction, 6 to 6.99 first class and 5 to 5.99 second class. Below a CGPA of 5 a student is on academic probation."),
     ("Academic calendar (2023 regulations)", "There are two main semesters a year: the odd semester from August to December and the even semester from January to May, each of about 20 weeks. An optional summer semester runs in the vacation after the even semester, mainly to help students clear courses they failed."),
 ]
+# Real: the 7th semester B.Tech SEE theory timetable, December 2026 (Controller of Examinations, NDU Off-campus
+# Centre, Nitte; marked TENTATIVE). Only the ISE papers and the open electives are listed.
+SEE_TITLE = "Exam: SEE timetable, 7th semester ISE, December 2026 (tentative)"
+SEE_TEXT = """Semester end examination (SEE) theory timetable for 7th semester B.Tech Information Science and Engineering (ISE), December 2026. It is marked TENTATIVE by the Controller of Examinations, NDU Off-campus Centre, Nitte. Every paper is from 1:00 PM to 4:00 PM.
+Thursday 10 December 2026: MG1002-1 Financial Management (FM).
+Saturday 12 December 2026: professional electives IS1201-1 Total Quality Management for Sustainable Growth (TQM), IS2213-1 Object Oriented Modeling and Design (OOMD) and IS4224-1 Software Defined Networks (SDN).
+Tuesday 15 December 2026: open electives, including IS2503-1 Software Engineering Practices, IS2504-1 Web Technologies, AM1501-1 Intel Driven Empowering with AIML, BT1501-1 Biofuel Engineering, CS2502-1 Introduction to Data Structures, CV2501-1 Disaster Management, CV2503-1 Environmental Impact Assessment, CV2504-1 Introduction to Geoinformatics, CV2505-1 Sustainability Engineering, CV2506-1 Traditional Vastu Shastra and Modern Building Design, EC2501-1 Consumer Electronics, EC2503-1 Space Technology and Applications, EE2503-1 Electric Vehicle Technology, EE2506-1 Non-Conventional Energy Sources, HU1501-1 Elements of Yoga, HU1503-1 Introduction to German Language, HU1504-1 Introduction to Japanese Language, HU1506-1 Overview of Indian Culture, HU1508-1 Principles of Physical Education, HU2502-1 Linguistic and Language Technology, MA1502-1 Number Theory, ME1502-1 Industrial Pollution Control, ME1503-1 Sustainable Development Goals, ME1504-1 Technological Innovation, ME1506-1 Quantitative Techniques in Management, MG1501-1 Human Resource Management, PH2501-1 Nanotechnology and RI2504-1 Micro Aerial Vehicles.
+Thursday 17 December 2026: professional electives IS2302-1 User Interface Design (UID), IS3343-1 Operations Research (OR), IS4321-1 Intrusion Detection System (IDS) and IS4323-1 Wireless Sensor Networks (WSN).
+Friday 18 December 2026: no ISE paper.
+Monday 21 December 2026: IS3002-1 Ethical Hacking and Network Defence (EH&ND).
+Tuesday 22 December 2026: reserve day. If an exam is postponed for unforeseen reasons, it is held on this day.
+Courses not listed here have no theory paper in this timetable. The mid-semester exam (MSE) dates are not part of it."""
+
+# Made up by older versions and stated by the assistant as fact: campus details, class timetables and events.
+INVENTED_TITLES = {"Library timings", "Lost ID card", "Fee payment", "Hostel", "Canteen", "Placement cell",
+                   "Sports and clubs", "Wi-Fi and computer labs", "Scholarships", "Department of Information Science"}
 # Older versions added these made-up rules; the syllabus versions above replace them.
 REPLACED = {"Attendance rules", "Exam and grading rules", "Internal assessment schedule", "Academic calendar",
             "Mini project and major project", "Department of Information Science", "College bus"}
-
-
-# --- Events -----------------------------------------------------------------------------
-
-# (days from today, time, title, venue, description)
-EVENTS = [
-    (3, "10:00", "Mid-semester examination 2 begins", "Respective classrooms", "The second mid-semester (CIE) examinations for all semesters run for one week. Carry your ID card and a calculator where allowed."),
-    (5, "14:00", "Guest lecture: Careers in Machine Learning", "Seminar Hall, Academic Block", "An alumnus working at a product company talks about learning paths, projects and interviews for ML roles."),
-    (8, "09:30", "Placement drive: Infosys", "Placement Cell, Admin Block", "Open to final year students with 60 percent and no backlogs. Carry two copies of your resume and your ID card."),
-    (12, "09:00", "Hackathon: Code for Campus", "Computer Science Labs", "A 24 hour hackathon in teams of up to four. Build something that makes campus life easier. Prizes for the top three teams."),
-    (15, "11:00", "Workshop: Web development with FastAPI", "IS Department Lab 2", "A hands-on workshop on building and deploying a web API. Bring your laptop. Seats are limited to 60."),
-    (19, "16:00", "Cultural evening: Rhythm 2026", "Open Air Auditorium", "Music, dance and drama performances by students. Entry is free for NMAMIT students with ID cards."),
-    (24, "10:00", "Annual Sports Day", "College Ground", "Track and field events, relay races and team games. Register with your class representative by the previous Friday."),
-    (30, "09:30", "Alumni meet", "Main Auditorium", "Alumni from the last ten batches return to meet students, share advice and visit their old classrooms."),
-    (36, "10:00", "Technical fest: Nitte Tech Expo", "Entire Campus", "Project exhibition, robotics contest, coding rounds and a quiz. Open to students from other colleges too."),
-    (45, "09:00", "Semester end exams begin", "Examination Hall", "The semester end exam timetable is on the notice board. Hall tickets can be collected from the department a week before."),
-    (-4, "15:00", "Orientation for new club members", "Seminar Hall, Academic Block", "Introduction to all technical and cultural clubs. This event has already happened."),
-]
 
 
 # --- Putting it together ----------------------------------------------------------------
@@ -102,15 +62,6 @@ def seed_students() -> int:
         # The name is just the USN until the student signs in with Google and their real name replaces it.
         created += academics.ensure_student(email, email.split("@")[0].upper(), academics.SEEDED_BY)
     return created
-
-
-def seed_events() -> None:
-    for days, start, title, venue, description in EVENTS:
-        when = (date.today() + timedelta(days=days)).isoformat()
-        event_id = db.add_event(title, when, start, venue, description, None, None, USER)
-        text = f"Event: {title}. Date: {library.pretty_date(when, start)}. Venue: {venue}. Details: {description}"
-        module = db.create_module(f"Event: {title}", text, "event", USER)
-        db.set_module("events", event_id, module["id"])
 
 
 def _drop_old_samples() -> list[int]:
@@ -154,7 +105,7 @@ def seed_syllabus() -> None:
     """Notes for every course (its full syllabus), the regulations, and the other courses, for the assistant."""
     library.seed_subjects()
     have = {m["title"] for m in db.list_modules()}
-    for title, content in INFO + timetable_entries():
+    for title, content in INFO:
         if title not in have:
             db.create_module(title, content, "manual", USER)
     for sem, c in syllabus.listed():
@@ -197,6 +148,37 @@ def _index(removed: list[int], after: int) -> None:
                       "Use the Rebuild search index button in the admin panel.")
 
 
+def drop_invented() -> list[int]:
+    """Remove what older versions made up and the assistant stated as fact: sample events, class timetables and
+    campus details. Only rows the sample data wrote are touched. Returns the removed knowledge entry ids."""
+    with db.connect() as conn:
+        events = conn.execute("SELECT id, module_id FROM events WHERE created_by = ?", (USER,)).fetchall()
+        conn.execute("DELETE FROM events WHERE created_by = ?", (USER,))
+        marks = ",".join("?" * len(INVENTED_TITLES))
+        rows = conn.execute(f"SELECT id FROM modules WHERE updated_by = ? AND (title LIKE 'Timetable: %' "
+                            f"OR source = 'event' OR title IN ({marks}))", (USER, *INVENTED_TITLES)).fetchall()
+        removed = sorted({r["id"] for r in rows} | {e["module_id"] for e in events if e["module_id"]})
+        if removed:
+            conn.execute(f"DELETE FROM modules WHERE id IN ({','.join('?' * len(removed))})", removed)
+    return removed
+
+
+def move_to_semester(semester: int) -> None:
+    """The batch moved up a semester: students still in the previous one move up, and sample records made for
+    the old semester are made again (a teacher's or admin's own entries stay)."""
+    with db.connect() as conn:
+        emails = [r["email"] for r in conn.execute("SELECT email FROM profiles WHERE semester = ?", (semester - 1,))]
+        conn.execute("UPDATE profiles SET semester = ? WHERE semester = ?", (semester, semester - 1))
+        for email in emails:
+            for table in ("marks", "attendance"):
+                conn.execute(f"DELETE FROM {table} WHERE email = ? AND updated_by IN (?, ?)",
+                             (email, academics.SEEDED_BY, USER))
+    for email in emails:
+        marks, attendance = academics.sample_records(email)
+        db.save_student({"email": email, "name": None, "branch": "", "semester": semester},
+                        marks, attendance, academics.SEEDED_BY)   # profile exists already: only the records are added
+
+
 def seed_sheets() -> None:
     """The teacher list and the placement drives (app/data/*.json), into empty lists only. The uids are the same on
     every laptop, so an admin's edit to one of these rows syncs to the same row everywhere."""
@@ -221,7 +203,6 @@ def run() -> threading.Thread | None:
         log.info("First start: filling in the default data (students, timetables, events)...")
         db.init()
         seed_students()
-        seed_events()
         db.set_meta(MARKER, db.now())
         newest, changed = 0, True       # a new database: index everything
     if not db.get_meta(SYLLABUS_MARKER):
@@ -239,6 +220,15 @@ def run() -> threading.Thread | None:
     if not db.get_meta(SHEETS_MARKER):
         seed_sheets()
         db.set_meta(SHEETS_MARKER, db.now())
+    if not db.get_meta(ACCURACY_MARKER):
+        log.info("Removing made-up sample content, adding the SEE timetable, moving to semester %s...",
+                 academics.CURRENT_SEMESTER)
+        removed = [*removed, *drop_invented()]
+        if not db.get_module_by_title(SEE_TITLE):
+            db.create_module(SEE_TITLE, SEE_TEXT, "manual", USER)
+        move_to_semester(academics.CURRENT_SEMESTER)
+        db.set_meta(ACCURACY_MARKER, db.now())
+        changed = True
     if changed:
         # Indexing takes a few minutes on a slow computer, so it runs in the background: the pages have their
         # data straight away and the assistant can answer from it once this finishes.
