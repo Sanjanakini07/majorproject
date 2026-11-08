@@ -89,7 +89,9 @@ function stopListening() {
 
 // ---- Text to speech -----------------------------------------------------------
 
-function speak(text) {
+// force: "Play again" plays even when muted, because the person asked for it.
+function speak(text, force = false) {
+  if (Mute.on && !force) return;
   if (!('speechSynthesis' in window)) return mascot.speakFor(text.length * 60);
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
@@ -175,7 +177,7 @@ async function ask(question) {
 
 $('mic').addEventListener('click', () => (listening ? stopListening() : startListening()));
 $('again').addEventListener('click', startListening);
-$('replay').addEventListener('click', () => speak(lastAnswer));
+$('replay').addEventListener('click', () => speak(lastAnswer, true));
 $('stop').addEventListener('click', stopSpeaking);
 for (const chip of document.querySelectorAll('[data-q]')) {
   chip.addEventListener('click', () => {
@@ -205,7 +207,7 @@ function setTalking(on) {
 
 loadMe()
   .then((me) => {
-    renderBar('/', me);
+    renderBar('/', me, [muteButton(stopSpeaking)]);
     mascot.greet();
     $('hello').textContent = `${greeting()}, ${me.name.split(' ')[0]}!`;
     if (me.role !== 'student' && me.entries === 0) {

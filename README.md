@@ -30,7 +30,8 @@ Tap, speak, tap
 | `app/face.py`, `app/facelogin.py` | Face check with OpenCV (YuNet finds the face, SFace compares faces); enrolment and per-sign-in checks |
 | `app/library.py` | Notes (PDF or pasted text, semesters 1-8) and events, and making them searchable by the assistant |
 | `app/syllabus.py`, `app/data/syllabus_is_2023.json` | The official B.Tech. IS curriculum (2023-04 regulations): the subjects of every semester, each course's full syllabus, and the regulations (attendance, evaluation, grading). Made from the university PDF by `scripts/import_syllabus.py` |
-| `app/bus.py`, `app/data/bus_timings.json` | The Bus page and exact bus answers (next, first, last, after a time) from the community listing [Bus Timings: Nitte](https://bhvsh.notion.site/Bus-Timings-Nitte-de5c216b4a454653b1fd716742c85700) |
+| `app/bus.py`, `app/data/bus_timings.json` | The Bus page (Local buses) and exact bus answers (next, first, last, after a time) from the community listing [Bus Timings: Nitte](https://bhvsh.notion.site/Bus-Timings-Nitte-de5c216b4a454653b1fd716742c85700) |
+| `app/sheets.py`, `app/static/js/sheet.js` | The Admin lists edited like a spreadsheet: teachers and cabins, placements (also on the Events page), college buses (Bus page); the assistant's exact answers from them |
 | `app/personal.py` | Exact facts for each question: the asker's name, marks, CGPA and attendance, dates and events, classes, courses and buses |
 | `app/seed.py` | Default data on first start (see [Default data](#default-data)) |
 | `app/portal.py`, `app/academics.py` | Marks and attendance pages and APIs, the subjects, grades and sample data |
@@ -41,7 +42,8 @@ Tap, speak, tap
 | `app/pages/`, `app/static/` | Plain HTML, CSS and JavaScript (no framework) |
 | `offline_app/`, `start_offline.bat` | The offline version: see [Offline version](#offline-version-no-internet-needed) |
 | `start.bat` | One double-click: installs, checks settings, sets up once, starts the app |
-| `scripts/` | Settings check, one-time model download, syllabus import, recording the demo video |
+| `desktop_client.py`, `create_installer.bat`, `build_setup.py`, `installer.py` | The desktop app and its Windows installer: see [Desktop installer](#desktop-installer-one-setup-file-for-any-windows-pc) |
+| `scripts/` | Settings check, one-time model download, syllabus import, answer test (`test_llm.py`), recording the demo video |
 | `sample_data/` | Example CSVs to try the admin import |
 | `tests/` | `pytest` tests |
 
@@ -64,7 +66,7 @@ Then try it: sign in, set up your face (six guided photos, first time only), cli
 |---|---|---|
 | Sign in | Google account + face scan | Roll number + face scan (OpenCV, on the laptop) |
 | Speech to text | Browser (Google servers) | faster-whisper, on the laptop |
-| Answer | Groq | Small local model through [Ollama](https://ollama.com) (`qwen2.5:1.5b`). Groq is used only if Ollama is not running and there is internet |
+| Answer | Groq | Groq whenever there is internet; with no internet (or when Groq is busy), the small local model through [Ollama](https://ollama.com) (`qwen2.5:1.5b`); with neither, the exact facts are read out |
 | Text to speech | Browser | Piper, on the laptop |
 | Data | `data/app.db` | The same `data/app.db`, synced with the Turso backend whenever there is internet |
 
@@ -74,7 +76,7 @@ Then try it: sign in, set up your face (six guided photos, first time only), cli
 
 **Phones:** on the laptop, click **Connect a phone** and scan the QR code with a phone on the same Wi-Fi or hotspot. The phone warns that the connection is not private, because the laptop made its own certificate (phones only allow the camera and microphone on `https`). Tap **Advanced → Proceed**. The first time the app starts, Windows asks whether Python may use the network. Allow it on private networks.
 
-**Sync:** set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in `.env`. Every change (knowledge entries, faces, staff roles, students, marks and attendance) is saved on the laptop first, then sent to Turso every minute when online. Changes from other laptops come back the same way, and the newer edit wins. The button at the top of the assistant shows the state (Synced / Offline / items still to send) and syncs now when clicked. On Turso the tables are `nva_modules`, `nva_faces`, `nva_roles`, `nva_profiles`, `nva_marks` and `nva_attendance`, so they don't touch other tables in the same database. (`nva_first_faces` from older versions is no longer used and can be dropped.)
+**Sync:** set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in `.env`. Every change (knowledge entries, faces, staff roles, students, marks and attendance) is saved on the laptop first, then sent to Turso every minute when online. Changes from other laptops come back the same way, and the newer edit wins. The button at the top of the assistant shows the state (Synced / Offline / items still to send) and syncs now when clicked. On Turso the tables are `nva_modules`, `nva_faces`, `nva_roles`, `nva_profiles`, `nva_marks` and `nva_attendance`, so they don't touch other tables in the same database. (`nva_first_faces` from older versions is no longer used and can be dropped.) The default data every laptop makes at first start (the default knowledge entries and the class roster with its sample marks) is not sent, because each laptop already has it; once someone edits such a row, the edit syncs. Sync runs for `start_offline.bat`; installed desktop copies stay local (see below).
 
 **Tuning:** `OLLAMA_MODEL` (for example `qwen2.5:3b` for better answers, slower) and `WHISPER_MODEL` (`tiny.en`, `base.en`, `small.en`). After changing `OLLAMA_MODEL`, run `ollama pull <name>`. Run it by hand with `python -m offline_app.setup` once, then `python -m offline_app`.
 
@@ -82,7 +84,7 @@ Then try it: sign in, set up your face (six guided photos, first time only), cli
 
 On the first start the app fills itself in, so no page is empty (turn this off with `SEED_DEMO_DATA=0`):
 
-- **Students** NNM23IS000 to NNM23IS300, named by their USN until they sign in with Google and their real name replaces it ("NNM23IS186 SRUJAN M PADMASHALI" becomes "Srujan M Padmashali"). They get sample marks and attendance for the real courses of the curriculum.
+- **Students** NNM23IS000 to NNM23IS300, named by their USN until they sign in with Google and their real name replaces it ("NNM23IS042 ASHA K RAO" becomes "Asha K Rao"). They get sample marks and attendance for the real courses of the curriculum.
 - **Notes**: every course of the official IS syllabus under its semester, each with its full syllabus as a note. Professional electives are under semester 5 (group 1) and 6 (group 2).
 - **The assistant** also knows the regulations (85% attendance, condonation down to 75%, CIE and SEE, grades O to F) and the courses of other departments, and has timetables, events and campus information.
 - **Buses**: the Bus page and the assistant use the timings in `app/data/bus_timings.json`.
@@ -123,6 +125,7 @@ Addresses in `ADMIN_EMAILS` are admins and can't be changed from the website. Th
 
 ## Theme and the robot
 
+- **Mute:** the Mute button in the assistant's top bar shows answers without reading them aloud (and stops one being read). "Play again" still plays. Each device remembers it.
 - **Light / dark:** the sun and moon button in the top bar (or in the corner on the sign-in pages) switches the theme. It remembers your choice; until you choose, it follows your device's setting.
 - **The robot** (`app/static/js/robot.js`) has moods: it waves on arrival, leans in with glowing ears while you speak, looks up and shows thinking dots while it finds the answer, moves its mouth while talking, looks happy, sad, surprised or confused depending on the answer, and shows hearts if you thank it. Its eyes follow your pointer, it blinks, glances around and does small things by itself. After about 40 seconds with nobody around it gets drowsy, yawns and falls asleep (Zzz); any click, key press or mouse movement wakes it. Tapping it makes it wink. With the device set to reduce motion, it keeps the expressions but stops the idle movement.
 
@@ -137,6 +140,18 @@ Addresses in `ADMIN_EMAILS` are admins and can't be changed from the website. Th
 
 Real results aren't available to this project, so when a student enrols they get **sample data**: random marks for semesters 1 to 5 (six subjects each, internal and external out of 50) and attendance for semester 6. The numbers are random but stable per student, and are meant to be corrected by a teacher or admin. Students see percentages, grades, a semester chart and how many classes they can still miss. Teachers and admins pick a student and edit the numbers inline if they have permission.
 
+## Desktop installer (one setup file for any Windows PC)
+
+**Double-click `create_installer.bat`.** It makes `dist\NMAMIT_Assistant_Setup.exe` (about 15-30 minutes; needs internet). Copy that one file to another PC and run it: it installs the offline app with a Desktop and Start menu shortcut and an uninstaller.
+
+- The installer carries a fresh database with the default data, already searchable, and every model (face, speech, voice, search). Your own `data\` folder, with enrolled faces, is never put in it.
+- From your `.env` it copies only `GROQ_API_KEY`, `GROQ_MODEL`, `ADMIN_EMAILS`, `ALLOWED_DOMAIN` and the model and face settings, so installed copies answer with Groq when online. Anyone with the setup file can read that key, so use a key you can revoke. Turso, Firebase and `SECRET_KEY` are left out, so installed copies don't sync (their sync button says "Offline only"): a Turso token in the setup file would let anyone read and change every student's faces and marks.
+- If the app can't start, it now says so in a message box instead of closing silently, and waits up to 3 minutes for the first start (Windows Defender scans every new file then).
+- For answers with no internet, install [Ollama](https://ollama.com/download) on that PC too. The app starts it and downloads its model (`qwen2.5:1.5b`, about 1 GB) the first time it is online. Without Ollama, offline questions are answered from the exact facts only.
+- The installed app keeps its data in `%LOCALAPPDATA%\NMAMIT_Assistant` and writes a log to `data\app.log` there.
+
+To check a change without building, run `start_offline.bat` (the same code) and the answer test below.
+
 ## Manual setup (macOS, Linux, or without start.bat)
 
 ```bash
@@ -150,10 +165,27 @@ uvicorn app.main:app --port 8000
 
 ## Using the admin panel
 
-- **Add / edit / delete** an entry: the change is applied to the vector database at once, so the next question uses it.
-- **Import CSV**: a file with `title,content` columns gives one entry per row. Any other CSV also works (for example `sample_data/sample_timetable.csv`): each row becomes an entry like "Day: Monday. Time: 9:00 AM. Subject: …".
-- **Read text from image**: upload a photo of a notice or timetable. The text is copied into the form so you can correct it before saving.
-- **Rebuild search index**: rebuilds the vector database from the saved entries. Use it only if search ever seems out of sync.
+**Lists (spreadsheet style):** choosing **Teachers & cabins**, **Placements** or **College buses** opens that list as a grid of input boxes, one row per line like Excel. Type in any cell, Tab to the next, Enter to the cell below, paste rows copied from Excel or Google Sheets into a cell, add or delete rows, then **Save changes** once. Needed cells that are empty are highlighted, and "Only rows with missing data" shows just those (for example the 25 IS teachers whose cabin isn't known yet).
+
+| List | Starts with | Shows on |
+|---|---|---|
+| Teachers & cabins | 140 teachers: cabins and directions from [CabinCompass](https://find-my-teacher.vercel.app), designation, subjects and email of the IS faculty from the [department page](https://nitte.edu.in/nmamit/department-information-science.php) | the assistant ("where is Jason sir's cabin", "who teaches DBMS"; names that are misheard slightly still match) |
+| Placements | the Training & Placement campus drives booked on [EMS](https://ems.nmamit.in/events) | the Events page (tagged Placement) and the assistant's calendar |
+| College buses | empty: bus number, route, stops with times, reaches / leaves college | the Bus page (College buses toggle) and the assistant |
+
+The lists are in `app/data/teachers.json` and `placements.json` at first start (built from `scraped_data/`), and sync with Turso like everything else.
+
+**Add information** (free text) is one form in three steps:
+
+1. **What is it about?** General info, Placements, Exams & timetables, Teachers & cabins, Bus routes, or Events (events go on the Events page, so they show in the calendar with their exact date).
+2. **Paste, type or drop a file**, written any way: notes, a WhatsApp message, a copied table. A PDF, photo or screenshot (its text is read with OCR), CSV or text file adds its text to the box to check.
+3. **Check and save.** The title is optional (made from the first line). **Tidy up with AI** rewrites messy text into one clear fact per line, expands short forms (FM, EH&ND, T&P) using the IS course list and keeps every detail; **Undo tidy-up** brings the original back. Tidying needs internet (Groq): the small offline model looped and dropped facts in testing. Untidied text works too: the assistant is told staff notes can be shorthand, and in testing it answered from raw messy notices correctly.
+
+The group is kept as the start of the title (`Placement: `, `Exam: `, `Teacher: `, `Bus: `). The entry list has a chip per group, and when a question is about exams, placements, teachers or buses, the newest entries of that group are always given to the assistant, so a shorthand notice ("27/11 EH&ND 10am") isn't missed by the search.
+
+- **Edit / delete** an entry: applied to the search index at once, so the next question uses it.
+- **More → Import CSV**: a file with `title,content` columns gives one entry per row. Any other CSV also works (for example `sample_data/sample_timetable.csv`): each row becomes an entry like "Day: Monday. Time: 9:00 AM. Subject: …".
+- **More → Rebuild search index**: rebuilds the search index from the saved entries. Use it only if search ever seems out of sync.
 - **Staff & access** (admins): add teachers or admins and switch their permissions.
 - **Students & faces** (admins): see who has enrolled and reset a face.
 - Teachers only see the parts an admin allowed; everything else is read-only.
@@ -190,6 +222,15 @@ The tests use a stand-in for the vector database and need no internet. Face test
 ```bash
 FACE_TEST_A=person1.jpg FACE_TEST_B=person2.jpg pytest
 ```
+
+**Real answers, online and offline.** `scripts/test_llm.py` asks 18 real questions (your name and marks, rules, syllabus, notes, events, buses, misspelt and off-topic questions) through the same steps as the app and checks each answer. Online it uses Groq; offline it blocks the internet for the script, so Groq fails as it does with Wi-Fi off and Ollama must answer. Each line says who wrote the answer. Use a copy of `data\` so your real database is never touched:
+
+```bash
+set DATA_DIR=C:\path\to\copy-of-data
+.venv\Scripts\python scripts\test_llm.py            # both; or add: online / offline
+```
+
+Last run (8 November 2026): online 18/18 at 1.3 s an answer, offline 18/18 at 1.1 s an answer (`qwen2.5:1.5b` on this laptop's CPU). On the free Groq plan the key allows 8,000 tokens a minute, about one or two syllabus-sized questions a minute; the offline app then switches to the local model for a minute, and the website asks the student to try again in a few seconds.
 
 ## Security notes and known limits
 

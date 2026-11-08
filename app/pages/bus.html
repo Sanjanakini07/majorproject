@@ -18,6 +18,11 @@
       </div>
     </div>
     <p id="error" class="alert error" role="alert" hidden></p>
+    <div class="segmented bus-kind" id="busKind" role="tablist" aria-label="Which buses">
+      <button type="button" data-kind="local" class="on" role="tab">Local buses</button>
+      <button type="button" data-kind="college" role="tab">College buses</button>
+    </div>
+    <div id="localBox">
     <div class="tabs" id="routes" role="tablist"></div>
     <div class="bus-tools">
       <input type="search" id="search" placeholder="Search a bus name or place" aria-label="Search buses">
@@ -30,6 +35,8 @@
       <tbody id="rows"></tbody>
     </table></div></div>
     <p class="source" id="source"></p>
+    </div>
+    <div id="collegeBox" hidden></div>
   </main>
   <script src="/static/js/common.js"></script>
   <script src="/static/js/bus.js"></script>

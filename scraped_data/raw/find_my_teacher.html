@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CabinCompass</title>
+    <meta name="description" content="Find your teacher's cabin location quickly and easily">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preload" href="p2.png" as="image">
+</head>
+
+<body>
+    <div id="auth-gate" class="auth-gate">
+        <div class="auth-card">
+            <h1>CabinCompass</h1>
+            <p class="auth-subtitle">Sign in with your authorized Google account to continue</p>
+            <div id="google-signin"></div>
+            <p id="auth-error" class="auth-error" role="alert" style="display: none;"></p>
+        </div>
+    </div>
+
+    <div class="container" id="app-container" style="display: none;">
+        <div class="hero-header">
+            <div class="hero-logo">
+                <img src="nmamit-logo.png" alt="NMAMIT Logo" class="institute-logo">
+            </div>
+            <h1 class="hero-title">CabinCompass</h1>
+            <button id="sign-out-button" class="signout-btn" type="button" style="display: none;">Sign out</button>
+        </div>
+
+        <div class="form-group" style="position: relative;">
+            <label for="teacher-search">Search for a Teacher</label>
+            <input type="text" id="teacher-search" placeholder="Type teacher's name..." autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+
+        <div class="main-buttons">
+            <button id="get-directions">GET DIRECTIONS</button>
+            <button id="about-btn">ABOUT</button>
+            <button id="bug-report-btn">BUG REPORT</button>
+        </div>
+
+        <div id="about-display" class="message-box" style="display: none;">
+            <h2>About the Creators</h2>
+            <div class="author-container">
+                <div class="author">
+                    <img src="shreyas.jpg" alt="Author 1" class="author-image">
+                    <div class="author-info">
+                        <h3>Shreyas KL</h3>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/shreyas-kl-053159247" target="_blank"
+                                rel="noopener noreferrer">
+                                <img src="linkedin-icon.png" alt="LinkedIn" class="social-icon">
+                            </a>
+                            <a href="https://github.com/Shreyas165" target="_blank" rel="noopener noreferrer">
+                                <img src="github-icon.png" alt="GitHub" class="social-icon">
+                            </a>
+                        </div>
+                        <div>
+                            <p><i>Information Science and Engineering</i></p>
+                            <p><i>Role: Developer</i></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="author">
+                    <img src="prerana.jpg" alt="Author 2" class="author-image">
+                    <div class="author-info">
+                        <h3>Prerana J</h3>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/prerana-j-21b2532a9" target="_blank"
+                                rel="noopener noreferrer">
+                                <img src="linkedin-icon.png" alt="LinkedIn" class="social-icon">
+                            </a>
+                            <a href="https://github.com/Prerana-J" target="_blank" rel="noopener noreferrer">
+                                <img src="github-icon.png" alt="GitHub" class="social-icon">
+                            </a>
+                        </div>
+                        <div>
+                            <p><i>Information Science and Engineering</i></p>
+                            <p><i>Role: Developer</i></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="author">
+                    <img src="jasonsir.png" alt="Author 3" class="author-image">
+                    <div class="author-info">
+                        <h3>Dr. Jason Elroy Martis</h3>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/dr-jason-elroy-martis-a4096914b/" target="_blank"
+                                rel="noopener noreferrer">
+                                <img src="linkedin-icon.png" alt="LinkedIn" class="social-icon">
+                            </a>
+                        </div>
+                        <div>
+                            <p><i>Information Science and Engineering</i></p>
+                            <p><i>Role: Creative Developer</i></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="about-text">Inspired by the need for an easier way for students and visitors to locate faculty
+                members quickly and efficiently. We hope it makes your life easier!</p>
+        </div>
+
+        <div id="directions-display" class="message-box" style="display: none;"></div>
+
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        window.CABIN_COMPASS_CLIENT_ID = "400955911855-1evjshtu3jsubqj08n75sfsvur11j0f6.apps.googleusercontent.com";
+        window.CABIN_COMPASS_AUTH_OPTIONS = {
+            apiBase: "https://find-my-teacher.onrender.com",
+            allowedDomain: "nmamit.in",
+            allowedDomains: ["nmamit.in", "nitte.edu.in"],
+            allowedEmails: ["jason1987martis@nitte.edu.in", "nnm22is165@nmamit.in"]
+        };
+    </script>
+    <script type="module" src="analytics.js"></script>
+    <script src="script.js" defer></script>
+</body>
+
+</html>

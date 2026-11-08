@@ -13,7 +13,7 @@ FILLED = {
     "FIREBASE_API_KEY": "AIza-test",
     "FIREBASE_PROJECT_ID": "nmamit-assistant",
     "GROQ_API_KEY": "gsk_x",
-    "ADMIN_EMAILS": "nnm23is186@nmamit.in",
+    "ADMIN_EMAILS": "nnm23is042@nmamit.in",
 }
 
 

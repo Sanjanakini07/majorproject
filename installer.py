@@ -36,6 +36,20 @@ def get_bundle_payload() -> Path:
     return base / "payload.zip"
 
 
+def desktop_dir() -> Path:
+    """The Desktop the person actually sees. With OneDrive backup it is OneDrive\\Desktop, not %USERPROFILE%\\Desktop."""
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+        if ctypes.windll.shell32.SHGetFolderPathW(None, 0x10, None, 0, buf) == 0 and buf.value:  # CSIDL_DESKTOPDIRECTORY
+            return Path(buf.value)
+    except Exception:
+        pass
+    return Path(os.path.expandvars(r"%USERPROFILE%\Desktop"))
+
+
 def create_windows_shortcut(target_exe: Path, shortcut_path: Path, icon_path: Path | None = None) -> bool:
     """Create a Windows .lnk shortcut using VBScript."""
     try:
@@ -78,7 +92,7 @@ if exist "{str(start_lnk.parent)}" rmdir /s /q "{str(start_lnk.parent)}"
 
 echo Removing application files...
 cd /d "%TEMP%"
-start /b "" cmd /c "timeout /t 2 /nobreak >nul & rmdir /s /q \\"{str(install_dir)}\\""
+start "" /b cmd /c "ping -n 3 127.0.0.1 >nul & rmdir /s /q "{str(install_dir)}""
 echo Uninstallation completed successfully.
 pause
 """
@@ -236,7 +250,7 @@ class InstallerApp:
                 icon_path = install_dir / "icon.ico"
 
             # Create Shortcuts
-            user_desktop = Path(os.path.expandvars(r"%USERPROFILE%\Desktop"))
+            user_desktop = desktop_dir()
             user_start = Path(os.path.expandvars(r"%APPDATA%\Microsoft\Windows\Start Menu\Programs\NMAMIT Assistant"))
 
             desktop_lnk = user_desktop / SHORTCUT_NAME

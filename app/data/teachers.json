@@ -1,0 +1,1262 @@
+[
+ {
+  "name": "Dr. Ashwini B",
+  "designation": "Professor & Head",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Turn immediate left from the lift and immediate right from the steps.",
+  "subjects": "Java Programming; Mobile application Development using Android; Algorithms; Operating System; Business Intelligence; Data Mining; Software Engineering; Machine Learning",
+  "email": "ashwinib@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Balasubramani R",
+  "designation": "Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "Robotic Process Automation Design & Development (UiPath Studio); Architecting with Google Compute Engine (Google Cloud); Data Mining; Software Engineering; Object Oriented Analysis & Design with UML; Computer Networks; Computer Organization and Architecture; OOPS using C++; Java Programming & Web Technology; Programming and Data Structures using C; TCP/IP Design & Implementation; Digital Image Processing; Advanced DBMS; Advanced Java Programming; Essentials of Information Technology; Business Intelligence & its Applications; Building Enterprise Applications; Computer Graphics and Visualization",
+  "email": "balasubramani.r@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Bola Sunil Kamath",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Problem solving using c & Lab; Logic Design & Lab; Datastructures & LAb; Microprocessors & Microcontroller & Lab; System Software & Lab; Automata Theory & Computability; Compiler Design & Lab; Computer Graphics; Web Programming & Lab; Cryptography & Cyber Law; Computer Networks Cloud Computing Finite Automata and Formal Languages UI Design Management and Enterpreneurship for IT Industry Business Enterprise Design Computer Vision Operating System C; Computer Networks; Cloud Computing; Finite Automata and Formal Languages; UI Design; Management and Enterpreneurship for IT Industry; Business Enterprise Design; Computer Vision; Operating System; C",
+  "email": "sunilkamath@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Chaitra S N",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Logic Design; Cyber Security; Computer Networks; Data communication; Wireless sensor networks; Internet of Things; Programming through C; Network Security and Cryptography; Microcontroller and Processor; Arm Embedded System; Operating Systems; Wireless communication; Telephone networks",
+  "email": "chaitra.snataraja@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Chinmai Shetty",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Turn immediate left from the lift and immediate right from the steps.",
+  "subjects": "Python; Graph Theory.; Operating Systems.; Computer Networks.; Data Communication.; Computer Concepts and C Programming.; Data Structures.; Logic Design.; Software Testing.; Information And Network Security.",
+  "email": "chinmai@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Deepa",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Turn immediate left from the lift and immediate right from the steps.",
+  "subjects": "Data Structures; Discrete Mathematical structures; Data Mining; Design and Analysis of Algorithms.; Software Engineering; Operating Systems; Object Oriented Modeling and Design; Graph Theory; Unix and shell programming; Systems simulation and Modeling; Python Programming; Big Data & Analytics",
+  "email": "deepashetty17@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Jason Elroy Martis",
+  "designation": "Associate Professor & System Administrator",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight.",
+  "subjects": "Database Management Systems; Internet of Things; Artificial Intelligence; Microcontrollers and Embedded Systems; Machine Learning; Object Oriented Analysis and Design; Computer Organization; Database Management Systems; Image Processing; Operations Research; Operating Systems; Computer organization and Architecture Information and Network Security Java Programming Advanced java Programming Deep learning Generative Adversarial Networks Internet and Web Programming C#.NET technologies Operations Research Data Communications Object Oriented Programming; Computer organization and Architecture; Information and Network Security; Java Programming; Advanced java Programming; Deep learning; Generative Adversarial Networks; Internet and Web Programming; C#.NET technologies; Operations Research; Data Communications; Object Oriented Programming",
+  "email": "jason1987martis@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Karuna Pandith",
+  "designation": "",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Koppagiri Jyothsna Devi",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Quantum Computing; Data Structure; Design & Analysis of Algorithm; Python; Deep Learning; Operating System; C Programming; Object Oriented Programming (C++ & JAVA); Software Engineering",
+  "email": "jyothsna.devi@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Manjula Gururaj Rao",
+  "designation": "Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Computer Concepts & C Programming (Theory + Lab); Design and Analysis of Algorithms (Theory + Lab); Java & J2EE (Theory + Lab); Data Structures with C (Theory + Lab); OOPS with C++ (Theory + Lab); Data mining and Data Warehouse; Advances in Operating Systems; Microprocessors (Theory + Lab); Computer Organization; Distributed Systems; Systems Programming (Theory + Lab); Computer Graphics (Theory + Lab); Advanced Algorithms; Natural Language Processing; Machine Learning; C Programming; Distributed Computing; OOMD; Unix and Shell Programing; Object Oriented and C++; Data Communications",
+  "email": "dr.manjulagururajh@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Manjunath Pujar",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "",
+  "email": "manjunath.pujar@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Naganna Chetty",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 5th Floor",
+  "directions": "From staircase or Lift turn right and left straight and take left again.",
+  "subjects": "Artificial Intelligence and Machine Learning; DataWarehouse and DataMining; Computer Networks; Database Management System; Distributed System; Advanced Database Management System; Operating System; Internet of Things; Operating Systems",
+  "email": "naganna.chetty@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Preethi Salian K",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Machine Learning; System Software and Compiler Design; Automata Theory and Computability; Programming in C and Data structures; System Modeling & Simulation; Electronic Circuits; UNIX & Shell Programming; Programming the Web; Embedded Systems; Computer organization and Architecture Database Management System Logic Design Compiler Design Automata Theory and Computation Software Engineering Software Testing Programming in C; Computer organization and Architecture; Database Management System; Logic Design; Compiler Design; Automata Theory and Computation; Software Engineering; Software Testing; Programming in C",
+  "email": "preethi.salian@nitte.edu.in"
+ },
+ {
+  "name": "Dr. R Sujitha",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "",
+  "email": "sujitha.r@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Ramesh G",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Machine Learning,; Advance Machine Learning,; Artificial Intelligence; Operating System,; Web Technology and its Application,; Storage Area Network,; Cryptography; Data Structures Using C; Principles of Programming Using C; Computer Networks; Information Security and Management; Internet of Things",
+  "email": "ramesh.g@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Rashmi Naveen",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Computer Organization & Architecture; Digital Systems Design; Object Oriented Programming; Unix & Shell Programming; Distributed Systems & Objects; Java & Internet Technology; Cloud Computing; Management Information System",
+  "email": "rashmin@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Ravi B",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight and take right.",
+  "subjects": "Advanced Algorithms; Design And Analysis of Algorithms; Advanced Database Systems; Database Systems; Computer Networks; Compiler Design; Discrete Mathematics; Finite Automata and Formal Languages; Python",
+  "email": "ravib671@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Santhosh S",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "C Programming; Computer Organization; Java Programming; Data Structure; Agile Technology; Advances in Operating System; Object Oriented Modeling & Design.; Cloud Computing; Image Processing; Agile Technologies",
+  "email": "santhosh.s@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Sumathi Pawar",
+  "designation": "Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Web 2.0 and Rich Internet Applications; Object Oriented Programming Using Java and C++; Computer Organization and Architecture; Software Engineering; Machine Learning Lab; Python Programming; Service Oriented Architecture; Protocol Engineering; Internet of Things; System Programming; System Software; Operating System; Mobile Application Development; Data Mining; Computer Networks; Advanced DataBase Management; File Structures; Web Services; Service Oriented Architecture; Computer Organization; DBMS; Advanced DBMS; C Programming; C++ Programming; Java Programming; OOC; File structures; Cloud computing; Distributed Operating Systems; .NET Programming; Web development",
+  "email": "drsumathi@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Usha Divakarla",
+  "designation": "Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Advanced Computer Architecture; Internet of Things; Artificial Intelligence; Microcontrollers and Embedded Systems; Software Engineering; Machine Learning; Software Project Management; Software Architecture; Object Oriented Analysis and Design",
+  "email": "ushad@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Vaikunth Pai",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Java Programming; Data Structure and Algorithms; Database Systems; Compiler Design; .net framework and C#",
+  "email": "vaikunth.pai@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Vandana B S",
+  "designation": "Associate Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Unix System Programming; UNIX; Data Structures; Design and Analysis of Algorithms; Programming in C and Data Structure; Object oriented concepts and C++; Python; Graph Theory and Combinatorics; Formal languages and Automata Theory; Formal Models and Computer Languages; Automata theory and Computability; Mobile Application Development; Database Management System; Digital Image Processing; Advanced Digital Image Processing; Internet of Things (IOT); Machine Learning; Advanced Database Management Systems; Knowledge Engineering; Artificial Intelligence; Data Analytics with Python",
+  "email": "vandana.bs@nitte.edu.in"
+ },
+ {
+  "name": "Dr. Vasudeva",
+  "designation": "Professor",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Discrete Mathematical Structures; Engineering Mathematics IV; Software Practice and Testing; Computer Graphics; Computer Organization; Principles of Programming Languages; Computer Programming with C; Computer Application for Management; Quantitative Techniques for Management; Statistics for Management; Software Engineering; Multimedia Communications; Object Oriented Analysis and Design; Compiler Design; Operations Research,; Probability Theory and Applications; Numerical methods; System Simulation and Modeling; Design and Analysis of Algorithms; Formal Models in Computer Science; Computer Systems Performance Analysis; Programming in C and Data Structures; Artificial Intelligence; Management and Entrepreneurship for IT industry; Kannada Manasu/Adalitha Kannada; C Programming for Problem Solving",
+  "email": "vasudeva.acharya@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Abhishek Rao",
+  "designation": "",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Devidas",
+  "designation": "",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Krishnaraj Rao",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "C Programming; Computer Organization; Java Programming; Analog and Digital Electronics; Embedded System Computing; Advances in Operating System; Information Network Security; Cloud Computing.; Internet of Things; Software Engineering Logic Design Unix Shell Programming; Software Engineering; Logic Design; Unix Shell Programming",
+  "email": "krishnaraj.rao@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Muralikrishna Nidugala",
+  "designation": "Professor of Practice",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "",
+  "email": "muralikrishna.nidugala@hpe.com"
+ },
+ {
+  "name": "Mr. Pawan S",
+  "designation": "Assistant Professor Gd.I",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "",
+  "email": "pawan.rao@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Prashanth Kumar",
+  "designation": "Assistant Professor Gd.II",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Database Management System; Data Structures Using C; Principles of Programming Using C; Software Engineering; Computer Networks; Information Security and Management; Network Security; Operating System; Software Testing; Internet of Things",
+  "email": "prashanth.kumar@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Sharath Kumar",
+  "designation": "Assistant Professor Gd.II",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Python Programming; Data science and Visualization.; Object Oriented Programming with C++; Data Structures and its Applications.; Design and Analysis of algorithms.; Web Technology; System Software and Compiler Design; Automata Theory and Computability; Programming in C and Data structures; System Modeling & Simulation; Database Management System; Discrete Mathematical structures.; Graph theory and combinatorics",
+  "email": "sharath.sk@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Srikanth Bhat K.",
+  "designation": "Assistant Professor Grade.II",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Discrete Mathematical Structures.; Data Communications.; Wireless Networks (PG).; Advanced Digital Communications (PG).; Software Engineering.; Object Oriented Modeling and Design.; Compiler Design.; Information Storage Management.; Design and Analysis of Algorithms.; Computer Networks.; Cloud Computing.; Operating System.; Information and Network Security.; Object Oriented Programming (JAVA).; Cryptography and Network Security",
+  "email": "srikanthbhatk@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Vasudeva Pai",
+  "designation": "Asst. Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "Compiler Design; Finite Automata and Formal Languages; Data Communication; Computer Networks; Information Security; Microprocessor and Interfacing; System Software; Object oriented Programming with C++; Management Information System; Design Thinking; Cyber Security; Cryptography and Network Security; Advanced Computer Networks; Digital Communication",
+  "email": "paivasudeva@nitte.edu.in"
+ },
+ {
+  "name": "Mr. Ved Prakash",
+  "designation": "Assistant Professor Gd.I",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Data Communication and Networking; Object-Oriented Modeling and Design; Social Connect & Responsibility",
+  "email": "ved.prakash@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Alaka Ananth",
+  "designation": "Assistant Professor Gd.III",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Computer Concepts and C Programming; Data Structures using C; Probability Modelling and Simulation for Computer Science; Computer Graphics and Visualization; Discrete Mathematical Structures; Operating System; Digital System Design; Cloud Computing; Information Storage Management; Design and Analysis of Algorithms; Web Services",
+  "email": "alaka_ananth@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Anusha N",
+  "designation": "Assistant Professor Gd.I",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Turn immediate left from the lift and immediate right from the steps.",
+  "subjects": "Python Programming; Java Programming; Unix & Shell Programming; Linux Internals; Object Oriented Programming with C++; Object Oriented Modeling and Design; Software Engineering; Software Testing; Web Technology; Computer Networks; Internet and Web Programming",
+  "email": "anusha24@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Kavitha Chandrahasa",
+  "designation": "Assistant Professor Gd.I",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "",
+  "email": "kavitha.shetty@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Pratheeksha Hegde N",
+  "designation": "Assistant Professor Gd.II",
+  "department": "Information Science & Engineering",
+  "cabin": "",
+  "directions": "",
+  "subjects": "Database System Model; Web Programming; Data Structures; Unix and Shell Programming; Linux Internals; Cyber Law and Ethics; Computer concepts and C Programming; Entrepreneurship Development Management & Intellectual Property Rights; Digital system design; Adhoc networks; Digital forensics",
+  "email": "pratheeksha.hegde@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Prathyakshini",
+  "designation": "Assistant Professor Gd.II",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Turn immediate left from the lift and immediate right from the steps.",
+  "subjects": "Data Structures; Unix and shell programming; Computer Organization and Architecture; Linux Internals; Employability skill Development; Web Programming; Data Communications; Optical Networks",
+  "email": "prathyakshini@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Tanzila Nargis",
+  "designation": "Assistant Professor Gd.II",
+  "department": "Information Science & Engineering",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn right from stairs that is opposite to the lift go straight near ladies washroomand opposite to the lift go straight near ladies washroom.",
+  "subjects": "UNIX and Shell Programming; Information Management system; Data Communication; Software Architecture; LINUX Internals; Advanced Computer Architecture; Blockchain Technology; Cyber security,; Cyber Forensics; Mobile application Development; Design and Analysis of Algorithms",
+  "email": "tanzilanargis@nitte.edu.in"
+ },
+ {
+  "name": "Ms. Vaishali Bangera",
+  "designation": "",
+  "department": "Information Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Turn immediate left from the lift and immediate right from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Savidhan Shetty C S",
+  "designation": "",
+  "department": "Advanced Communication Technology",
+  "cabin": "SIR M VISVESVARAYA BLOCK",
+  "directions": "From the lift next to NC13 Classroom, turn left to reach the staff room.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Prajwal Hegde",
+  "designation": "",
+  "department": "Artificial Intelligence & Data Science",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 6th Floor",
+  "directions": "From staircase or Lift turn right and left straight and take left again.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Swathi Pai",
+  "designation": "",
+  "department": "Artificial Intelligence & Machine Learning",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 5th Floor",
+  "directions": "From staircase or Lift turn right and left straight and take left again.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Anil Kumar H S",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn left from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Chetan D M",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn left from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Harshini U",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Harshitha M J",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn Immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Louella C Goveas",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn Immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sandesh K",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn Immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Santosh Poojary",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Shyam Prasad",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn left from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sneha Nayak",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Ujwal P",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn Immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Venkatesh Kamath H",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn left from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Vidya S M",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn left from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Vinayak Shet",
+  "designation": "",
+  "department": "Biotechnology",
+  "cabin": "APJ 2nd Floor",
+  "directions": "Turn left from the steps.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. . Janardhana Nayak",
+  "designation": "",
+  "department": "Chemistry",
+  "cabin": "Ramanujan Block 1st floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Gururaj Acharya",
+  "designation": "",
+  "department": "Civil Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 1st Floor",
+  "directions": "Turn left and walk straight (Room No 5).",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Chidananda",
+  "designation": "",
+  "department": "Computer & Communication Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 4th Floor",
+  "directions": "From staircase or Lift turn right and left straight and take left again.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Anisha P Rodrigues",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Anisha P Rodrigues",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Aravinda C V",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 4th Floor",
+  "directions": "Take a slight left from the lift and go straight and take right.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Asmitha Poojary",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. D K Sreekantha",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 4th Floor",
+  "directions": "Take a slight left from the lift and go straight and take right.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Jyothi Shetty",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 4th Floor",
+  "directions": "Take a slight left from the lift and go straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Niranjan N Chiplunkar",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 1st  floor",
+  "directions": "Turn left from the lift and go straight then turn right.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Pallavi K",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 4th Floor",
+  "directions": "Take a slight left from the lift and go straight and take right.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Rajalaxmi Hegde",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ BLOCK 3rd Floor",
+  "directions": "Opposite to classroom LH308.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Raju K",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sandeep Kumar Hegde",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sannidhan M S",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 4th Floor",
+  "directions": "Go straight opp to lift opp to lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sarika Hegde",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Shabari Shedthi",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sudeepa K B",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Venkatramana Bhat",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 4th Floor",
+  "directions": "Take a slight left from the lift and go straight and take right.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Vijay Murari",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Prithviraj Jain",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Sunilkumar Aithal",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mrs. Sowmya P",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Jayapadmini Kanchan",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn right from the steps or turn left from the lift in front of ladies' washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Shilpa Karegoudar",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Prof. Savitha Shetty",
+  "designation": "",
+  "department": "Computer Science & Engineering",
+  "cabin": "APJ 5th Floor",
+  "directions": "Take a slight left from the lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Roshan Fernandes",
+  "designation": "",
+  "department": "Cyber Security",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn right from the steps or turn left from the lift in front cyber security lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Anitha Marina Colaco",
+  "designation": "",
+  "department": "Electrical & Electronics Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "directions": "Turn right from the stairs or from the lift (Room No. SR24).",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Rajalaxmi Samaga",
+  "designation": "",
+  "department": "Electrical & Electronics Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "directions": "Turn right from the stairs or from the lift (Room No. SR24).",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Mahabaleshwara Sharma K",
+  "designation": "",
+  "department": "Electrical & Electronics Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "directions": "Turn left from the stairs and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Swathi K",
+  "designation": "",
+  "department": "Electrical & Electronics Engineering",
+  "cabin": "Research and Innovation Center, First Floor",
+  "directions": "Research and Innovation Center, First Floor.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Swathi Koteshwar",
+  "designation": "",
+  "department": "Electrical & Electronics Engineering",
+  "cabin": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "directions": "Turn left from the stairs and walk straight (Room No. 23).",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Anusha R Sharath",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Bomme Gowda",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn left from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Charishma",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Durga Prasad",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Kavitha S",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Mamatha Girish",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Padmavathi K",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn left from the steps opposite to lift and walk straight.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Rekha Bhandarkar",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn left from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Roopa B. Hegde",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn right from the stairs dead-end beside lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Shivakumar BR",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn left from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Subha B",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sukesh Rao M",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn left from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Anil Kumar Bhat",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn left from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Chandra Singh",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Atal block 2nd floor",
+  "directions": "turn right from the steps or turn left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mrs. Ashwini K",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mrs. Niju Rajan",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mrs. Ramya Shetty",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mrs. Shankari N",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Turn immediate left from the lift and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Anupama B",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn right from the steps or turn left from the lift in front of ladies' washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Nagapriya Kamath",
+  "designation": "",
+  "department": "Electronics & Communication Engineering",
+  "cabin": "Ramanujan Block 3rd floor",
+  "directions": "turn right from the stairs dead-end beside lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Manjunatha Badiger",
+  "designation": "",
+  "department": "Electronics (Vlsi Design & Technology)",
+  "cabin": "Ramanujan Block 4th floor",
+  "directions": "turn left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Jnaneshwar Pai Maroor",
+  "designation": "",
+  "department": "Humanities",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Ashwini D Y",
+  "designation": "",
+  "department": "Humanities",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Sanchita CM",
+  "designation": "",
+  "department": "Humanities",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Chaitra K",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sharad M Hegde",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "Ramanujan Block 1st floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Anjana Pai",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Bhavya K",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "APJ 3rd Floor",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Sharmila",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Smitha G. V",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Ms. Vinaya Acharya",
+  "designation": "",
+  "department": "Mathematics",
+  "cabin": "C V Raman 4th floor",
+  "directions": "Turn left from the stairs(opp to lift) and again turn left.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Ajit M Hebbale",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Ananthakrishna Somayaji",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Austin Dinesh D’souza",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn left from the stairs corner room that is connecting to apj.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Dilip Kumar K",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Grynal D’mello",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "immediate left from the lift in front of gents washroom.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Mallikappa",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Melwyn Rajesh Caselino",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn left from the stairs corner room that is connecting to apj.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Narasimha Marakala",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Santhosh. G",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "Infront of the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sharathchandra",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Srinivas Pai P",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Sudesh Bekal",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 1st floor",
+  "directions": "turn left from stairs dead-end.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Suresh Shetty",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "Infront of the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Vishwanath JS",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Bhaskar P Achar",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Atal block ground floor",
+  "directions": "turn left from the entrance of the atal block.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. P. Venkatesh Murthy",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "Infront of the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Ravikiran Kamath B",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Srinivasa Prabhu",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Mr. Sunil Kumar Shetty",
+  "designation": "",
+  "department": "Mechanical Engineering",
+  "cabin": "Ramanujan Block 2nd floor",
+  "directions": "immediate left from the lift.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Manjunath K. B",
+  "designation": "",
+  "department": "Physics",
+  "cabin": "Ramanujan Block 1st floor",
+  "directions": "turn right from the stairs.",
+  "subjects": "",
+  "email": ""
+ },
+ {
+  "name": "Dr. Nagaraja B S",
+  "designation": "",
+  "department": "Physics",
+  "cabin": "CV Raman 3rd floor",
+  "directions": "turn left from the stairs that is opposite to the lift and again turn left next to first year coordinate cabin.",
+  "subjects": "",
+  "email": ""
+ }
+]

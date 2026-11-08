@@ -1,0 +1,692 @@
+[
+ {
+  "name": "Mr. Prajwal Hegde",
+  "floor": "Sir M Visvesvaraya (SMV) Block 6th Floor",
+  "branch": "ARTIFICIAL INTELLIGENCE &amp; DATA SCIENCE",
+  "directions": "From staircase or Lift turn right and left straight and take left again"
+ },
+ {
+  "name": "Ms. Swathi Pai",
+  "floor": "Sir M Visvesvaraya (SMV) Block 5th Floor",
+  "branch": "ARTIFICIAL INTELLIGENCE &amp; MACHINE LEARNING",
+  "directions": "From staircase or Lift turn right and left straight and take left again"
+ },
+ {
+  "name": "Dr. Savidhan Shetty C S",
+  "floor": "SIR M VISVESVARAYA BLOCK",
+  "branch": "Advanced Communication Technology",
+  "directions": "From the lift next to NC13 Classroom, turn left to reach the staff room"
+ },
+ {
+  "name": "Dr. Anil Kumar H S",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn left from the steps"
+ },
+ {
+  "name": "Dr. Chetan D M",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn left from the steps"
+ },
+ {
+  "name": "Dr. Harshini U",
+  "floor": "APJ 3rd Floor",
+  "branch": "BioTech",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab"
+ },
+ {
+  "name": "Dr. Harshitha M J",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn Immediate left from the lift"
+ },
+ {
+  "name": "Dr. Louella C Goveas",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn Immediate left from the lift"
+ },
+ {
+  "name": "Dr. Sandesh K",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn Immediate left from the lift"
+ },
+ {
+  "name": "Dr. Santosh Poojary",
+  "floor": "APJ 3rd Floor",
+  "branch": "BioTech",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab"
+ },
+ {
+  "name": "Dr. Shyam Prasad",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn left from the steps"
+ },
+ {
+  "name": "Dr. Sneha Nayak",
+  "floor": "APJ 3rd Floor",
+  "branch": "BioTech",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab"
+ },
+ {
+  "name": "Dr. Ujwal P",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn Immediate left from the lift"
+ },
+ {
+  "name": "Dr. Venkatesh Kamath H",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn left from the steps"
+ },
+ {
+  "name": "Dr. Vidya S M",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn left from the steps"
+ },
+ {
+  "name": "Dr. Vinayak Shet",
+  "floor": "APJ 2nd Floor",
+  "branch": "BioTech",
+  "directions": "Turn left from the steps"
+ },
+ {
+  "name": "Dr .Janardhana Nayak",
+  "floor": "Ramanujan Block 1st floor",
+  "branch": "CHEMISTRY DEPARTMENT",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Mr. Chidananda",
+  "floor": "Sir M Visvesvaraya (SMV) Block 4th Floor",
+  "branch": "COMPUTER &amp; COMMUNICATION ENGINEERING",
+  "directions": "From staircase or Lift turn right and left straight and take left again"
+ },
+ {
+  "name": "Dr Rajalaxmi Hegde",
+  "floor": "APJ BLOCK 3rd Floor",
+  "branch": "CSE",
+  "directions": "Opposite to classroom LH308"
+ },
+ {
+  "name": "Dr. Roshan Fernandes",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "CYBER SECURITY",
+  "directions": "turn right from the steps or turn left from the lift in front cyber security lab"
+ },
+ {
+  "name": "Mr. Gururaj Acharya",
+  "floor": "Sir M Visvesvaraya (SMV) Block 1st Floor",
+  "branch": "Civil",
+  "directions": "Turn left and walk straight (Room No 5)"
+ },
+ {
+  "name": "Dr. Anisha P Rodrigues",
+  "floor": "APJ 3rd Floor",
+  "branch": "Computer Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Aravinda C V",
+  "floor": "APJ 4th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and go straight and take right"
+ },
+ {
+  "name": "Dr. Asmitha Poojary",
+  "floor": "APJ 5th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and walk straight"
+ },
+ {
+  "name": "Dr. D K Sreekantha",
+  "floor": "APJ 4th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and go straight and take right"
+ },
+ {
+  "name": "Dr. Jyothi Shetty",
+  "floor": "APJ 4th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and go straight"
+ },
+ {
+  "name": "Dr. Pallavi K",
+  "floor": "APJ 4th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and go straight and take right"
+ },
+ {
+  "name": "Dr. Raju K",
+  "floor": "APJ 3rd Floor",
+  "branch": "Computer Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Sandeep Kumar Hegde",
+  "floor": "APJ 5th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and walk straight"
+ },
+ {
+  "name": "Dr. Sannidhan M S",
+  "floor": "APJ 4th Floor",
+  "branch": "Computer Science",
+  "directions": "Go straight opp to lift opp to lab"
+ },
+ {
+  "name": "Dr. Sarika Hegde",
+  "floor": "APJ 5th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and walk straight"
+ },
+ {
+  "name": "Dr. Shabari Shedthi",
+  "floor": "APJ 5th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and walk straight"
+ },
+ {
+  "name": "Dr. Sudeepa K B",
+  "floor": "APJ 3rd Floor",
+  "branch": "Computer Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Venkatramana Bhat",
+  "floor": "APJ 4th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and go straight and take right"
+ },
+ {
+  "name": "Dr. Vijay Murari",
+  "floor": "APJ 3rd Floor",
+  "branch": "Computer Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr.Anisha P Rodrigues",
+  "floor": "APJ 3rd Floor",
+  "branch": "Computer Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr.Niranjan N chiplunkar",
+  "floor": "APJ 1st  floor",
+  "branch": "Computer Science",
+  "directions": "Turn left from the lift and go straight then turn right"
+ },
+ {
+  "name": "Mr. Prithviraj Jain",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "Computer Science",
+  "directions": "turn left from the lift"
+ },
+ {
+  "name": "Mr. Sunilkumar Aithal",
+  "floor": "CV Raman 3rd floor",
+  "branch": "Computer Science",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Mrs. Sowmya P",
+  "floor": "APJ 3rd Floor",
+  "branch": "Computer Science",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Ms. Jayapadmini Kanchan",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "Computer Science",
+  "directions": "turn right from the steps or turn left from the lift in front of ladies' washroom"
+ },
+ {
+  "name": "Ms. Shilpa Karegoudar",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "Computer Science",
+  "directions": "turn left from the lift"
+ },
+ {
+  "name": "Prof. Savitha Shetty",
+  "floor": "APJ 5th Floor",
+  "branch": "Computer Science",
+  "directions": "Take a slight left from the lift and walk straight"
+ },
+ {
+  "name": "Dr. Chaitra K",
+  "floor": "APJ 3rd Floor",
+  "branch": "Dept of Mathematics",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab"
+ },
+ {
+  "name": "Ms Vinaya Acharya",
+  "floor": "C V Raman 4th floor",
+  "branch": "Dept of Mathematics",
+  "directions": "Turn left from the stairs(opp to lift) and again turn left"
+ },
+ {
+  "name": "Ms. Bhavya K",
+  "floor": "APJ 3rd Floor",
+  "branch": "Dept of Mathematics",
+  "directions": "Go near the steps connecting to Ramanujan Block near Texas Lab"
+ },
+ {
+  "name": "Ms. SWATHI K",
+  "floor": "Research and Innovation Center, First Floor",
+  "branch": "EEE",
+  "directions": "Research and Innovation Center, First Floor"
+ },
+ {
+  "name": "Ms Swathi Koteshwar",
+  "floor": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "branch": "ELECTRICAL & ELECTRONICS ENGINEERING",
+  "directions": "Turn left from the stairs and walk straight (Room No. 23)"
+ },
+ {
+  "name": "Dr. Anitha Marina Colaco",
+  "floor": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "branch": "ELECTRICAL &amp; ELECTRONICS ENGINEERING",
+  "directions": "Turn right from the stairs or from the lift (Room No. SR24)"
+ },
+ {
+  "name": "Dr. Rajalaxmi Samaga",
+  "floor": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "branch": "ELECTRICAL &amp; ELECTRONICS ENGINEERING",
+  "directions": "Turn right from the stairs or from the lift (Room No. SR24)"
+ },
+ {
+  "name": "Mr. Mahabaleshwara Sharma K",
+  "floor": "Sir M Visvesvaraya (SMV) Block 2nd Floor",
+  "branch": "ELECTRICAL &amp; ELECTRONICS ENGINEERING",
+  "directions": "Turn left from the stairs and walk straight"
+ },
+ {
+  "name": "Mr. Chandra Singh",
+  "floor": "Atal block 2nd floor",
+  "branch": "ELECTRONICS &amp; COMMUNICATIONS",
+  "directions": "turn right from the steps or turn left from the lift"
+ },
+ {
+  "name": "Ms. Anupama B",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "ELECTRONICS &amp; COMMUNICATIONS",
+  "directions": "turn right from the steps or turn left from the lift in front of ladies' washroom"
+ },
+ {
+  "name": "Dr. Manjunatha Badiger",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "ELECTRONICS (VLSI DESIGN &amp; TECHNOLOGY)",
+  "directions": "turn left from the lift"
+ },
+ {
+  "name": "Dr. Anusha R sharath",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Dr. Bomme Gowda",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn left from the stairs"
+ },
+ {
+  "name": "Dr. Charishma",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Dr. Durga Prasad",
+  "floor": "Ramanujan Block 4th floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn left from the lift"
+ },
+ {
+  "name": "Dr. Kavitha S",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Dr. Mamatha Girish",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Padmavathi K",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Rekha Bhandarkar",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn left from the stairs"
+ },
+ {
+  "name": "Dr. Roopa B. Hegde",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn right from the stairs dead-end beside lift"
+ },
+ {
+  "name": "Dr. Shivakumar BR",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn left from the stairs"
+ },
+ {
+  "name": "Dr. Subha B",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Dr. Sukesh Rao  M",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn left from the stairs"
+ },
+ {
+  "name": "Mr. Anil Kumar Bhat",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn left from the stairs"
+ },
+ {
+  "name": "Mrs. Ashwini K",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Mrs. Niju Rajan",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Mrs. Ramya Shetty",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Mrs. Shankari N",
+  "floor": "APJ 3rd Floor",
+  "branch": "Electronics and Communication",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Ms. Nagapriya Kamath",
+  "floor": "Ramanujan Block 3rd floor",
+  "branch": "Electronics and Communication",
+  "directions": "turn right from the stairs dead-end beside lift"
+ },
+ {
+  "name": "Dr. Jnaneshwar Pai Maroor",
+  "floor": "CV Raman 3rd floor",
+  "branch": "Humanities Department",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Ms Sanchita CM",
+  "floor": "CV Raman 3rd floor",
+  "branch": "Humanities Department",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Ms. Ashwini D Y",
+  "floor": "CV Raman 3rd floor",
+  "branch": "Humanities Department",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Dr. Ashwini B",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and immediate right from the steps"
+ },
+ {
+  "name": "Dr. Balasubramani R",
+  "floor": "APJ 3rd Floor",
+  "branch": "Information Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Deepa",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and immediate right from the steps"
+ },
+ {
+  "name": "Dr. Jason Elroy Martis",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Take a slight left from the lift and walk straight"
+ },
+ {
+  "name": "Dr. Karuna Pandith",
+  "floor": "APJ 3rd Floor",
+  "branch": "Information Science",
+  "directions": "Turn left from the steps opposite to lift and walk straight"
+ },
+ {
+  "name": "Dr. Naganna Chetty",
+  "floor": "Sir M Visvesvaraya (SMV) Block 5th Floor",
+  "branch": "Information Science",
+  "directions": "From staircase or Lift turn right and left straight and take left again"
+ },
+ {
+  "name": "Dr. Ravi",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Take a slight left from the lift and walk straight and take right"
+ },
+ {
+  "name": "Mr. Abhishek Rao",
+  "floor": "APJ 3rd Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Mr. Devidas",
+  "floor": "APJ 3rd Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Mr. Vasudeva Pai",
+  "floor": "APJ 3rd Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and again turn left"
+ },
+ {
+  "name": "Ms. Anusha N",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and immediate right from the steps"
+ },
+ {
+  "name": "Ms. Chinmayi Shetty",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and immediate right from the steps"
+ },
+ {
+  "name": "Ms. Prathyakshini",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and immediate right from the steps"
+ },
+ {
+  "name": "Ms. Tanzila Nargis",
+  "floor": "CV Raman 3rd floor",
+  "branch": "Information Science",
+  "directions": "turn right from stairs that is opposite to the lift go straight near ladies washroomand opposite to the lift go straight near ladies washroom"
+ },
+ {
+  "name": "Ms. Vaishali Bangera",
+  "floor": "APJ 5th Floor",
+  "branch": "Information Science",
+  "directions": "Turn immediate left from the lift and immediate right from the steps"
+ },
+ {
+  "name": "Dr. Sharad M Hegde",
+  "floor": "Ramanujan Block 1st floor",
+  "branch": "MATHEMATICS DEPARTMENT",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Ms Anjana Pai",
+  "floor": "CV Raman 3rd floor",
+  "branch": "MATHEMATICS DEPARTMENT",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Ms Sharmila",
+  "floor": "CV Raman 3rd floor",
+  "branch": "MATHEMATICS DEPARTMENT",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Ms Smitha G.V",
+  "floor": "CV Raman 3rd floor",
+  "branch": "MATHEMATICS DEPARTMENT",
+  "directions": "turn left from the stairs that is opposite to the lift and walk straight next to the boys washroom"
+ },
+ {
+  "name": "Dr. Ajit M Hebbale",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "immediate left from the lift"
+ },
+ {
+  "name": "Dr. Ananthakrishna Somayaji",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Austin Dinesh D’Souza",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn left from the stairs corner room that is connecting to apj"
+ },
+ {
+  "name": "Dr. Dilip Kumar K",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Grynal D’Mello",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "immediate left from the lift in front of gents washroom"
+ },
+ {
+  "name": "Dr. Mallikappa",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Melwyn Rajesh Caselino",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn left from the stairs corner room that is connecting to apj"
+ },
+ {
+  "name": "Dr. Narasimha Marakala",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Santhosh. G",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "Infront of the stairs"
+ },
+ {
+  "name": "Dr. Sharathchandra",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "immediate left from the lift"
+ },
+ {
+  "name": "Dr. Srinivas Pai P",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Sudesh Bekal",
+  "floor": "Ramanujan Block 1st floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn left from stairs dead-end"
+ },
+ {
+  "name": "Dr. Suresh Shetty",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "Infront of the stairs"
+ },
+ {
+  "name": "Dr. Vishwanath JS",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "immediate left from the lift"
+ },
+ {
+  "name": "Mr.  Bhaskar P Achar",
+  "floor": "Atal block ground floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn left from the entrance of the atal block"
+ },
+ {
+  "name": "Mr.  Ravikiran Kamath B",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "immediate left from the lift"
+ },
+ {
+  "name": "Mr. P. Venkatesh Murthy",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "Infront of the stairs"
+ },
+ {
+  "name": "Mr. SUNIL KUMAR SHETTY",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "immediate left from the lift"
+ },
+ {
+  "name": "Mr. Srinivasa Prabhu",
+  "floor": "Ramanujan Block 2nd floor",
+  "branch": "Mechanical Engg.",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Manjunath K.B",
+  "floor": "Ramanujan Block 1st floor",
+  "branch": "PHYSICS DEPARTMENT",
+  "directions": "turn right from the stairs"
+ },
+ {
+  "name": "Dr. Nagaraja B S",
+  "floor": "CV Raman 3rd floor",
+  "branch": "PHYSICS DEPARTMENT",
+  "directions": "turn left from the stairs that is opposite to the lift and again turn left next to first year coordinate cabin"
+ }
+]

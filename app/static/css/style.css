@@ -525,3 +525,40 @@ td.num, th.num { text-align: center; font-variant-numeric: tabular-nums; }
 .tag.express { color: var(--brand); border-color: var(--brand-soft); background: var(--brand-soft); }
 .tag.uc { color: var(--muted); }
 .source { font-size: 0.85rem; color: var(--muted); margin-top: 14px; }
+
+/* Admin: "Add information" */
+.pills.kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); overflow: visible; }
+.pills.kinds .pill-btn { min-width: 0; align-items: flex-start; text-align: left; }
+.pills.kinds .pill-btn b { font-size: 0.95rem; }
+.chip.on { background: var(--brand-soft); color: var(--brand); border-color: var(--brand); }
+details.card > summary { cursor: pointer; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Admin lists: spreadsheet-style editor (app/static/js/sheet.js) */
+.sheet-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 10px 0; }
+.sheet-tools input[type="search"] { max-width: 260px; }
+.sheet-wrap { overflow: auto; max-height: 65vh; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+table.sheet { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.88rem; }
+table.sheet th { position: sticky; top: 0; z-index: 2; background: var(--card-2); padding: 8px 10px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); white-space: nowrap; }
+table.sheet td { padding: 0; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); vertical-align: top; }
+table.sheet .rn { position: sticky; left: 0; z-index: 1; width: 44px; min-width: 44px; text-align: center; color: var(--muted); background: var(--card-2); padding: 7px 4px; font-variant-numeric: tabular-nums; }
+table.sheet th.rn { z-index: 3; }
+table.sheet .c-text { min-width: 170px; }
+table.sheet .c-long { min-width: 280px; }
+table.sheet .c-date { min-width: 150px; }
+table.sheet .c-time { min-width: 110px; }
+table.sheet .del { width: 40px; text-align: center; }
+table.sheet .need { color: var(--brand); }
+.sheet .cell { display: block; width: 100%; box-sizing: border-box; border: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; padding: 7px 9px; margin: 0; resize: vertical; min-height: 34px; box-shadow: none; }
+.sheet textarea.cell { line-height: 1.35; overflow: hidden; }
+.sheet textarea.cell:focus { overflow: auto; min-height: 90px; }
+.sheet td:focus-within { outline: 2px solid var(--brand); outline-offset: -2px; background: var(--card); }
+.sheet td.pending { background: var(--warn-soft); }
+.sheet tbody tr:hover td:not(.pending):not(.rn) { background: var(--card-2); }
+.sheet .icon-btn { border: 0; background: none; color: var(--muted); font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 7px 10px; border-radius: 8px; }
+.sheet .icon-btn:hover { color: var(--err); background: var(--err-soft); }
+.sheet-actions { margin-top: 12px; }
+.sheet-actions .grow { flex: 1; }
+.bus-kind { margin-bottom: 16px; }
+.sheet-tools label { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+.sheet-tools label input { width: auto; margin: 0; }

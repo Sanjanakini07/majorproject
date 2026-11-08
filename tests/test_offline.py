@@ -7,7 +7,7 @@ import pytest
 import requests
 from fastapi.testclient import TestClient
 
-from app import db, face
+from app import academics, db, face
 from offline_app import sync
 from offline_app.main import app as offline_app
 
@@ -45,7 +45,7 @@ def turso(monkeypatch, index):
     db.init()
     sync.init()
     with db.connect() as conn:
-        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance", "module_uids", "outbox"):
+        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance", "sheet_rows", "module_uids", "outbox"):
             conn.execute(f"DELETE FROM {table}")
         conn.execute("DELETE FROM sync_meta WHERE k = 'pulled_until'")
     return fake
@@ -77,6 +77,31 @@ def test_local_changes_are_pushed(turso):
     synced()
     assert turso.rows("nva_modules")[uid]["deleted"] == 1
     assert turso.rows("nva_faces")["nnm23is001@nmamit.in"]["deleted"] == 1
+
+
+def test_default_data_is_not_sent_but_edits_to_it_are(turso):
+    # Every laptop makes the same default entries and students itself; sending them would copy them once per laptop.
+    default = db.create_module("Syllabus: X", "same on every laptop", "syllabus", "sample data")
+    academics.ensure_student("nnm23is042@nmamit.in", "NNM23IS042", academics.SEEDED_BY)
+    mine = db.create_module("Placement: Wipfli", "drive 12 Nov", "manual", "admin@nmamit.in")
+    assert synced() == 0  # the outbox is emptied either way
+    uids = list(turso.rows("nva_modules"))
+    assert len(uids) == 1 and uids[0].endswith(f"-{mine['id']}")
+    assert turso.rows("nva_profiles") == {} and turso.rows("nva_marks") == {}
+
+    db.update_module(default["id"], "Syllabus: X", "corrected by the admin", "admin@nmamit.in")
+    synced()
+    assert any(r["content"] == "corrected by the admin" for r in turso.rows("nva_modules").values())
+
+
+def test_list_rows_sync_by_their_uid_and_defaults_stay_local(turso):
+    db.save_sheet("teachers", [("seed-teachers-0", {"name": "Dr. A", "cabin": ""})], "sample data")
+    synced()
+    assert turso.rows("nva_sheet_rows") == {}
+    db.save_sheet("teachers", [("seed-teachers-0", {"name": "Dr. A", "cabin": "APJ 5th Floor"})], "admin@nmamit.in")
+    synced()
+    row = turso.rows("nva_sheet_rows")["seed-teachers-0"]  # the same id on every laptop: they update, not duplicate
+    assert row["sheet"] == "teachers" and "APJ 5th Floor" in row["data"]
 
 
 def test_backend_changes_are_pulled_and_indexed(turso, index):
@@ -263,14 +288,27 @@ def test_offline_admin_pages_follow_roles(offline_client):
 
 def test_offline_register_with_name(offline_client):
     files = [("files", ("face.jpg", p, "image/jpeg")) for p in OWNER]
-    res = offline_client.post("/api/login", data={"roll": "NNM23IS002", "name": "Srujan M Padmashali"}, files=files)
+    res = offline_client.post("/api/login", data={"roll": "NNM23IS002", "name": "Asha K Rao"}, files=files)
     assert res.status_code == 200 and res.json() == {"enrolled_now": True}
     me = offline_client.get("/api/me").json()
-    assert me["name"] == "Srujan M Padmashali"
+    assert me["name"] == "Asha K Rao"
+
+
+def test_offline_app_queues_changes_for_sync_and_reports_status(offline_client):
+    assert offline_client.get("/api/sync").status_code == 401  # signed-in people only
+    with db.connect() as conn:
+        conn.execute("DELETE FROM outbox")
+    sign_in(offline_client, "NNM23IS003", *OWNER)  # a new face: saved here, queued for Turso
+    status = offline_client.get("/api/sync").json()
+    assert {"state", "pending", "message"} <= status.keys() and status["pending"] >= 1
+    with db.connect() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM outbox WHERE tbl = 'faces' AND key = 'nnm23is003@nmamit.in'").fetchone()[0]
+    assert offline_client.post("/api/sync").status_code == 202
 
 
 def test_offline_llm_answers_from_facts_when_ollama_unreachable(monkeypatch):
     from offline_app import llm
     monkeypatch.setattr(llm.app_config, "GROQ_API_KEY", "")
+    monkeypatch.setattr(llm.config, "OLLAMA_URL", "http://127.0.0.1:9")  # nothing listens there
     ans = llm.answer("What is my attendance?", [], "Attendance: 88.5% in semester 6.")
     assert "88.5%" in ans

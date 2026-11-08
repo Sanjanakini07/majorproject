@@ -3,7 +3,7 @@
     python scripts/setup_models.py
 
 * OpenCV face models (~40 MB) into ./models
-* ChromaDB's embedding model (~80 MB) into your user cache
+* ChromaDB's embedding model (~80 MB) into ./models
 * RapidOCR's models ship inside the pip package, nothing to download
 """
 import sys
@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction  # noqa: E402
 
-from app import face  # noqa: E402
+from app import face, rag  # noqa: E402,F401  (rag points the embedding model at MODELS_DIR)
 
 print("Face models...")
 face.ensure_models()

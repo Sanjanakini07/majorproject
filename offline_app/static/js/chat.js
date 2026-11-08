@@ -96,8 +96,10 @@ async function transcribe(blob) {
 
 // ---- Speaking ------------------------------------------------------------------
 
-async function speak(text) {
+// force: "Play again" plays even when muted, because the person asked for it.
+async function speak(text, force = false) {
   stopSpeaking();
+  if (Mute.on && !force) return;
   try {
     const res = await fetch('/api/tts', {
       method: 'POST',
@@ -181,11 +183,38 @@ async function ask(question) {
   if (!finished) fail('The answer was cut off. Please try again.');
 }
 
+// ---- Sync status (offline_app/sync.py; "Offline only" when Turso isn't set up) ------
+
+const SYNC_TEXT = {
+  off: 'Offline only',
+  waiting: 'Sync starting…',
+  syncing: 'Syncing…',
+  synced: 'Synced',
+  offline: 'Offline',
+  error: 'Sync problem',
+};
+
+function showSync(s) {
+  if (!$('sync')) return;
+  const pending = s.pending && s.state !== 'off' ? ` (${s.pending} to send)` : '';
+  $('sync').textContent = (SYNC_TEXT[s.state] || s.state) + pending;
+  $('sync').title = s.message || (s.last_sync ? `Last synced ${new Date(s.last_sync).toLocaleString()}` : '');
+}
+
+async function refreshSync(method = 'GET') {
+  try {
+    const res = await fetch('/api/sync', { method });
+    if (res.ok) showSync(await res.json());
+  } catch (e) {
+    if ($('sync')) $('sync').textContent = 'App not running';
+  }
+}
+
 // ---- Wiring -----------------------------------------------------------------------
 
 $('mic').addEventListener('click', () => (recorder ? stopRecording() : startRecording()));
 $('again').addEventListener('click', startRecording);
-$('replay').addEventListener('click', () => speak(lastAnswer));
+$('replay').addEventListener('click', () => speak(lastAnswer, true));
 $('stop').addEventListener('click', stopSpeaking);
 for (const chip of document.querySelectorAll('[data-q]')) {
   chip.addEventListener('click', () => {
@@ -211,7 +240,13 @@ function setTalking(on) {
 
 loadMe()
   .then((me) => {
-    renderBar('/', me);
+    renderBar('/', me, [
+      muteButton(stopSpeaking),
+      el('button', { id: 'sync', className: 'btn small', title: 'Sync with the college database now' }, 'Sync…'),
+    ]);
+    $('sync').addEventListener('click', () => refreshSync('POST'));
+    refreshSync();
+    setInterval(refreshSync, 30000);
     mascot.greet();
     $('hello').textContent = `${greeting()}, ${me.name}!`;
     if (me.role !== 'student' && me.entries === 0) {

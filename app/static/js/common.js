@@ -162,6 +162,36 @@ function renderBar(active, me, extra = []) {
 }
 
 let toastTimer = null;
+// ---- Mute: answers are shown but not read aloud; remembered on this device --------------
+
+const Mute = {
+  get on() {
+    try { return localStorage.getItem('nva-muted') === '1'; } catch (e) { return false; }
+  },
+  set(on) {
+    try { localStorage.setItem('nva-muted', on ? '1' : '0'); } catch (e) { /* storage may be off */ }
+  },
+};
+
+// A top-bar button; onMute stops whatever is being read out right now.
+function muteButton(onMute) {
+  const btn = el('button', { type: 'button', id: 'mute', className: 'btn small' });
+  const show = () => {
+    btn.textContent = Mute.on ? 'Unmute' : 'Mute';
+    btn.setAttribute('aria-pressed', String(Mute.on));
+    btn.title = Mute.on ? 'Answers are shown but not read aloud. Click to hear them again.'
+      : 'Show answers without reading them aloud';
+  };
+  btn.addEventListener('click', () => {
+    Mute.set(!Mute.on);
+    show();
+    if (Mute.on) onMute();
+    toast(Mute.on ? 'Muted: answers are shown, not read aloud.' : 'Sound on: answers are read aloud.');
+  });
+  show();
+  return btn;
+}
+
 function toast(message, kind = '') {
   document.querySelectorAll('.toast').forEach((t) => t.remove());
   const node = el('div', { className: 'toast ' + kind, role: 'status' }, message);

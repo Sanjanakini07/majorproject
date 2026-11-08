@@ -27,7 +27,7 @@ def grade(percent: float) -> str:
 
 
 def branch_of(email: str) -> str:
-    """NNM23IS186 -> IS. Anything that doesn't look like a roll number gets a blank branch."""
+    """NNM23IS042 -> IS. Anything that doesn't look like a roll number gets a blank branch."""
     m = re.match(r"^[a-z]{3}\d{2}([a-z]{2})\d+@", email.lower())
     return m.group(1).upper() if m else ""
 
@@ -36,9 +36,9 @@ ROLL = re.compile(r"^[a-z]{3}\d{2}[a-z]{2}\d{3}$", re.I)
 
 
 def clean_name(name: str, email: str = "") -> str:
-    """College Google names look like "NNM23IS186 SRUJAN M PADMASHALI": drop the USN, and soften all capitals.
+    """College Google names look like "NNM23IS042 ASHA K RAO": drop the USN, and soften all capitals.
 
-    "NNM23IS186 SRUJAN M PADMASHALI" -> "Srujan M Padmashali". A name that is only a USN stays as it is.
+    "NNM23IS042 ASHA K RAO" -> "Asha K Rao". A name that is only a USN stays as it is.
     """
     words = (name or "").split()
     if len(words) > 1 and ROLL.match(words[0]):

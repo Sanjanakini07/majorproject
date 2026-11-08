@@ -7,17 +7,19 @@ official IS syllabus (app/syllabus.py), so they are real, not made up.
 Each step runs once (a marker is saved in the database), so anything an admin later edits or deletes stays
 that way. Turn it off with SEED_DEMO_DATA=0 in .env.
 """
+import json
 import logging
 import threading
 from datetime import date, timedelta
 
-from . import academics, config, db, library, rag, syllabus
+from . import academics, config, db, library, rag, sheets, syllabus
 
 log = logging.getLogger(__name__)
 
 MARKER = "demo_data_v1"
 SYLLABUS_MARKER = "syllabus_2023_04_v1"
 STUDY_MARKER = "study_notes_v1"
+SHEETS_MARKER = "sheets_v1"   # teacher list and placement drives (app/data)
 USER = "sample data"
 FIRST_ROLL, LAST_ROLL = 0, 300
 
@@ -195,10 +197,23 @@ def _index(removed: list[int], after: int) -> None:
                       "Use the Rebuild search index button in the admin panel.")
 
 
-def run() -> None:
-    """Fill the empty database with the default data, once; bring older sample data up to the syllabus, once."""
+def seed_sheets() -> None:
+    """The teacher list and the placement drives (app/data/*.json), into empty lists only. The uids are the same on
+    every laptop, so an admin's edit to one of these rows syncs to the same row everywhere."""
+    for name, sheet in sheets.SHEETS.items():
+        if not sheet.get("seed") or db.sheet_rows(name):
+            continue
+        rows = json.loads((config.BASE_DIR / "app" / "data" / sheet["seed"]).read_text(encoding="utf-8"))
+        # cleaned the way a save from the grid cleans them, so saving the grid unchanged changes nothing
+        db.save_sheet(name, sheets.clean_rows(name, [{**r, "uid": f"seed-{name}-{i}"} for i, r in enumerate(rows)]), USER)
+
+
+def run() -> threading.Thread | None:
+    """Fill the empty database with the default data, once; bring older sample data up to the syllabus, once.
+
+    Returns the background indexing thread (if one was started) so a one-off script can wait for it."""
     if not config.SEED_DEMO_DATA:
-        return
+        return None
     db.unname_seeded_profiles()   # older versions gave made-up names; show the USN until the real name is known
     newest = max((m["id"] for m in db.list_modules()), default=0)
     changed, removed = False, []
@@ -221,8 +236,14 @@ def run() -> None:
         seed_study_notes()
         db.set_meta(STUDY_MARKER, db.now())
         changed = True
+    if not db.get_meta(SHEETS_MARKER):
+        seed_sheets()
+        db.set_meta(SHEETS_MARKER, db.now())
     if changed:
         # Indexing takes a few minutes on a slow computer, so it runs in the background: the pages have their
         # data straight away and the assistant can answer from it once this finishes.
-        threading.Thread(target=_index, args=(removed, newest), name="seed-index", daemon=True).start()
+        indexer = threading.Thread(target=_index, args=(removed, newest), name="seed-index", daemon=True)
+        indexer.start()
         log.info("Default data is ready.")
+        return indexer
+    return None

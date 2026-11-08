@@ -3,6 +3,7 @@
 SQLite is the source of truth. The vector database (see rag.py) is an index
 built from the modules table and can always be rebuilt from it.
 """
+import json
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -121,6 +122,18 @@ CREATE TABLE IF NOT EXISTS events (
     created_by  TEXT,
     created_at  TEXT NOT NULL
 );
+
+-- The admin's spreadsheet lists (app/sheets.py): teachers and cabins, placements, college buses.
+-- uid is text and unique on every laptop, so rows sync with Turso without clashing.
+CREATE TABLE IF NOT EXISTS sheet_rows (
+    uid        TEXT PRIMARY KEY,
+    sheet      TEXT NOT NULL,
+    position   INTEGER NOT NULL DEFAULT 0,
+    data       TEXT NOT NULL,                  -- JSON: {column: value}
+    updated_by TEXT,
+    updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sheet_rows_sheet ON sheet_rows (sheet, position);
 """
 
 
@@ -428,6 +441,15 @@ def note_modules(semesters: list[int]) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def modules_titled(prefix: str, limit: int) -> list[dict]:
+    """The newest knowledge entries whose title starts with this prefix ("Exam: ", "Placement: ")."""
+    like = prefix.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+    with connect() as conn:
+        rows = conn.execute("SELECT * FROM modules WHERE title LIKE ? ESCAPE '\\' ORDER BY updated_at DESC, id DESC "
+                            "LIMIT ?", (like, limit)).fetchall()
+    return [dict(r) for r in rows]
+
+
 def note_modules_for(codes: list[str]) -> list[dict]:
     """The knowledge entries behind the notes of these subjects, in the order given."""
     out = []
@@ -492,3 +514,37 @@ def links_for_modules(module_ids: list[int]) -> list[dict]:
         events = conn.execute(f"SELECT id, title FROM events WHERE module_id IN ({marks})", module_ids).fetchall()
     out = [{**dict(r), "kind": "note"} for r in notes] + [{**dict(r), "kind": "event"} for r in events]
     return out
+
+
+# --- Spreadsheet lists (app/sheets.py) -----------------------------------------------
+
+def sheet_rows(sheet: str) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute("SELECT uid, data, updated_by, updated_at FROM sheet_rows WHERE sheet = ? "
+                            "ORDER BY position, uid", (sheet,)).fetchall()
+    return [{"uid": r["uid"], **json.loads(r["data"]), "_by": r["updated_by"], "_at": r["updated_at"]} for r in rows]
+
+
+def save_sheet(sheet: str, rows: list[tuple[str, dict]], user: str) -> dict:
+    """Make the sheet exactly these (uid, data) rows, in this order. Only rows that really changed are written, so
+    sync sends only those. Returns how many were added, changed and removed."""
+    stamp = now()
+    with connect() as conn:
+        have = {r["uid"]: (json.loads(r["data"]), r["position"])
+                for r in conn.execute("SELECT uid, data, position FROM sheet_rows WHERE sheet = ?", (sheet,))}
+        added = changed = 0
+        for position, (uid, data) in enumerate(rows):
+            old = have.get(uid)
+            if old is None:
+                conn.execute("INSERT INTO sheet_rows (uid, sheet, position, data, updated_by, updated_at) "
+                             "VALUES (?, ?, ?, ?, ?, ?)", (uid, sheet, position, json.dumps(data), user, stamp))
+                added += 1
+            elif old != (data, position):
+                conn.execute("UPDATE sheet_rows SET position = ?, data = ?, updated_by = ?, updated_at = ? "
+                             "WHERE uid = ? AND sheet = ?", (position, json.dumps(data), user, stamp, uid, sheet))
+                changed += old[0] != data
+        keep = {uid for uid, _ in rows}
+        gone = [uid for uid in have if uid not in keep]
+        for uid in gone:
+            conn.execute("DELETE FROM sheet_rows WHERE uid = ? AND sheet = ?", (uid, sheet))
+    return {"added": added, "changed": changed, "removed": len(gone)}

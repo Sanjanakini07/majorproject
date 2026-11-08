@@ -34,30 +34,124 @@ for (const tab of document.querySelectorAll('.tab')) {
 }
 
 // ---- Knowledge ----------------------------------------------------------------
+// One form for everything: pick what it is about, paste anything (or drop a file), optionally let the AI tidy
+// it, save. The kind is kept as a title prefix ("Placement: ..."), which is also how the entries are grouped.
+
+const KINDS = [
+  { id: 'general', prefix: '', label: 'General info', hint: 'rules, timings, offices, fees',
+    example: 'e.g.\nlibrary open 8am-8pm weekdays, sat till 1. return books in 14 days, fine 2rs/day' },
+  { id: 'placement', prefix: 'Placement: ', label: 'Placements', hint: 'drives, tests, eligibility', sheet: 'placements',
+    example: 'e.g.\ninfosys drive 18 nov amphitheatre 9am. 7th sem cse ise ece, 60% no backlogs. reg on portal by 15th' },
+  { id: 'exam', prefix: 'Exam: ', label: 'Exams & timetables', hint: 'MSE, SEE, lab exams',
+    example: 'e.g.\nMSE 2 7th sem ISE\n24/11 mon FM 10-11.30\n25/11 tue OOMD\n26/11 SDN   room 301 & 302' },
+  { id: 'teacher', prefix: 'Teacher: ', label: 'Teachers & cabins', hint: 'cabin, subjects, contact', sheet: 'teachers',
+    example: 'e.g.\nDr Ravi B - APJ 5th flr, slight left from lift. teaches DAA, DBMS 7A. free after 2' },
+  { id: 'bus', prefix: 'Bus: ', label: 'College buses', hint: 'bus no., route, stops', sheet: 'college_buses',
+    example: 'e.g.\nbus 4 udupi route: nitte 4.40pm > belman > shirva > katapadi > udupi 5.45' },
+  { id: 'event', prefix: null, label: 'Events', hint: 'fests, workshops, talks' },
+];
+// Groups shown above the entries; seeded entries use these prefixes too.
+const GROUPS = [
+  ['placement', 'Placements', 'Placement: '], ['exam', 'Exams', 'Exam: '], ['teacher', 'Teachers', 'Teacher: '],
+  ['bus', 'Bus', 'Bus: '], ['timetable', 'Class timetables', 'Timetable: '], ['rules', 'Regulations', 'Regulations: '],
+  ['syllabus', 'Other departments’ courses', 'Syllabus: '],
+];
+let kind = KINDS[0];
+let group = 'all';
+let beforeTidy = null;   // the text before the AI tidied it, for "Undo tidy-up"
+
+const groupOf = (title) => (GROUPS.find(([, , prefix]) => title.startsWith(prefix)) || ['general'])[0];
+const kindOf = (title) => KINDS.find((k) => k.prefix && title.startsWith(k.prefix)) || KINDS[0];
+
+let sheet = null;   // the open spreadsheet editor, if any
+
+// Kinds with a list open it as a spreadsheet; asText shows the free-text form instead (editing an old note,
+// or pasting a notice as it is).
+function pickKind(k, asText = false) {
+  if (sheet && sheet.isDirty() && !confirm('You have changes in the list that are not saved. Leave without saving?')) return;
+  kind = k;
+  for (const b of $('kinds').children) {
+    b.classList.toggle('active', b.dataset.kind === k.id);
+    b.setAttribute('aria-checked', String(b.dataset.kind === k.id));
+  }
+  const useSheet = Boolean(k.sheet) && !asText;
+  $('eventNote').hidden = k.id !== 'event';
+  $('entryFields').hidden = k.id === 'event' || useSheet;
+  $('mContent').required = k.id !== 'event' && !useSheet;
+  if (k.example) $('mContent').placeholder = k.example;
+  $('sheetBox').hidden = !useSheet;
+  sheet = null;
+  if (useSheet) {
+    const box = el('div');
+    $('sheetBox').replaceChildren(el('p', { className: 'section-label' }, `2 · ${k.label}: fill in and save`), box,
+      el('p', { className: 'muted small' }, 'Have a notice or message instead? ',
+        el('a', { href: '#', onclick: (e) => { e.preventDefault(); pickKind(k, true); } }, 'Write it as a free-text note')));
+    sheet = sheetEditor(box, k.sheet, true);
+    attempt(sheet.load);
+  }
+}
+
+window.addEventListener('beforeunload', (e) => {
+  if (sheet && sheet.isDirty()) e.preventDefault();
+});
+
+$('kinds').append(...KINDS.map((k) => {
+  const b = el('button', { type: 'button', className: 'pill-btn', role: 'radio', onclick: () => pickKind(k) },
+    el('b', {}, k.label), el('span', {}, k.hint));
+  b.dataset.kind = k.id;
+  return b;
+}));
+$('dropIcon').append(icon('upload'));
+
+function showTidied(on) {
+  $('tidyNote').hidden = !on;
+  if (!on) beforeTidy = null;
+}
 
 function resetForm() {
   editingId = null;
   nextSource = 'manual';
   $('moduleForm').reset();
-  $('formTitle').textContent = 'Add knowledge';
+  $('formTitle').textContent = 'Add information';
   $('mCancel').hidden = true;
+  showTidied(false);
+  // stay in the free-text form if that is what was open (after saving or cancelling a note)
+  pickKind(kind.id === 'event' ? KINDS[0] : kind, Boolean(kind.sheet) && $('sheetBox').hidden);
 }
 
 function startEdit(module) {
   editingId = module.id;
-  $('mTitle').value = module.title;
+  const k = kindOf(module.title);
+  pickKind(k, true);   // an existing entry is free text, even in a kind that also has a list
+  $('mTitle').value = module.title.slice(k.prefix.length);
   $('mContent').value = module.content;
-  $('formTitle').textContent = 'Edit knowledge';
+  $('formTitle').textContent = 'Edit information';
   $('mCancel').hidden = false;
-  $('mTitle').focus();
+  showTidied(false);
+  $('mContent').focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// A title when none was typed: the first line, cut at a word.
+function autoTitle(text) {
+  const line = text.trim().split('\n')[0].trim();
+  return line.length <= 60 ? line : line.slice(0, 60).replace(/\s+\S*$/, '') + '…';
+}
+
+function renderGroups() {
+  const counts = { all: modules.length };
+  for (const m of modules) counts[groupOf(m.title)] = (counts[groupOf(m.title)] || 0) + 1;
+  const all = [['all', 'All'], ['general', 'General'], ...GROUPS];
+  $('groups').replaceChildren(...all.filter(([id]) => counts[id] || id === 'all').map(([id, label]) =>
+    el('button', { type: 'button', className: 'chip' + (group === id ? ' on' : ''),
+      onclick: () => { group = id; renderModules(); } }, `${label} (${counts[id] || 0})`)));
+}
+
 function renderModules() {
+  renderGroups();
   const filter = $('filter').value.trim().toLowerCase();
-  const shown = modules.filter(
-    (m) => !filter || m.title.toLowerCase().includes(filter) || m.content.toLowerCase().includes(filter)
-  );
+  const shown = modules.filter((m) => (group === 'all' || groupOf(m.title) === group)
+    && (!filter || m.title.toLowerCase().includes(filter) || m.content.toLowerCase().includes(filter)));
   $('count').textContent = modules.length;
   const list = $('modules');
   list.replaceChildren();
@@ -104,19 +198,78 @@ function removeModule(module) {
 
 $('moduleForm').addEventListener('submit', (event) => {
   event.preventDefault();
-  const body = { title: $('mTitle').value, content: $('mContent').value, source: nextSource };
+  const content = $('mContent').value.trim();
+  if (!content) return showError('Type or paste the information first.');
+  let title = $('mTitle').value.trim() || autoTitle(content);
+  if (kind.prefix && !title.startsWith(kind.prefix)) title = kind.prefix + title;
+  const body = { title, content, source: nextSource };
   $('mSave').disabled = true;
   attempt(async () => {
     if (editingId) await api('PUT', `/api/admin/modules/${editingId}`, body);
     else await api('POST', '/api/admin/modules', body);
-    notify(editingId ? 'Saved. The assistant now uses the new version.' : 'Added. The assistant can now answer from it.');
+    notify(editingId ? 'Saved. The assistant now uses the new version.' : 'Added. The assistant can answer from it now.');
     resetForm();
     await loadModules();
   }).finally(() => ($('mSave').disabled = false));
 });
 
+$('tidy').addEventListener('click', () => {
+  const text = $('mContent').value.trim();
+  if (!text) return showError('Type or paste the information first, then the AI can tidy it.');
+  $('tidy').disabled = true;
+  $('tidy').textContent = 'Tidying… (up to a minute)';
+  attempt(async () => {
+    const result = await api('POST', '/api/admin/tidy', { text: text.slice(0, 20000), category: kind.label });
+    beforeTidy = { content: $('mContent').value, title: $('mTitle').value };
+    $('mContent').value = result.content;
+    if (result.title && !$('mTitle').value.trim()) $('mTitle').value = result.title;
+    showTidied(true);
+  }).finally(() => {
+    $('tidy').disabled = false;
+    $('tidy').textContent = 'Tidy up with AI';
+  });
+});
+
+$('undoTidy').addEventListener('click', () => {
+  if (beforeTidy) {
+    $('mContent').value = beforeTidy.content;
+    $('mTitle').value = beforeTidy.title;
+  }
+  showTidied(false);
+});
+
 $('mCancel').addEventListener('click', resetForm);
 $('filter').addEventListener('input', renderModules);
+
+// Any file: its text goes into the box, after what is already there.
+const DROP_TEXT = 'Drop a PDF, photo, screenshot, CSV or text file here, or click to choose';
+
+async function readFile(file) {
+  const form = new FormData();
+  form.append('file', file);
+  $('dropText').textContent = `Reading ${file.name}…`;
+  await attempt(async () => {
+    const result = await api('POST', '/api/admin/extract-text', form);
+    const box = $('mContent');
+    box.value = box.value.trim() ? `${box.value.trim()}\n\n${result.text}` : result.text;
+    if (file.type.startsWith('image/')) nextSource = 'image';
+    if (!$('mTitle').value.trim()) $('mTitle').value = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+    notify('Text added. Check it, tidy it if you like, then save.');
+  });
+  $('anyFile').value = '';
+  $('dropText').textContent = DROP_TEXT;
+}
+
+$('anyFile').addEventListener('change', () => $('anyFile').files[0] && readFile($('anyFile').files[0]));
+for (const name of ['dragenter', 'dragover']) {
+  $('drop').addEventListener(name, (e) => { e.preventDefault(); $('drop').classList.add('over'); });
+}
+$('drop').addEventListener('dragleave', () => $('drop').classList.remove('over'));
+$('drop').addEventListener('drop', (e) => {
+  e.preventDefault();
+  $('drop').classList.remove('over');
+  if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
+});
 
 $('csvButton').addEventListener('click', () => $('csvFile').click());
 $('csvFile').addEventListener('change', () => {
@@ -137,30 +290,6 @@ $('csvFile').addEventListener('change', () => {
   });
 });
 
-$('imgButton').addEventListener('click', () => $('imgFile').click());
-$('imgFile').addEventListener('change', () => {
-  const file = $('imgFile').files[0];
-  if (!file) return;
-  const form = new FormData();
-  form.append('file', file);
-  $('imgButton').disabled = true;
-  $('imgButton').textContent = 'Reading image…';
-  attempt(async () => {
-    const result = await api('POST', '/api/admin/extract-text', form);
-    resetForm();
-    nextSource = 'image';
-    $('mTitle').value = file.name.replace(/\.[^.]+$/, '');
-    $('mContent').value = result.text;
-    $('formTitle').textContent = 'Check the text from the image, then Save';
-    $('mCancel').hidden = false;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }).finally(() => {
-    $('imgFile').value = '';
-    $('imgButton').disabled = false;
-    $('imgButton').textContent = 'Read text from image';
-  });
-});
-
 $('reindex').addEventListener('click', () => {
   $('reindex').disabled = true;
   attempt(async () => {
@@ -168,6 +297,8 @@ $('reindex').addEventListener('click', () => {
     notify(`Search index rebuilt (${result.chunks} pieces).`);
   }).finally(() => ($('reindex').disabled = false));
 });
+
+pickKind(KINDS[0]);
 
 // ---- Staff --------------------------------------------------------------------
 

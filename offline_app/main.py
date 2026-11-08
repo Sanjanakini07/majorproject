@@ -16,11 +16,11 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.sessions import SessionMiddleware
 
-from app import academics, admin, bus, db, facelogin, library, personal, portal, rag, seed
+from app import academics, admin, bus, db, facelogin, library, personal, portal, rag, seed, sheets
 from app import config as app_config
 from app.auth import ask_limit, role_of, signed_in_user, verified_user
 
-from . import config, llm, voice
+from . import config, llm, sync, voice
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("offline_app")
@@ -35,6 +35,7 @@ async def lifespan(_app: FastAPI):
     db.init()
     library.seed_subjects()
     await run_in_threadpool(seed.run)
+    sync.start()  # syncs with Turso when TURSO_* are set in .env and there is internet; off otherwise
     if not app_config.ADMIN_EMAILS:
         log.warning("ADMIN_EMAILS is empty: nobody can open the admin panel.")
     yield
@@ -54,6 +55,7 @@ app.include_router(admin.router)
 app.include_router(portal.router)
 app.include_router(library.router)
 app.include_router(bus.router)
+app.include_router(sheets.router)
 
 CSP = (
     "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; script-src 'self' 'unsafe-inline'; "
@@ -107,7 +109,7 @@ def roll_email(roll: str) -> tuple[str, str]:
     roll = roll.strip().lower()
     local = roll.removesuffix("@" + app_config.ALLOWED_DOMAIN)
     if not ROLL.match(local):
-        raise HTTPException(400, "Enter your roll number, for example NNM23IS186.")
+        raise HTTPException(400, "Enter your roll number, for example NNM23IS042.")
     return local, f"{local}@{app_config.ALLOWED_DOMAIN}"
 
 
@@ -141,6 +143,7 @@ async def login(
             profile = db.get_profile(email)
             if profile and profile.get("name"):
                 display_name = profile["name"]
+        sync.sync_soon()  # a new face goes to the other laptops straight away, not at the next round
     else:
         await run_in_threadpool(facelogin.verify, email, images)
         profile = db.get_profile(email)
@@ -161,6 +164,7 @@ async def enroll_face(request: Request, files: list[UploadFile] = File(...), use
     await run_in_threadpool(facelogin.enroll, email, images, email)
     if role_of(email) == "student":
         academics.ensure_student(email, user["name"])
+    sync.sync_soon()
     request.session["face_ok"] = True
     return {"ok": True}
 
@@ -241,13 +245,14 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
     return StreamingResponse(steps(), media_type="application/x-ndjson", headers={"Cache-Control": "no-store"})
 
 
-# --- Offline status compatibility --------------------------------------------------
+# --- Sync with Turso (offline_app/sync.py) ---------------------------------------
 
 @app.get("/api/sync")
-def sync_status():
-    return {"state": "off", "message": "Offline only (local database is source of truth)", "pending": 0}
+def sync_status(user: dict = Depends(verified_user)):
+    return sync.current_status()
 
 
-@app.post("/api/sync", status_code=200)
-def sync_now():
-    return {"state": "off", "message": "Offline only (local database is source of truth)", "pending": 0}
+@app.post("/api/sync", status_code=202)
+def sync_now(user: dict = Depends(verified_user)):
+    sync.sync_soon()
+    return sync.current_status()

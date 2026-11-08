@@ -34,13 +34,17 @@ function eventCard(ev, past) {
       el('a', { className: 'btn small', href: `/api/events/${ev.id}/file`, target: '_blank', rel: 'noopener' }, icon('pdf'), 'Open PDF'),
       el('a', { className: 'btn small', href: `/api/events/${ev.id}/file?download=true` }, icon('download'), 'Download'));
   }
+  const placement = ev.kind === 'placement';   // from Admin > Placements, edited there
   if (me.permissions.content) {
-    actions.push(el('button', { className: 'btn small danger', onclick: () => remove(ev) }, icon('trash'), 'Delete'));
+    actions.push(placement
+      ? el('a', { className: 'btn small', href: '/admin' }, 'Edit in Admin › Placements')
+      : el('button', { className: 'btn small danger', onclick: () => remove(ev) }, icon('trash'), 'Delete'));
   }
   return el('div', { className: 'card event' + (past ? ' past' : '') },
     el('div', { className: 'datebox' },
       el('div', { className: 'm' }, MONTHS[p.m]), el('div', { className: 'd' }, String(p.d)), el('div', { className: 'w' }, DAYS[p.dow])),
     el('div', { className: 'grow' },
+      placement ? el('span', { className: 'tag express' }, 'Placement') : null,
       el('h3', {}, ev.title),
       el('div', { className: 'meta-line' }, ...meta),
       ev.description ? el('p', { className: 'desc' }, ev.description) : null,

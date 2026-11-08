@@ -77,9 +77,48 @@ function pickRoute(id) {
   render();
 }
 
+// ---- College buses (Admin › College buses, app/sheets.py) ---------------------------------
+
+async function showCollege() {
+  const box = $('collegeBox');
+  box.replaceChildren(el('div', { className: 'skeleton' }));
+  let buses = [];
+  try {
+    buses = (await api('GET', '/api/sheets/college_buses')).rows;
+  } catch (e) {
+    return showError(e.message);
+  }
+  if (!buses.length) {
+    return box.replaceChildren(el('div', { className: 'card empty' }, icon('bus'), el('strong', {}, 'No college buses added yet'),
+      el('span', {}, me.permissions.content ? 'Add each bus with its number, route and stops in Admin › College buses.'
+        : 'The college bus routes will appear here once they are added.'),
+      me.permissions.content ? el('a', { className: 'btn primary', href: '/admin' }, 'Open Admin') : null));
+  }
+  box.replaceChildren(el('div', { className: 'grid cols-2' }, ...buses.map((b) => el('div', { className: 'card' },
+    el('h3', {}, `Bus ${b.bus_no || '?'}`, b.route ? el('span', { className: 'muted' }, ` · ${b.route}`) : ''),
+    el('div', { className: 'meta-line' },
+      b.morning ? el('span', {}, icon('clock'), `Reaches college ${clock(b.morning)}`) : null,
+      b.evening ? el('span', {}, icon('clock'), `Leaves college ${clock(b.evening)}`) : null),
+    b.stops ? el('p', {}, el('strong', {}, 'Stops: '), b.stops) : null,
+    b.contact ? el('p', { className: 'muted small' }, `Contact: ${b.contact}`) : null,
+    b.notes ? el('p', { className: 'muted small' }, b.notes) : null))));
+}
+
+function pickKind(kind) {
+  for (const b of $('busKind').children) b.classList.toggle('on', b.dataset.kind === kind);
+  $('localBox').hidden = kind !== 'local';
+  $('collegeBox').hidden = kind !== 'college';
+  try { localStorage.setItem('bus-kind', kind); } catch (e) { /* storage may be off */ }
+  if (kind === 'college') showCollege();
+}
+
 async function start() {
   me = await loadMe();
   renderBar('/bus', me);
+  for (const b of $('busKind').children) b.addEventListener('click', () => pickKind(b.dataset.kind));
+  let kind = 'local';
+  try { kind = localStorage.getItem('bus-kind') || 'local'; } catch (e) { /* storage may be off */ }
+  pickKind(kind === 'college' ? 'college' : 'local');
   try {
     data = await api('GET', '/api/bus');
   } catch (e) {

@@ -142,7 +142,9 @@ def facts(question: str, now: time | None) -> str:
                 picked = [b for b in buses if _t(b["time"]) >= ref][:5]
                 lines.append(f"Next buses at or after {_say(ref)}: "
                              + ("; ".join(_describe(r, b) for b in picked) if picked
-                                else f"none, the last one is at {_say(_t(buses[-1]['time']))}") + ".")
+                                else f"none. There is no more bus on this route today: the last one left at "
+                                     f"{_say(_t(buses[-1]['time']))}. The first bus the next day is "
+                                     f"{_describe(r, buses[0])}") + ".")
         if ref:   # the ones around that time, so a small offline model isn't flooded with all of them
             low, high = ref.hour * 60 + ref.minute - 120, ref.hour * 60 + ref.minute + 240
             near = [b for b in buses if low <= _t(b["time"]).hour * 60 + _t(b["time"]).minute <= high]

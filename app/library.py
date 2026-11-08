@@ -177,7 +177,9 @@ def delete_note(note_id: int):
 
 @router.get("/api/events")
 def events(user: dict = Depends(verified_user)):
-    return db.list_events()
+    from .sheets import all_events  # placement drives from the Admin > Placements list show here too
+
+    return all_events()
 
 
 @router.get("/api/events/{event_id}/file")

@@ -216,8 +216,8 @@ def test_pages_follow_the_role(client):
 # --- Sample data -------------------------------------------------------------------
 
 def test_sample_marks_are_random_but_stable_and_believable():
-    marks, attendance = academics.sample_records("nnm23is186@nmamit.in")
-    again, _ = academics.sample_records("nnm23is186@nmamit.in")
+    marks, attendance = academics.sample_records("nnm23is042@nmamit.in")
+    again, _ = academics.sample_records("nnm23is042@nmamit.in")
     other, _ = academics.sample_records("nnm23is187@nmamit.in")
     assert marks == again and marks != other
     assert len(marks) == sum(len(academics.SUBJECTS[sem]) for sem in range(1, 6))
@@ -230,7 +230,7 @@ def test_sample_marks_are_random_but_stable_and_believable():
 
 def test_grades_and_branch():
     assert [academics.grade(p) for p in (95, 85, 75, 65, 55, 45, 30)] == ["O", "A+", "A", "B+", "B", "P", "F"]
-    assert academics.branch_of("nnm23is186@nmamit.in") == "IS"
+    assert academics.branch_of("nnm23is042@nmamit.in") == "IS"
     assert academics.branch_of("nnm23cs004@nmamit.in") == "CS"
     assert academics.branch_of("admin@nmamit.in") == ""
 
@@ -246,9 +246,9 @@ def test_teacher_without_permission_cannot_see_other_students(client):
 
 
 def test_real_name_replaces_the_made_up_one_on_enrolment(client):
-    academics.ensure_student("nnm23is186@nmamit.in", "Made Up", academics.SEEDED_BY)
-    login(client, "nnm23is186@nmamit.in", face_ok=False, name="NNM23IS186 SRUJAN M PADMASHALI")
+    academics.ensure_student("nnm23is042@nmamit.in", "Made Up", academics.SEEDED_BY)
+    login(client, "nnm23is042@nmamit.in", face_ok=False, name="NNM23IS042 ASHA K RAO")
     assert client.post("/api/face/enroll", files=photos(*OWNER)).status_code == 200
-    assert db.get_profile("nnm23is186@nmamit.in")["name"] == "Srujan M Padmashali"
-    assert client.get("/api/me").json()["name"] == "Srujan M Padmashali"     # greeting says "Good evening, Srujan!"
+    assert db.get_profile("nnm23is042@nmamit.in")["name"] == "Asha K Rao"
+    assert client.get("/api/me").json()["name"] == "Asha K Rao"     # greeting says "Good evening, Asha!"
     assert len(client.get("/api/marks").json()["semesters"]) == 5     # keeps the sample records

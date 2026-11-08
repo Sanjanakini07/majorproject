@@ -70,7 +70,7 @@ def index(monkeypatch):
 def client(index):
     db.init()
     with db.connect() as conn:
-        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance", "notes", "events"):
+        for table in ("modules", "faces", "roles", "profiles", "marks", "attendance", "notes", "events", "sheet_rows"):
             conn.execute(f"DELETE FROM {table}")
     with TestClient(app, base_url="http://testserver") as c:
         yield c

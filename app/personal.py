@@ -9,7 +9,7 @@ import re
 from datetime import date, datetime, time, timedelta
 from typing import NamedTuple
 
-from . import academics, bus, db, syllabus
+from . import academics, bus, db, sheets, syllabus
 
 GRADE_POINTS = academics.GRADE_POINTS
 
@@ -45,6 +45,33 @@ _SEM = r"(?:sem|semester|semesters|sems)"
 
 
 # --- Reading the question ----------------------------------------------------------------
+
+# Words the question detection above looks for. Typed or misheard versions ("electiv", "subjcts", "attendence",
+# "semister", "shedule") are corrected to these first, so a typo doesn't hide the exact facts.
+VOCAB = sorted({
+    "elective", "electives", "subject", "subjects", "syllabus", "attendance", "semester", "semesters", "timetable",
+    "marks", "grade", "grades", "result", "results", "events", "exam", "exams", "examination", "placement",
+    "placements", "notes", "units", "lecture", "lectures", "classes", "schedule", "holiday", "holidays", "backlog",
+    "backlogs", "internals", "workshop", "hackathon", "seminar", "tomorrow", "today", "yesterday", "regulations",
+    "condonation", "eligible", "eligibility", "minimum", "percent", "percentage", "absent", "present", "course",
+    "courses", "upcoming", "library", "hostel", "canteen", "karkala", "mangalore", "udupi", "padubidri",
+    *MONTHS, *WEEKDAYS,
+})
+
+
+def fix_spelling(q: str) -> str:
+    """Correct misspelt keywords (not names or codes: only words close to one in VOCAB, at least 4 letters)."""
+    from difflib import get_close_matches
+
+    def fix(m: re.Match) -> str:
+        word = m.group(0)
+        if len(word) < 4 or word in VOCAB:
+            return word
+        close = get_close_matches(word, VOCAB, n=1, cutoff=0.85)
+        return close[0] if close else word
+
+    return re.sub(r"[a-z]+", fix, q)
+
 
 def _month_number(word: str) -> int:
     return next(i for i, m in enumerate(MONTHS, 1) if m.startswith(word[:3]))
@@ -237,7 +264,7 @@ def _show(e: dict, details: bool = False) -> str:
 
 def _events(today: date, days: list[date], spans: list[tuple[str, date, date]]) -> str:
     """Exact answers first (the days and spans asked about), then the whole calendar, so nothing is missed."""
-    events = db.list_events()
+    events = sheets.all_events()   # events and placement drives
     on = lambda d: [e for e in events if e["event_date"] == d.isoformat()]  # noqa: E731
     lines = []
     for d in days:
@@ -358,12 +385,48 @@ def _electives() -> str:
     return "\n".join(lines)
 
 
+SCORE = re.compile(r"\b(\d{1,3}(?:\.\d+)?)\s*(?:percent(?:age)?|%|marks?|out of 100)")
+OWN = re.compile(r"\b(my|me|mine|myself|i|i'm|im|i've)\b")
+
+
+def _grade_for(score: float) -> str:
+    """'What grade is 85 percent' asks for a band of the regulations, worked out here rather than by the model."""
+    for floor, letter, points in syllabus.GRADES:
+        if score >= floor:
+            return (f"Asked about a score of {score:g} percent in a course: that is grade {letter} "
+                    f"({points} grade points) under the 2023-04 regulations, a pass (a pass needs "
+                    f"{syllabus.PASS_PERCENT} percent).")
+    return (f"Asked about a score of {score:g} percent in a course: that is below {syllabus.PASS_PERCENT} percent, "
+            f"so grade F (0 grade points), which is a fail.")
+
+
+def _asked_rules(q: str) -> list[str]:
+    """The exact answer to the rule questions models got wrong in testing (they quoted the internship appendix,
+    or said 85 percent is the minimum to write the SEE)."""
+    lines = []
+    if re.search(r"\b(cie|internals?|internal (marks|assessment)|mid ?sem\w*|mse)\b", q) and re.search(
+            r"\b(split|divided|break ?up|calculated|made up|consist\w*|distribut\w*|how many marks|out of|weight\w*)\b", q):
+        lines.append("Asked about how CIE (internal) marks are split in a regular course: CIE is 50 marks in total: "
+                     "40 marks for the two mid-semester exams together (not 40 each), plus 10 marks for quizzes, "
+                     "tutorials and assignments. The other 50 marks are the SEE. (Internships and projects have their "
+                     "own split.)")
+    if re.search(r"\b(see|semester end|end sem\w*|exams?|write|eligib\w*|allowed|detained)\b", q) and re.search(
+            r"\b(attendance|minimum|percent|%)\b", q):
+        lines.append(f"Asked about the attendance needed to write the SEE: the minimum to write a course's SEE is "
+                     f"{syllabus.CONDONABLE_TO} percent attendance in that course. Below {syllabus.CONDONABLE_TO} percent "
+                     f"the student can't write it and gets an N grade. (The normal requirement is "
+                     f"{syllabus.REQUIRED_ATTENDANCE} percent; from {syllabus.CONDONABLE_TO} up to "
+                     f"{syllabus.REQUIRED_ATTENDANCE} percent the principal has to condone the shortage.)")
+    return lines
+
+
 def _rules() -> str:
     """The numbers from the 2023-04 regulations, said plainly."""
     bands = ", ".join(f"{letter} for {floor} percent and above ({points} points)" for floor, letter, points in syllabus.GRADES)
-    return (f"Rules from the 2023-04 regulations: each course has 50 marks of CIE (continuous internal evaluation: two "
-            f"mid-semester exams for 40 marks plus quizzes and assignments for 10) and 50 marks of SEE (semester end "
-            f"exam). To pass a course you need {syllabus.PASS_PERCENT} percent of the total, that is 40 out of 100 marks "
+    return (f"Rules from the 2023-04 regulations, for every regular course (use these unless the question names an "
+            f"internship or project, which have their own split): each course has 50 marks of CIE (continuous internal "
+            f"evaluation), split as two mid-semester exams for 40 marks plus quizzes and assignments for 10, and 50 marks "
+            f"of SEE (semester end exam).To pass a course you need {syllabus.PASS_PERCENT} percent of the total, that is 40 out of 100 marks "
             f"(CIE plus SEE). Grades: {bands}, and F below {syllabus.PASS_PERCENT} percent (0 points). Students with less "
             f"than 40 percent in CIE or less than {syllabus.CONDONABLE_TO} percent attendance can't write the SEE and get "
             f"an N grade. Attendance needed: {syllabus.REQUIRED_ATTENDANCE} percent in every course; the principal can "
@@ -387,6 +450,22 @@ class Facts(NamedTuple):
     note_semesters: tuple[int, ...] = ()  # semesters whose notes should be used, and no others
     timetable_semesters: tuple[int, ...] = ()  # the only semesters whose timetables are relevant to this person
     courses: tuple[str, ...] = ()        # course codes the question names ("OS notes", "syllabus of DBMS")
+    groups: tuple[str, ...] = ()         # admin input groups the question is about ("Exam: "): their entries are added
+
+
+# Entries added through the admin "Add information" groups are short and often shorthand ("EH&ND 10am"), so text
+# search can miss them. When a question is about one of these groups, its newest entries go to the model as well.
+GROUP_WORDS = [
+    ("Exam: ", re.compile(r"\b(mse ?\d?|mid ?sem\w*|mid-?terms?|exams?|examinations?|see|tests?|internals?|cie|"
+                          r"time ?tables?|hall ?tickets?|ia ?\d?)\b")),
+    ("Placement: ", re.compile(r"\b(placements?|placed|drives?|recruit\w*|compan(y|ies)|packages?|ctc|lpa|salary|"
+                               r"offers?|interviews?|aptitude|t ?& ?p|tnp|internships?|hiring|jobs?)\b")),
+    ("Teacher: ", re.compile(r"\b(sir|madam|ma'?am|mam|miss|teachers?|professors?|prof|faculty|lecturers?|cabins?|"
+                             r"staff ?rooms?|hod|staff|teaches|teaching)\b")),
+    ("Bus: ", bus.BUS_WORDS),
+]
+GROUP_ENTRIES = 3      # per group
+GROUP_TEXT_CHARS = 2500
 
 
 def adjust_hits(hits: list[dict], facts: Facts) -> list[dict]:
@@ -406,6 +485,16 @@ def adjust_hits(hits: list[dict], facts: Facts) -> list[dict]:
             kept.insert(0, {"title": module["title"], "text": f"{module['title']}\n{module['content'][:6000]}",
                             "distance": 0.0, "module_id": module["id"]})
             have.add(module["id"])
+    # The newest entries of the admin group the question is about, whole and first, so shorthand notices aren't
+    # missed. Whole: search returns pieces of a long entry, and the piece with the answer ("FM ... 10 December")
+    # may not be among them, so pieces of these entries are replaced by the full text.
+    added = {}
+    for prefix in facts.groups:
+        for module in db.modules_titled(prefix, GROUP_ENTRIES):
+            added.setdefault(module["id"], {"title": module["title"], "distance": 0.0, "module_id": module["id"],
+                                            "text": f"{module['title']}\n{module['content'][:GROUP_TEXT_CHARS]}"})
+    kept = [*added.values(), *(h for h in kept if h.get("module_id") not in added)]
+    have = {h.get("module_id") for h in kept}
     # For a whole semester the facts list the courses and units; these entries only give the links on screen.
     if facts.note_semesters:
         core = {c["code"] for sem in facts.note_semesters for c in syllabus.semester_courses(sem) if c["kind"] == "Core"}
@@ -421,8 +510,9 @@ def build(email: str, session_name: str, question: str, today: date | None = Non
     if today is None:
         stamp = datetime.now()
         today, now = stamp.date(), now or stamp.time()
-    q = " ".join(question.lower().replace("’", "'").split())
+    q = fix_spelling(" ".join(question.lower().replace("’", "'").split()))
     days, spans = dates_in(q, today), ranges_in(q, today)
+    groups = tuple(prefix for prefix, words in GROUP_WORDS if words.search(q))
     want_marks = bool(MARKS_WORDS.search(q))
     want_attendance = bool(ATTENDANCE_WORDS.search(q))
     want_bus = bool(bus.BUS_WORDS.search(q))
@@ -434,19 +524,38 @@ def build(email: str, session_name: str, question: str, today: date | None = Non
     want_electives = bool(ELECTIVE_WORDS.search(q))
     want_rules = bool(RULE_WORDS.search(q))
     profile = db.get_profile(email)
+    list_facts = sheets.facts(q, today, want_bus)   # teachers and cabins, placements, college buses
     if not (want_marks or want_attendance or want_events or want_classes or want_notes or want_bus or want_electives
-            or want_rules or ME_WORDS.search(q)):
-        return Facts(timetable_semesters=(profile["semester"],) if profile else ())
+            or want_rules or list_facts or ME_WORDS.search(q)):
+        return Facts(timetable_semesters=(profile["semester"],) if profile else (), groups=groups)
 
     name = academics.clean_name((profile or {}).get("name") or session_name or "", email) or email
     lines = [f"Name: {name}. Roll number: {email.split('@')[0].upper()}. College email: {email}."]
     if profile:
         lines.append(f"Branch: {profile['branch'] or 'not known'}. Current semester: {profile['semester']}.")
     lines.append(f"Right now it is {_day(today)}" + (f", {_clock(now)}" if now else "") + ".")
+    lines.extend(list_facts)
     covered = []
     current = profile["semester"] if profile else 6
     asked_semesters = semesters_in(q, current)
-    if profile and (want_marks or (asked_semesters and not want_notes and not want_classes)):
+    # "What grade is 85 percent", "how are CIE marks split": about the rules, not this student's six semesters of
+    # marks, which would bury the rule the question needs.
+    score = SCORE.search(q) if re.search(r"\b(grades?|points?|pass|fail)\b", q) else None
+    if score and float(score.group(1)) > 100:
+        score = None
+    general_rule = want_rules and not OWN.search(q) and not asked_semesters
+    if score:  # the one exact line; the full grade table makes a small model pick a neighbouring band
+        lines.append(_grade_for(float(score.group(1))))
+        want_rules = False
+    asked_rules = _asked_rules(q)
+    lines.extend(asked_rules)
+    if asked_rules and general_rule:
+        # The exact line answers it. The full rules list and the regulation text found by search (which brought up
+        # the internship appendix's 50:25:25 CIE split) only distract the model.
+        want_rules = False
+        covered.append("Regulations: ")
+    if profile and not score and ((want_marks and not general_rule)
+                                  or (asked_semesters and not want_notes and not want_classes)):
         lines.append(_marks(email, profile["semester"], asked_semesters))
     note_semesters = ()
     if named:
@@ -457,11 +566,11 @@ def build(email: str, session_name: str, question: str, today: date | None = Non
         lines.append(_subjects(list(note_semesters)))
     if want_electives:
         lines.append(_electives())
-    if want_rules or want_attendance:
+    if want_rules or (want_attendance and not (asked_rules and general_rule)):
         lines.append(_rules())
     if want_bus:
         lines.append(bus.facts(q, now))
-    if profile and want_attendance:
+    if profile and want_attendance and not (asked_rules and general_rule):
         lines.append(_attendance(email))
     if want_events:
         lines.append(_events(today, days, spans))
@@ -471,7 +580,7 @@ def build(email: str, session_name: str, question: str, today: date | None = Non
         covered.append("Timetable: ")
     timetable_semesters = tuple(dict.fromkeys([current, *(n for n, _ in asked_semesters)])) if profile else ()
     return Facts("\n".join(line for line in lines if line), tuple(covered), note_semesters, timetable_semesters,
-                 tuple(c["code"] for _, c in named))
+                 tuple(c["code"] for _, c in named), groups)
 
 
 def context_for(email: str, session_name: str, question: str, today: date | None = None,

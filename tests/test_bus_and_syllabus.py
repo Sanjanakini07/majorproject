@@ -8,7 +8,7 @@ from .conftest import login
 
 def test_bus_page_and_api_need_sign_in(client):
     assert client.get("/api/bus").status_code == 401
-    login(client, "nnm23is186@nmamit.in")
+    login(client, "nnm23is042@nmamit.in")
     data = client.get("/api/bus").json()
     assert [len(r["buses"]) for r in data["routes"]] == [88, 90, 18]
     assert client.get("/bus").status_code == 200
@@ -34,7 +34,7 @@ def test_bus_facts_pick_the_route_and_the_next_buses():
 
 
 def test_bus_questions_reach_the_assistant(client):
-    facts = personal.build("nnm23is186@nmamit.in", "", "next bus to mangalore after 5 pm")
+    facts = personal.build("nnm23is042@nmamit.in", "", "next bus to mangalore after 5 pm")
     assert "going to Mangalore" in facts.text and "Next buses at or after 5:00 PM" in facts.text
     assert "Events today" not in facts.text            # a bus question is not an events question
 
@@ -50,10 +50,10 @@ def test_courses_are_found_by_short_names():
 
 def test_syllabus_outline_and_named_course_facts(client):
     assert "Unit I" in syllabus.outline("IS3102-1") and "Turing Machines" in syllabus.outline("IS3102-1")
-    facts = personal.build("nnm23is186@nmamit.in", "", "what is in the operating systems syllabus?")
+    facts = personal.build("nnm23is042@nmamit.in", "", "what is in the operating systems syllabus?")
     assert facts.courses == ("IS3101-1",)
     assert "semester 5 core course" in facts.text and "Notes page under Semester 5" in facts.text
-    whole = personal.build("nnm23is186@nmamit.in", "", "what subjects do i have this sem")
+    whole = personal.build("nnm23is042@nmamit.in", "", "what subjects do i have this sem")
     assert whole.note_semesters == (6,) and "Automata Theory and Compiler Design" in whole.text
 
 

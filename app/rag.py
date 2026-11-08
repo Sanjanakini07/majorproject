@@ -16,10 +16,15 @@ from datetime import date
 from functools import lru_cache
 
 import chromadb
+from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_V2
 
-from . import config
+from . import config, syllabus
 
 log = logging.getLogger(__name__)
+
+# Keep the search model with the other models (not in ~/.cache), so the installed desktop app ships it
+# and can search with no internet from the first question.
+ONNXMiniLM_L6_V2.DOWNLOAD_PATH = config.MODELS_DIR / ONNXMiniLM_L6_V2.MODEL_NAME
 
 COLLECTION = "knowledge"
 CHUNK_SIZE = 800      # characters per chunk
@@ -35,6 +40,8 @@ Rules:
 - Keep it short: at most 4 sentences.
 - Plain spoken English. No markdown, bullet points, tables, emojis or URLs.
 - Never invent dates, fees, names or phone numbers.
+- Much of the context was typed by college staff and can be messy: shorthand, abbreviations, typos, copied messages, tables squashed into one line, dates like 15/12 or "mon 10am". Work out what it means, the way a sensible senior student would (FM = Financial Management, MSE = mid-semester exam, SEE = semester end exam, T&P = training and placement, "drive" = campus placement drive), and answer in clear sentences. Use only what it says; if it is truly unclear, say what the notice says and suggest confirming with the department.
+- Students speak their questions, so names and words may be misheard or misspelt (for example "Jayson sir" for Jason, "data base" for database). Match them to the closest name or subject in the context.
 - Some context comes from subject notes or events. Say which subject or event it is from, for example "From the Operating Systems notes". The screen shows a link, so don't read out any address.
 - Notes are kept on the Notes page of this app, sorted by semester and subject. When asked where to find notes, say they are on the Notes page under that semester and subject, say what they cover, and mention the link on screen.
 - The part of the context under "About the person asking" was worked out exactly by the college system for the person talking to you, and it is always correct. Use it for "my name", "my marks", "my CGPA", "my attendance", "how many classes can I miss", "today's date", "events on a date" and "my classes". Prefer it over anything else in the context.
@@ -136,26 +143,67 @@ class AnswerError(Exception):
     pass
 
 
-def answer(question: str, hits: list[dict], personal: str = "") -> str:
-    if not hits and not personal:
-        return "I don't have any information on that yet. Please check with the college office."
+def groq_complete(system: str, user: str, max_tokens: int = 2048) -> str:
     if not config.GROQ_API_KEY:
         raise AnswerError("GROQ_API_KEY is not set")
 
     from groq import Groq  # imported here so the app still starts without the key
 
-    context = build_context(hits, personal)
-    client = Groq(api_key=config.GROQ_API_KEY)
+    # Fail fast without internet so the offline app can switch to the local model quickly.
+    client = Groq(api_key=config.GROQ_API_KEY, timeout=30, max_retries=1)
     resp = client.chat.completions.create(
         model=config.GROQ_MODEL,
         temperature=0.2,
-        max_completion_tokens=1024,
-        messages=[
-            {"role": "system", "content": system_prompt(context)},
-            {"role": "user", "content": question},
-        ],
+        max_completion_tokens=max_tokens,
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
     )
     text = (resp.choices[0].message.content or "").strip()
     if not text:
         raise AnswerError("The model returned an empty answer")
     return text
+
+
+def answer(question: str, hits: list[dict], personal: str = "") -> str:
+    if not hits and not personal:
+        return "I don't have any information on that yet. Please check with the college office."
+    return groq_complete(system_prompt(build_context(hits, personal)), question)
+
+
+TIDY_PROMPT = """You clean up information that college staff typed or pasted into the NMAMIT campus assistant, so the assistant can answer students from it.
+
+The input can be messy: shorthand, abbreviations, typos, WhatsApp messages, broken tables, lists in any order, half sentences, mixed Kannada/Hindi/English words.
+
+Rewrite it as clean, complete information:
+- One fact per line, each line understandable on its own (repeat the subject, e.g. "The Infosys campus drive is on ...", not "It is on ...").
+- Keep EVERY detail: names, dates, days, times, venues, rooms, course codes, numbers, eligibility, links, phone numbers.
+- Expand abbreviations when they are clear (FM = Financial Management, MSE = mid-semester exam, SEE = semester end exam, HOD = head of department, CSE/ISE/ECE branches, T&P = training and placement). Keep the short form in brackets the first time.
+- Write dates in full, for example "Monday 15 December 2026". Today is {today}; use it to work out a missing year or a weekday.
+- Course names and codes in this college's IS syllabus, to expand short forms (e.g. EH&ND, OOMD, SDN, UID, OR, IDS, WSN): {courses}
+- Fix spelling, but never change a name, number or code you are unsure about.
+- Never add anything that is not in the input. If a part is unclear, keep it as written and add "(unclear in the original)".
+- Plain text only. No markdown, no bullets, no tables.
+
+The staff member said this is about: {category}.
+
+Reply in exactly this form:
+TITLE: <what exactly this is, at most 8 words, e.g. "MSE 2 timetable, 7th semester ISE" or "Dr. Ravi B, cabin and subjects"; never just the topic>
+<the cleaned information, one fact per line>"""
+
+
+@lru_cache(maxsize=1)
+def _course_names() -> str:
+    return "; ".join(f"{c['code']} {c['title']}" for _, c in syllabus.listed())
+
+
+def tidy(raw: str, category: str = "general information") -> dict:
+    """Messy staff input -> {"title", "content"} in clear sentences, nothing added. Groq only: in testing the small
+    local model looped or dropped facts, while it answers well from the raw text, so offline the admin saves it as is."""
+    prompt = TIDY_PROMPT.format(today=f"{date.today():%A %d %B %Y}", category=category, courses=_course_names())
+    out = groq_complete(prompt, raw.strip(), max_tokens=6000)
+    out = "\n".join(line.strip() for line in out.strip().splitlines())
+    first, _, rest = out.partition("\n")
+    if first.upper().startswith("TITLE:"):
+        title, content = first[6:].strip(" *#\"'"), rest.strip()
+    else:
+        title, content = "", out
+    return {"title": title[:200], "content": content or raw.strip()}

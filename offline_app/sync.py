@@ -25,6 +25,12 @@ from . import config
 log = logging.getLogger(__name__)
 
 FACE_BYTES = 128 * 4  # one face signature: 128 float32 numbers; a person has several
+# What app/seed.py writes at first start (the default knowledge entries, and the class roster with its sample marks)
+# is made the same way on every laptop, so it is never sent: each laptop would otherwise get a copy from every other.
+# Once a person edits such a row, updated_by is that person and it syncs like any other. Sample records made when a
+# student outside the roster enrols exist on that laptop only, so those do sync.
+DEFAULT_DATA = {"modules": {"sample data"}, "profiles": {"demo seed"}, "marks": {"demo seed"},
+                "attendance": {"demo seed"}, "sheet_rows": {"sample data"}}
 BLOBS = {"embedding"}
 
 LOCAL_SCHEMA = """
@@ -42,7 +48,8 @@ CREATE TABLE IF NOT EXISTS sync_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL);
 DELETE FROM outbox WHERE tbl = 'first_faces';
 """
 
-LOCAL_KEY = {"modules": "id", "faces": "email", "roles": "email", "profiles": "email", "marks": "id", "attendance": "id"}
+LOCAL_KEY = {"modules": "id", "faces": "email", "roles": "email", "profiles": "email", "marks": "id", "attendance": "id",
+             "sheet_rows": "uid"}
 REMOTE = {t: f"nva_{t}" for t in LOCAL_KEY}
 REMOTE_KEY = {**LOCAL_KEY, "modules": "uid"}
 COLUMNS = {
@@ -52,6 +59,7 @@ COLUMNS = {
     "profiles": ("name", "branch", "semester", "updated_by"),
     "marks": ("email", "semester", "code", "subject", "internal", "external", "updated_by"),
     "attendance": ("email", "semester", "code", "subject", "attended", "total", "updated_by"),
+    "sheet_rows": ("sheet", "position", "data", "updated_by"),
 }
 # The nva_ prefix keeps these apart from other projects' tables in the same Turso database.
 # synced_at is Turso's own clock, so a laptop that was offline for days still gets pulled from.
@@ -183,6 +191,8 @@ def _push_statement(conn, entry) -> tuple[str, list] | None:
     row = conn.execute(f"SELECT * FROM {tbl} WHERE {LOCAL_KEY[tbl]} = ?", (local_key,)).fetchone()
     if row is None:
         return None  # deleted since; that delete is further down the outbox
+    if row["updated_by"] in DEFAULT_DATA.get(tbl, ()):
+        return None  # every laptop makes these itself; sending them would copy them once per laptop
     values = [base64.b64encode(row[c]).decode() if isinstance(row[c], bytes) else row[c] for c in COLUMNS[tbl]]
     return _upsert_sql(tbl, False), [key, *values, row["updated_at"], 0]
 

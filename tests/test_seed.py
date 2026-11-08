@@ -88,7 +88,7 @@ def test_years_and_semesters_pick_the_right_notes(client, index, monkeypatch):
     assert [n for n, _ in personal.semesters_in("my last sem marks", 6)] == [5]
     assert [n for n, _ in personal.semesters_in("3rd sem notes", 6)] == [3]
 
-    facts = personal.build("nnm23is186@nmamit.in", "", "is on first year subjects. can i revise?")
+    facts = personal.build("nnm23is042@nmamit.in", "", "is on first year subjects. can i revise?")
     assert facts.note_semesters == (1, 2)
     wrong = [{"title": "Notes: Semester 8, Major Project, Quick revision points", "text": "x", "distance": 0.3, "module_id": -1}]
     hits = personal.adjust_hits(wrong, facts)
@@ -97,8 +97,8 @@ def test_years_and_semesters_pick_the_right_notes(client, index, monkeypatch):
 
 def test_placeholder_is_the_usn_until_google_gives_the_real_name(client):
     from app import academics
-    academics.ensure_student("nnm23is186@nmamit.in", "NNM23IS186", academics.SEEDED_BY)
-    assert db.get_profile("nnm23is186@nmamit.in")["name"] == "NNM23IS186"
-    academics.adopt_name("nnm23is186@nmamit.in", "NNM23IS186 SRUJAN M PADMASHALI")   # what Google sign-in does
-    assert db.get_profile("nnm23is186@nmamit.in")["name"] == "Srujan M Padmashali"
+    academics.ensure_student("nnm23is042@nmamit.in", "NNM23IS042", academics.SEEDED_BY)
+    assert db.get_profile("nnm23is042@nmamit.in")["name"] == "NNM23IS042"
+    academics.adopt_name("nnm23is042@nmamit.in", "NNM23IS042 ASHA K RAO")   # what Google sign-in does
+    assert db.get_profile("nnm23is042@nmamit.in")["name"] == "Asha K Rao"
     assert academics.clean_name("Admin Person", "admin@nmamit.in") == "Admin Person"

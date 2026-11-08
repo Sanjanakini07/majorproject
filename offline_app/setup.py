@@ -41,7 +41,10 @@ def main() -> int:
     print("Initializing offline database as source of truth...", flush=True)
     db.init()
     library.seed_subjects()
-    seed.run()
+    indexer = seed.run()
+    if indexer:  # this script exits next, which would cut indexing short and leave the search incomplete
+        print("  Making the default data searchable (a few minutes the first time)...", flush=True)
+        indexer.join()
     print("  ok", flush=True)
 
     exe = ollama()

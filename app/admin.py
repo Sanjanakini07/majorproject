@@ -12,7 +12,7 @@ import logging
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-from . import config, db, ingest, rag
+from . import config, db, ingest, library, rag
 from .auth import PERMISSIONS, admin_user, require, staff_user
 
 log = logging.getLogger(__name__)
@@ -20,11 +20,15 @@ router = APIRouter(prefix="/api/admin")
 
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
 MAX_CSV_BYTES = 2 * 1024 * 1024
+MAX_FILE_BYTES = library.MAX_PDF_BYTES
+MAX_CONTENT_CHARS = library.MAX_TEXT_CHARS
+MAX_TIDY_CHARS = 20000   # what the AI can rewrite in one go
+TEXT_FILES = (".csv", ".tsv", ".txt", ".md", ".json")
 
 
 class ModuleIn(BaseModel):
     title: str = Field(min_length=1, max_length=200)
-    content: str = Field(min_length=1, max_length=20000)
+    content: str = Field(min_length=1, max_length=MAX_CONTENT_CHARS)
     source: str = "manual"
 
 
@@ -92,13 +96,44 @@ async def import_csv(file: UploadFile = File(...), user: dict = Depends(require(
 
 @router.post("/extract-text", dependencies=[Depends(require("content"))])
 async def extract_text(file: UploadFile = File(...)):
-    """Read the text in an image. Nothing is saved: the admin checks it first."""
-    data = await read_upload(file, MAX_IMAGE_BYTES)
+    """The text in a PDF, image, CSV or text file, for the admin to check. Nothing is saved."""
+    name = (file.filename or "").lower()
+    kind = file.content_type or ""
+    data = await read_upload(file, MAX_FILE_BYTES)
+    if name.endswith(".pdf") or kind == "application/pdf":
+        text = library.pdf_text(data)
+        if not text:
+            raise HTTPException(400, "This PDF has no text in it (it is probably scanned pages). "
+                                     "Take a screenshot or photo of it and upload that instead.")
+    elif kind.startswith("image/"):
+        if len(data) > MAX_IMAGE_BYTES:
+            raise HTTPException(413, f"The image is too big. The limit is {MAX_IMAGE_BYTES // (1024 * 1024)} MB.")
+        try:
+            text = ingest.image_to_text(data)
+        except ingest.IngestError as e:
+            raise HTTPException(400, str(e))
+    elif name.endswith(TEXT_FILES) or kind.startswith("text/"):
+        text = data.decode("utf-8-sig", errors="replace")
+    else:
+        raise HTTPException(400, "Upload a PDF, a photo or screenshot, a CSV or a text file. "
+                                 "For Word or Excel, save it as PDF or CSV first.")
+    return {"text": text.strip()[:MAX_CONTENT_CHARS]}
+
+
+class TidyIn(BaseModel):
+    text: str = Field(min_length=1, max_length=MAX_TIDY_CHARS)
+    category: str = Field(default="general information", max_length=60)
+
+
+@router.post("/tidy", dependencies=[Depends(require("content"))])
+def tidy(body: TidyIn):
+    """Messy input -> a suggested title and clear sentences, for the admin to check. Nothing is saved."""
     try:
-        text = ingest.image_to_text(data)
-    except ingest.IngestError as e:
-        raise HTTPException(400, str(e))
-    return {"text": text}
+        return rag.tidy(body.text, body.category)
+    except Exception as e:
+        log.warning("Tidy-up failed: %s", e)
+        raise HTTPException(503, "Tidying needs internet, and it isn't reachable right now. You can save it as it is: "
+                                 "the assistant understands messy text too. Tidy it later when online for the best answers.")
 
 
 @router.post("/reindex", dependencies=[Depends(require("content"))])

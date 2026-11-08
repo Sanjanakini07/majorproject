@@ -30,44 +30,67 @@
       <p id="readonly" class="alert info" hidden>You can read the knowledge entries. An admin can switch on editing for you.</p>
       <div id="editor">
         <div class="card">
-          <h2 id="formTitle">Add knowledge</h2>
+          <h2 id="formTitle">Add information</h2>
+          <p class="muted small">Type or paste it any way you like: notes, a WhatsApp message, a copied table. The assistant works out what it means.</p>
           <form id="moduleForm">
-            <label>Title
-              <input id="mTitle" required maxlength="200" placeholder="e.g. Library timings">
-            </label>
-            <label>Content
-              <textarea id="mContent" rows="7" required maxlength="20000"
-                placeholder="Write the information in plain sentences."></textarea>
-            </label>
-            <div class="row">
-              <button class="btn primary" id="mSave">Save</button>
-              <button type="button" class="btn" id="mCancel" hidden>Cancel edit</button>
+            <p class="section-label">1 · What is it about?</p>
+            <div id="kinds" class="pills kinds" role="radiogroup" aria-label="What is it about"></div>
+            <p id="eventNote" class="alert info" hidden>
+              Events go on the <a href="/events">Events page</a>, so they show in the calendar and the assistant knows their exact dates.
+            </p>
+
+            <div id="entryFields">
+              <p class="section-label">2 · Paste, type or drop a file</p>
+              <label class="sr-only" for="mContent">Information</label>
+              <textarea id="mContent" rows="9" required maxlength="100000"></textarea>
+              <label class="drop" id="drop">
+                <span class="icon" id="dropIcon"></span>
+                <span id="dropText">Drop a PDF, photo, screenshot, CSV or text file here, or click to choose</span>
+                <small>Its text is added to the box above so you can check it</small>
+                <input type="file" id="anyFile" accept=".pdf,.csv,.tsv,.txt,.md,.json,image/*">
+              </label>
+
+              <p class="section-label">3 · Check and save</p>
+              <label>Title <span class="muted small">(optional: made from the text if you leave it empty)</span>
+                <input id="mTitle" maxlength="180" placeholder="e.g. Infosys campus drive">
+              </label>
+              <p id="tidyNote" class="alert info" hidden>
+                Tidied by the AI. Check it, change anything, then save.
+                <button type="button" class="btn small" id="undoTidy">Undo tidy-up</button>
+              </p>
+              <div class="row">
+                <button type="button" class="btn" id="tidy">Tidy up with AI</button>
+                <button class="btn primary" id="mSave">Save</button>
+                <button type="button" class="btn" id="mCancel" hidden>Cancel</button>
+              </div>
             </div>
           </form>
+          <!-- Teachers, placements, college buses: a spreadsheet (app/static/js/sheet.js), outside the form so Enter
+               in a cell moves down instead of submitting it -->
+          <div id="sheetBox" hidden></div>
         </div>
 
-        <div class="card">
-          <h2>Upload</h2>
-          <div class="row">
+        <details class="card">
+          <summary><strong>More: import many entries, rebuild search</strong></summary>
+          <div class="row" style="margin-top:12px">
             <button type="button" class="btn" id="csvButton">Import CSV</button>
-            <button type="button" class="btn" id="imgButton">Read text from image</button>
             <button type="button" class="btn" id="reindex">Rebuild search index</button>
             <input type="file" id="csvFile" accept=".csv,text/csv" hidden>
-            <input type="file" id="imgFile" accept="image/*" hidden>
           </div>
           <p class="muted small">
             <strong>CSV:</strong> columns <code>title,content</code> give one entry per row. Any other CSV
             (a timetable, a staff list) also works: each row becomes one entry.<br>
-            <strong>Image:</strong> the text in the picture is copied into the form above so you can check it before saving.
+            <strong>Rebuild:</strong> only needed if answers seem to miss entries that are listed below.
           </p>
-        </div>
+        </details>
       </div>
 
       <div class="card">
         <div class="row between">
           <h2>Entries (<span id="count">0</span>)</h2>
-          <input id="filter" type="search" placeholder="Filter" aria-label="Filter entries">
+          <input id="filter" type="search" placeholder="Search entries" aria-label="Search entries">
         </div>
+        <div id="groups" class="chips" style="justify-content:flex-start" aria-label="Show a group"></div>
         <ul id="modules" class="list"></ul>
       </div>
     </section>
@@ -126,6 +149,7 @@
   </main>
 
   <script src="/static/js/common.js"></script>
+  <script src="/static/js/sheet.js"></script>
   <script src="/static/js/admin.js"></script>
 </body>
 </html>

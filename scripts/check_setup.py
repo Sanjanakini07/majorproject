@@ -22,7 +22,7 @@ REQUIRED = {
     "FIREBASE_API_KEY": "Firebase console > Project settings > General > Your apps > apiKey (see README)",
     "FIREBASE_PROJECT_ID": "the same place, projectId",
     "GROQ_API_KEY": "https://console.groq.com/keys",
-    "ADMIN_EMAILS": "your college email, for example nnm23is186@nmamit.in",
+    "ADMIN_EMAILS": "your college email, for example nnm23is042@nmamit.in",
 }
 # The offline app (start_offline.bat) signs in with faces and answers with a local model.
 REQUIRED_OFFLINE = {"ADMIN_EMAILS": REQUIRED["ADMIN_EMAILS"]}

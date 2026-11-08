@@ -1,7 +1,7 @@
 """Record a captioned walkthrough video of the whole app, for clients and reviews.
 
     python scripts/record_demo.py
-    python scripts/record_demo.py --email nnm23is186@nmamit.in --name "Srujan"
+    python scripts/record_demo.py --email nnm23is042@nmamit.in --name "Asha"
 
 Needs (once):  pip install playwright imageio-ffmpeg && python -m playwright install chromium
 

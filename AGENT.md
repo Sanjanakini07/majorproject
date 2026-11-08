@@ -11,7 +11,8 @@ Marks / Attendance behind the arrow (▾) at the end of the nav bar (the client 
 An offline version (`offline_app/`) runs on one laptop with local models and syncs with Turso.
 
 Run: `start.bat` (online, port 8000, **no auto-reload**: restart it after code changes) or `start_offline.bat`.
-Tests: `.venv\Scripts\python -m pytest -q` (85 pass, 1 skipped).
+Tests: `.venv\Scripts\python -m pytest -q` (108 pass, 1 skipped). Installer: `create_installer.bat` makes
+`dist\NMAMIT_Assistant_Setup.exe` (`build_setup.py`: fresh seeded data, models, the `GROQ_*`/admin lines of `.env`).
 
 ## How an answer is made (`/api/ask` in `app/main.py`, same in `offline_app/main.py`)
 
@@ -20,8 +21,28 @@ Tests: `.venv\Scripts\python -m pytest -q` (85 pass, 1 skipped).
 2. `rag.search(question)` finds knowledge entries (ChromaDB, cosine, `MAX_DISTANCE` 0.7).
 3. `personal.adjust_hits(hits, facts)` drops hits the facts replace (events, timetables), drops notes/timetables of
    the wrong semester, and puts the syllabus of a course the question names at the top.
-4. `rag.answer(question, hits, facts.text)` (or `offline_app/llm.answer`) sends both to the model. The system prompt
-   in `rag.py` says the "About the person asking" block is exact and wins over everything else.
+   It also adds the newest entries of the admin group the question is about (`Facts.groups`: `Exam: `,
+   `Placement: `, `Teacher: `, `Bus: ` title prefixes), because shorthand notices ("27/11 EH&ND 10am") are missed by
+   search.
+4. `rag.answer(question, hits, facts.text)` (website: Groq) or `offline_app/llm.answer` (desktop: Groq when online,
+   else Ollama, else the facts read out) sends both to the model. The system prompt in `rag.py` says the "About the
+   person asking" block is exact and wins over everything else, and that staff notes can be messy shorthand.
+
+Admin lists (`app/sheets.py`, table `sheet_rows`, one JSON row each with a text `uid`): teachers, placements,
+college buses. `sheets.facts()` adds exact lines to `personal.build` (teachers matched by name with difflib, so
+"jayson" finds Jason, or by subject; placements; college buses), and `sheets.all_events()` merges placement drives
+into `/api/events` and the event facts. Default rows get uids `seed-<sheet>-<n>`, the same on every laptop, so an
+edit syncs to the same row everywhere; default rows themselves are never sent (`sync.DEFAULT_DATA`). Seed files
+are made from `scraped_data/` (CabinCompass + department page + EMS); regenerate them if those are scraped again.
+
+`personal.fix_spelling` corrects misspelt keywords ("electiv", "attendence") against `personal.VOCAB` before any of
+this, so a typo or mishearing doesn't hide the exact facts. Rule questions the models got wrong ("minimum attendance
+for the SEE", "how is CIE split", "grade for 85 percent") get one exact "Asked about ..." line, and the long rules
+list and the `Regulations: ` search hits are then left out: the internship appendix's 50:25:25 split kept winning.
+
+Check real answers with `scripts/test_llm.py [online|offline]` on a copy of `data/` (`DATA_DIR`). It prints who wrote
+each answer (groq / local / facts). Groq's free key allows 8,000 tokens a minute, so the online run waits 10 s between
+questions; without that the limiter, not Groq, is what gets tested.
 
 **Rule that came out of user testing: never trust text search for dates, numbers, "my", or short course names.**
 Every wrong answer the client reported (an event on "October 30th" missed, "first year subjects" returning
@@ -48,8 +69,8 @@ answer. The key is in `.env` (`GROQ_API_KEY`, model `openai/gpt-oss-120b`). Poin
 | Students NNM23IS000-300, sample marks / attendance, events, timetables, campus info | Made up on first start | `app/seed.py`, `app/academics.py` |
 
 Client instructions to keep: **"strictly follow the PDF"** for syllabus and notes; seed students **named by their
-USN** until they sign in, then use the real Google name; the Google name looks like `NNM23IS186 SRUJAN M PADMASHALI`
-(the first word is the USN) and is shown as "Srujan M Padmashali" (`academics.clean_name`).
+USN** until they sign in, then use the real Google name; the Google name looks like `NNM23IS042 ASHA K RAO`
+(the first word is the USN) and is shown as "Asha K Rao" (`academics.clean_name`).
 
 Syllabus facts used by the app (`syllabus.py`): attendance 85% per course, condonable to 75%, below 75% no SEE
 (N grade); CIE 50 (two mid-sems 40 + quizzes 10) + SEE 50; pass 40% of total; grades O ≥90 (10), A+ 80 (9), A 70 (8),
@@ -101,7 +122,22 @@ the permission. Bus, notes, events: any verified (face-checked) user.
 - Windows console is cp1252: run scripts that print answers with `PYTHONIOENCODING=utf-8`.
 - Notion pages are rendered by JavaScript; WebFetch returns nothing. Use the `api/v3` endpoints.
 - Small offline model (Ollama `qwen2.5:1.5b`) has a short context: keep fact blocks compact (bus lists are cut to a
-  window around the asked time; semester questions get unit outlines, not full syllabi).
+  window around the asked time; semester questions get unit outlines, not full syllabi). Ollama's default window is
+  2048 tokens and cuts the *start* of the prompt (the rules), so `llm._local` sets `num_ctx` 8192.
+- **The small model can't tidy text.** Asked to rewrite a messy note it looped for 52 s and dropped facts, yet it
+  answers from the raw note well. So "Tidy up with AI" (`rag.tidy`) is Groq only.
+- **`gpt-oss-120b` can return an empty answer** when its hidden reasoning uses the whole token budget; answers get
+  2048 tokens. An empty or failed Groq answer makes the desktop app use the local model for 60 s.
+- **Desktop exe traps** (`desktop_client.py`): PyInstaller 6 puts data in `_internal` (`sys._MEIPASS`), not next to the
+  exe; a windowed exe has `sys.stdout = None`, which crashes uvicorn's logger (it logs to `data/app.log` instead); and
+  `msedge --app` hands the window to an already open Edge and returns at once, which quit the app, so the window gets
+  its own `--user-data-dir`.
+- ChromaDB downloads its search model to `~/.cache` on first use; `rag.py` points it at `MODELS_DIR` so the
+  installer ships it and an offline PC can search from the first question.
+- `offline_app.setup` used to exit while the default data was still being indexed in a background thread, leaving
+  search incomplete for good (the seed markers were already set). `seed.run()` returns the thread; setup joins it.
+- Playwright against these pages: the CSP forbids `eval`, so string predicates in `wait_for_function` fail; use a
+  context with `bypass_csp=True` in test scripts.
 
 ## Open items
 

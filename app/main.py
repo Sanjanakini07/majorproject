@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import academics, admin, bus, config, db, facelogin, library, personal, portal, rag, seed
+from . import academics, admin, bus, config, db, facelogin, library, personal, portal, rag, seed, sheets
 from .auth import (
     ask_limit,
     is_allowed_google_user,
@@ -59,6 +59,7 @@ app.include_router(admin.router)
 app.include_router(portal.router)
 app.include_router(library.router)
 app.include_router(bus.router)
+app.include_router(sheets.router)
 
 
 # Google sign-in runs Firebase's script from gstatic.com, which talks to Google's
@@ -228,7 +229,11 @@ def ask(body: AskIn, user: dict = Depends(verified_user)):
             links = library.links_for([h.get("module_id") for h in hits])
             yield _line({"stage": "thinking", "sources": sources})
             answer = rag.answer(question, hits, facts.text)
-        except Exception:
+        except Exception as e:
+            if type(e).__name__ == "RateLimitError":  # Groq's per-minute limit, common on the free plan
+                log.warning("Groq rate limit reached")
+                yield _line({"stage": "error", "message": "Lots of questions right now. Please ask again in a few seconds."})
+                return
             log.exception("Answering failed")
             yield _line({"stage": "error", "message": "Sorry, something went wrong while answering. Please try again."})
             return

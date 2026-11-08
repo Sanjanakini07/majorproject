@@ -22,7 +22,7 @@ Status on 2026-10-19. Delete this file once everything below is ticked.
 
    The download here kept failing because the connection reset partway.
 2. **Double-click `start_offline.bat`.** It downloads the AI model `qwen2.5:1.5b` (about 1 GB) and skips everything already downloaded. Then it opens http://localhost:8100.
-3. **Check a real offline answer.** Turn Wi-Fi off, sign in with your face (roll number NNM23IS186; the first time you enrol six photos) and ask a question. Note how many seconds the answer takes. If it's too slow, set `OLLAMA_MODEL=qwen2.5:0.5b` in `.env`. If the answers are weak, try `qwen2.5:3b`. After changing it, run `ollama pull <name>`.
+3. **Check a real offline answer.** Turn Wi-Fi off, sign in with your face (roll number NNM23IS042; the first time you enrol six photos) and ask a question. Note how many seconds the answer takes. If it's too slow, set `OLLAMA_MODEL=qwen2.5:0.5b` in `.env`. If the answers are weak, try `qwen2.5:3b`. After changing it, run `ollama pull <name>`.
 4. **Test a phone.** Put the phone on the same Wi-Fi or hotspot. On the laptop, click **Connect a phone**, scan the QR code and tap **Advanced → Proceed**. Then check the camera sign-in and the microphone. If Windows asks about the firewall, allow Python on private networks.
 5. **Rotate the Turso token.** It was pasted into a chat. In the Turso dashboard, create a new token and put it in `.env` as `TURSO_AUTH_TOKEN`.
 
